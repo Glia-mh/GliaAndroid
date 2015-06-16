@@ -193,6 +193,7 @@ public class ConversationListActivity extends ActionBarActivity {
             intent.setData(conversations.get(position).getId());
             intent.putExtra("mUserId", mUserId);
             startActivity(intent);
+            getActivity().finish();
         }
 
         @Override
@@ -214,7 +215,7 @@ public class ConversationListActivity extends ActionBarActivity {
 
                     final Dialog dialog = new Dialog(getActivity());
                     dialog.setContentView(R.layout.conversation_options);
-                    dialog.setTitle("Patient Options");
+                    dialog.setTitle("Conversation Options");
                     dialog.show();
                     dialog.findViewById(R.id.conversationdeleter).setOnClickListener(new View.OnClickListener() {
 
