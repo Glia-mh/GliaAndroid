@@ -23,11 +23,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -36,6 +40,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -96,41 +101,59 @@ public class ConversationListActivity extends ActionBarActivity {
                         //make list of participants
                         EditText addEditText = (EditText) addDialog.findViewById(R.id.addedittext);
                         String addString = addEditText.getText().toString();
+                        addEditText.setText("");
                         addString = addString.trim();
-                        addString = addString.replace(",", "");
-                        List<String> participants = new ArrayList<String>();
-                        int x = 0;
-                        while (x < addString.length()) {
-                            participants.add(addString.substring(x, x + 6));
-                            x = x + 6;
+                        final String[] ids = addString.split(",");
+                        for (String id :ids) id = id.replaceAll(" ", "");
+                        final List<String> participants = new ArrayList<String>();
+                        for (final String id: ids) {
+                            HashMap<String, String> params = new HashMap<String, String>();
+                            params.put("userID", id);
+                            ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                                public void done(String response, ParseException e) {
+                                    if (e == null) {
+                                        if (response.equals("valid")) participants.add(id);
+                                        else if (response.equals("invalid")) {
+                                            Toast.makeText(MainActivity.context, "ID " + id + " is invalid.", Toast.LENGTH_SHORT).show();
+                                        }
+                                        if (java.util.Arrays.asList(ids).indexOf(id) == ids.length - 1 && participants.size() > 0)
+                                            makeConversation();
+                                    }
+                                }
+
+                                private void makeConversation() {
+                                    participants.add(getIntent().getStringExtra("mUserId"));
+
+                                    //Create new conversation
+                                    Conversation newConversation = Conversation.newInstance(participants);
+                                    Log.d("newConversationCheck", "newConversationCheck" + newConversation.getParticipants());
+                                    MessagePart messagePart = MessagePart.newInstance("text/plain", "Created a new Conversation".getBytes());
+                                    Message message = Message.newInstance(newConversation, Arrays.asList(messagePart));
+
+                                    layerClient.sendMessage(message);
+                                    while (!message.isSent()) {
+                                        Log.d("Check", "Check if message is sent" + message.isSent());
+                                    }
+
+                                    addDialog.dismiss();
+
+                                    //Enter new Conversation
+                                    Log.d("We finally sent it", "We finally sent it " + message.isSent() + " Participants:" + message.getConversation().getParticipants());
+
+                                    Log.d("trying to enter", "trying to enter");
+                                    Intent intent = new Intent(getApplicationContext(), ViewMessagesActivity.class);
+                                    intent.setData(newConversation.getId());
+                                    intent.putExtra("mUserId", getIntent().getStringExtra("mUserId"));
+                                    finish();
+                                    startActivity(getIntent());
+                                }
+                            });
+
                         }
-                        participants.add(getIntent().getStringExtra("mUserId"));
 
-
-                        //Create new conversation
-                        Conversation newConversation = Conversation.newInstance(participants);
-                        Log.d("newConversationCheck", "newConversationCheck" + newConversation.getParticipants());
-                        MessagePart messagePart = MessagePart.newInstance("text/plain", "Created a new Conversation".getBytes());
-                        Message message = Message.newInstance(newConversation, Arrays.asList(messagePart));
-
-                        layerClient.sendMessage(message);
-                        while(!message.isSent()) {
-                            Log.d("Check", "Check if message is sent" + message.isSent());
-                        }
-
-                        addDialog.dismiss();
-
-                        //Enter new Conversation
-                        Log.d("We finally sent it","We finally sent it "+message.isSent()+" Participants:"+ message.getConversation().getParticipants());
-
-                        Log.d("trying to enter", "trying to enter");
-                        Intent intent = new Intent(getApplicationContext(), ViewMessagesActivity.class);
-                        intent.setData(newConversation.getId());
-                        intent.putExtra("mUserId", getIntent().getStringExtra("mUserId"));
-                        finish();
-                        startActivity(getIntent());
                     }
                 });
+
                 return true;
             case R.id.action_settings:
                 return true;
@@ -193,7 +216,6 @@ public class ConversationListActivity extends ActionBarActivity {
             intent.setData(conversations.get(position).getId());
             intent.putExtra("mUserId", mUserId);
             startActivity(intent);
-            getActivity().finish();
         }
 
         @Override
@@ -215,7 +237,7 @@ public class ConversationListActivity extends ActionBarActivity {
 
                     final Dialog dialog = new Dialog(getActivity());
                     dialog.setContentView(R.layout.conversation_options);
-                    dialog.setTitle("Conversation Options");
+                    dialog.setTitle("Patient Options");
                     dialog.show();
                     dialog.findViewById(R.id.conversationdeleter).setOnClickListener(new View.OnClickListener() {
 

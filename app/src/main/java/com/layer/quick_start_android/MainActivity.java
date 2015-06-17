@@ -12,18 +12,30 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.parse.FunctionCallback;
+import com.parse.Parse;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+
+import java.util.HashMap;
 
 
 public class MainActivity extends ActionBarActivity {
 
     //other variables
-    Context context = this;
+    static Context context;
     String loginString;
     LoginController loginController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
+        // Enable Local Datastore.
+        //Parse.enableLocalDatastore(this);
+        Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
         // Create a LayerClient object no UserId included
         getSupportActionBar().hide();
         loginController = new LoginController();
@@ -39,17 +51,26 @@ public class MainActivity extends ActionBarActivity {
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
                 EditText loginEditText = (EditText) findViewById(R.id.loginedittext);
-                InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                mgr.hideSoftInputFromWindow(loginEditText.getWindowToken(), 0);
-                setContentView(R.layout.loading_screen);
-                TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
-                loggingoutintext.setText("Loading...");
-
                 loginString = loginEditText.getText().toString().trim();
+                loginEditText.setText("");
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("userID", loginString);
+                ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                    @Override
+                    public void done(String s, ParseException e) {
+                        if (s.equals("valid")) {
+                            setContentView(R.layout.loading_screen);
+                            loginController.login(loginString);
+                            setContentView(R.layout.loading_screen);
+                            loginController.login(loginString);
+                        } else {
+                            Toast.makeText(context, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                        }
 
-                loginController.login(loginString);
+                    }
+                });
+
             }
         });
 
