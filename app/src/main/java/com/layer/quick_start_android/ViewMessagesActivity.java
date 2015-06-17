@@ -1,10 +1,12 @@
 package com.layer.quick_start_android;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -33,6 +35,7 @@ public class ViewMessagesActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         loginController = new LoginController();
         layerClient = loginController.getLayerClient();
 
@@ -50,6 +53,21 @@ public class ViewMessagesActivity extends ActionBarActivity {
 
 
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                Intent intent=new Intent(this, ConversationListActivity.class);
+                intent.putExtra("mUserId",layerClient.getAuthenticatedUserId().toString());
+                startActivity(intent);
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     public static class ViewMessagesFragment extends ListFragment {
         private String mUserId;
@@ -208,15 +226,19 @@ public class ViewMessagesActivity extends ActionBarActivity {
 
                 Message message = getItem(position);
                 String messageText = getMessageText(message);
-                Log.d("UserId", "UserId" + message.getSentByUserId()+"hi"+getMessageText(message));
+                Log.d("User ID Sent", "UserID of Sent Message: " + message.getSentByUserId());
+                Log.d("User ID from Intent", "User ID from Intent: " + mUserId);
+                Log.d("Message Sent", "Message Text: "+ getMessageText(message));
+                Log.d("Instructions", "UserID of Sent Message should equal UserID from Intent");
+
                 if (message.getSentByUserId().equals(mUserId)) {
                     //if (convertView == null) {
-                        Log.d("Converting View", "Creating Yellow Row");
+                        Log.d("Converting View", "Creating Green Row");
                         convertView = getActivity().getLayoutInflater().inflate(R.layout.my_sms_row, null);
                     //}
                 } else {
                    // if (convertView == null) {
-                        Log.d("Converting View","Creating Green Row");
+                        Log.d("Converting View","Creating Yellow Row");
                         convertView = getActivity().getLayoutInflater().inflate(R.layout.other_sms_row, null);
                     //}
                 }
