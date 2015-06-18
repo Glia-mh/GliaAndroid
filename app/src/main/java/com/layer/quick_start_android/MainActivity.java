@@ -36,8 +36,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
-        // Enable Local Datastore.
-        //Parse.enableLocalDatastore(this);
         Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
         // Create a LayerClient object no UserId included
         getSupportActionBar().hide();
@@ -63,8 +61,6 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void done(String s, ParseException e) {
                         if (s.equals("valid")) {
-                            setContentView(R.layout.loading_screen);
-                            loginController.login(loginString);
                             setContentView(R.layout.loading_screen);
                             loginController.login(loginString);
                         } else {
