@@ -14,8 +14,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.changes.LayerChange;
+import com.layer.sdk.changes.LayerChangeEvent;
+import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
@@ -27,7 +31,7 @@ import java.util.List;
 /**
  * Created by adityaaggarwal on 2/16/15.
  */
-public class ViewMessagesActivity extends ActionBarActivity {
+public class ViewMessagesActivity extends ActionBarActivity implements LayerChangeEventListener {
 
     static LayerClient layerClient;
     LoginController loginController;
@@ -38,7 +42,7 @@ public class ViewMessagesActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         loginController = new LoginController();
         layerClient = loginController.getLayerClient();
-
+        layerClient.registerEventListener(this);
         //layer client is null
         //Get Conversations with participants only includes conversations with that one participant; no more
 
@@ -68,6 +72,17 @@ public class ViewMessagesActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void onEventMainThread(LayerChangeEvent event) {
+        List<LayerChange> changes = event.getChanges();
+        Toast.makeText(MainActivity.context, "Event changed.", Toast.LENGTH_SHORT);
+        //for (LayerChange change: changes) {
+        //    if (change.ge)
+        //}
+    }
+
+    public void onAsync(LayerChangeEvent event){
+        Toast.makeText(MainActivity.context, "Event changed.", Toast.LENGTH_SHORT);
+    }
 
     public static class ViewMessagesFragment extends ListFragment {
         private String mUserId;
