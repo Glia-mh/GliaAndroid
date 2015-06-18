@@ -8,18 +8,21 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.sdk.LayerClient;
+import com.layer.sdk.exceptions.LayerException;
+import com.layer.sdk.listeners.LayerSyncListener;
 import com.parse.FunctionCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 
 import java.util.HashMap;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -132,21 +135,45 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }*/
 
-        new Thread(new Runnable() {
+        class MySyncListener implements LayerSyncListener {
+            //Called before syncing with the Layer servers
+            public void onBeforeSync(LayerClient layerClient) {
+                System.out.println("Sync starting");
+                //Draw a UI element such as a spinning icon in a non-obtrusive section of your app
+            }
 
-            @Override
-            public void run() {
-
-                try {
-                    Thread.sleep(6000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            //Called after syncing with the Layer servers
+            public void onAfterSync(LayerClient layerClient) {
+                //Hide the UI element
                 Intent intent = new Intent(context, ConversationListActivity.class);
                 intent.putExtra("mUserId", loginString);
                 Log.d("Conversations","Conversations in Main Activity:"+loginController.getLayerClient().getConversations());
                 finish();
                 startActivity(intent);
+            }
+
+            //Captures any errors with syncing
+            public void onSyncError(LayerClient layerClient, List<LayerException> layerExceptions) {
+
+            }
+        }
+        final MySyncListener syncListener=new MySyncListener();
+        loginController.getLayerClient().registerSyncListener(syncListener);
+
+        //to unregister sync listener after sync is complete
+        //as switching to conversation list activity action is only required once
+       new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("Waiting for cold sync complete","Waiting for cold sync complete");
+                loginController.getLayerClient().unregisterSyncListener(syncListener);
             }
         }).start();
 
