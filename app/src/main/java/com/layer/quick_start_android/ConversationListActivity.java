@@ -59,7 +59,6 @@ public class ConversationListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         loginController = new LoginController();
         loginController.authenticationListener.assignConversationListActivity(this);
         layerClient = loginController.getLayerClient();
