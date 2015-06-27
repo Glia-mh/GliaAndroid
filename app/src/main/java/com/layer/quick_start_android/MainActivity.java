@@ -25,8 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 
 
+<<<<<<< HEAD
 public class MainActivity extends ActionBarActivity implements LayerSyncListener{
 
+=======
+public class MainActivity extends ActionBarActivity {
+    //hi
+>>>>>>> master
     //other variables
     static Context context;
     String loginString;
