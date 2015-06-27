@@ -14,12 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
-import com.layer.sdk.changes.LayerChange;
-import com.layer.sdk.changes.LayerChangeEvent;
-import com.layer.sdk.listeners.LayerChangeEventListener;
+import com.layer.sdk.exceptions.LayerException;
+import com.layer.sdk.listeners.LayerSyncListener;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
@@ -31,18 +29,20 @@ import java.util.List;
 /**
  * Created by adityaaggarwal on 2/16/15.
  */
-public class ViewMessagesActivity extends ActionBarActivity implements LayerChangeEventListener {
+public class ViewMessagesActivity extends ActionBarActivity implements LayerSyncListener {
 
     static LayerClient layerClient;
     LoginController loginController;
-
+    static boolean isSender=false;
+    //public static int x=0;
+    //Context context=this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         loginController = new LoginController();
         layerClient = loginController.getLayerClient();
-        layerClient.registerEventListener(this);
+
         //layer client is null
         //Get Conversations with participants only includes conversations with that one participant; no more
 
@@ -52,7 +52,7 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, ViewMessagesFragment.newInstance(getIntent().getStringExtra("mUserId"), layerClient)).commit();
+                    .add(R.id.container, ViewMessagesFragment.newInstance(getIntent().getStringExtra("mUserId"), layerClient),"ViewMessagesFragment").commit();
         }
 
 
@@ -63,6 +63,7 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
+                layerClient.unregisterSyncListener(this);
                 Intent intent=new Intent(this, ConversationListActivity.class);
                 intent.putExtra("mUserId",layerClient.getAuthenticatedUserId().toString());
                 startActivity(intent);
@@ -72,17 +73,75 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
         return super.onOptionsItemSelected(item);
     }
 
-    public void onEventMainThread(LayerChangeEvent event) {
-        List<LayerChange> changes = event.getChanges();
-        Toast.makeText(MainActivity.context, "Event changed.", Toast.LENGTH_SHORT);
-        //for (LayerChange change: changes) {
-        //    if (change.ge)
-        //}
-    }
 
-    public void onAsync(LayerChangeEvent event){
-        Toast.makeText(MainActivity.context, "Event changed.", Toast.LENGTH_SHORT);
-    }
+        public void onBeforeSync(LayerClient client) {
+            // LayerClient is starting synchronization
+        }
+
+        public void onAfterSync(LayerClient client) {
+            // LayerClient has finshed synchronization
+            Log.d("Message syncing complete", "Message Syncing Complete");
+            ViewMessagesFragment frag = (ViewMessagesFragment) getSupportFragmentManager().findFragmentByTag("ViewMessagesFragment");
+            if(frag!=null) {
+                frag.refreshList();
+            }
+            // frag.scrollToBottom();
+        }
+
+        public void onSyncError(LayerClient layerClient, List<LayerException> layerExceptions) {
+
+        }
+
+
+    //Why 4 event changes?
+    /*public void onEventMainThread(LayerChangeEvent event) {
+
+        List<LayerChange> changes = event.getChanges();
+
+        if (changes.size() > 0) {
+            Log.d("on Event Async has run", "on Event Async has run");
+
+
+            //ViewMessagesFragment frag = (ViewMessagesFragment) getSupportFragmentManager().findFragmentByTag("ViewMessagesFragment");
+
+
+            for (LayerChange change : changes) {
+                switch (change.getObjectType()) {
+                    case CONVERSATION:
+                        // Object is a conversation
+                        Log.d("Conversation Changed", "Conversation Changed");
+                        break;
+
+                    case MESSAGE:
+                        // Object is a message
+
+
+                    switch (change.getChangeType()) {
+                        case UPDATE:
+                            if(change.getAttributeName()=="isSent") {
+                                if(!isSender) {
+                                    Log.d("Message Updated", "Message Updated" + change.toString());
+                                   *//* ViewMessagesFragment frag = (ViewMessagesFragment) getSupportFragmentManager().findFragmentByTag("ViewMessagesFragment");
+                                    frag.refreshList();
+                                    frag.scrollToBottom();
+                                    Toast.makeText(this, "Event changed.", Toast.LENGTH_SHORT).show();*//*
+                                } else
+                                {
+                                    isSender=false;
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+        }*/
+
+
+
+
+
+
+
 
     public static class ViewMessagesFragment extends ListFragment {
         private String mUserId;
@@ -93,6 +152,18 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
         public ViewMessagesFragment() {
         }
 
+        public void refreshList(){
+            if(!(adapter.getItem(adapter.getCount()-1).equals(layerClient.getConversation(localConversationId).getLastMessage()))) {
+                messages=layerClient.getMessages(layerClient.getConversation(localConversationId));
+                for(int newMessageCounter=adapter.getCount()-1; newMessageCounter<messages.size(); newMessageCounter++){
+                    adapter.add(messages.get(newMessageCounter));
+                }
+                adapter.notifyDataSetChanged();
+                ListView listView = getListView();
+                listView.smoothScrollToPosition(getListAdapter().getCount() - 1);
+
+            }
+        }
         public static ViewMessagesFragment newInstance(String mUserId, LayerClient layerClient) {
             ViewMessagesFragment f = new ViewMessagesFragment();
 
@@ -141,10 +212,16 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
                     // Select the last row so it will scroll into view...
                     getListView().setSelection(getListAdapter().getCount() - 1);
                 }
-            }, 300L);
+            }, 600L);
+        }
+        public void scrollToBottom(){
+            //scroll to bottom
+            ListView listView=getListView();
+            listView.setSelection(getListAdapter().getCount()-2);
+            listView.smoothScrollToPosition(getListAdapter().getCount()-1);
         }
         @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
+        public void onStart(){
 
             Bundle args = getArguments();
             mUserId = args.getString("mUserId");
@@ -173,6 +250,7 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
             Button sendTextButton = (Button) getActivity().findViewById(R.id.sendtextbutton);
             sendTextButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                  //  x=2;
                     //getListView().setStackFromBottom(false);
                     //Retrieve Message from Edit Text
                     EditText messageEditText = (EditText) getActivity().findViewById(R.id.messageedittext);
@@ -182,9 +260,9 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
                     messageEditText.setText("");
 
                     //Send Message
-                    MessagePart messagePart = MessagePart.newInstance("text/plain", messageString.getBytes());
-                    Message message = Message.newInstance(layerClient.getConversation(localConversationId), Arrays.asList(messagePart));
-                    layerClient.sendMessage(message);
+                    MessagePart messagePart =layerClient.newMessagePart("text/plain", messageString.getBytes());
+                    Message message = layerClient.newMessage(Arrays.asList(messagePart));
+                    layerClient.getConversation(localConversationId).send(message);
 
                     try {
                         Thread.sleep(100);
@@ -195,9 +273,9 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
                     //automatic refresh
                     adapter.add(message);
                     adapter.notifyDataSetChanged();
+                    isSender=true;
 
                     //scroll to bottom
-
                     ListView listView=getListView();
                     listView.smoothScrollToPosition(getListAdapter().getCount()-1);
 
@@ -223,9 +301,15 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerChan
                 }
             });
 
-             // ListView l=getListView();
-               // l.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+            // ListView l=getListView();
+            // l.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
             //l.setStackFromBottom(true);
+            super.onStart();
+        }
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+
+            layerClient.registerSyncListener((LayerSyncListener)getActivity());
             super.onActivityCreated(savedInstanceState);
         }
 
