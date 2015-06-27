@@ -1,14 +1,18 @@
 package com.layer.quick_start_android;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,9 +30,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.exceptions.LayerException;
+import com.layer.sdk.listeners.LayerSyncListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
+import com.layer.sdk.query.Query;
+import com.layer.sdk.query.SortDescriptor;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -51,10 +59,13 @@ import java.util.List;
 /**
  * Created by adityaaggarwal on 2/16/15.
  */
-public class ConversationListActivity extends ActionBarActivity {
+public class ConversationListActivity extends ActionBarActivity implements LayerSyncListener {
     static LayerClient layerClient;
     LoginController loginController;
+ //   SwipeRefreshLayout swipeLayout;
 //    static Bitmap vanilliconBitmap;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -62,23 +73,44 @@ public class ConversationListActivity extends ActionBarActivity {
         loginController = new LoginController();
         loginController.authenticationListener.assignConversationListActivity(this);
         layerClient = loginController.getLayerClient();
-        Log.d("isAuthenticated", "Conversations retrieved:" + layerClient.getConversations());
+        layerClient.registerSyncListener(this);
+        //Log.d("isAuthenticated", "Conversations retrieved:" + layerClient.getConversations());
 
 
             setContentView(R.layout.activity_list_conversation);
+            //swipeLayout = (SwipeRefreshLayout) findViewById(R.id.container);
+            //swipeLayout.setOnRefreshListener(this);
+            //swipeLayout.setColorScheme(android.R.color.holo_green_light);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, ViewConversationsFragment.newInstance(getIntent().getStringExtra("mUserId"))).commit();
+                    .add(R.id.container, ViewConversationsFragment.newInstance(getIntent().getStringExtra("mUserId")), "ConversationListViewFragment").commit();
        }
     }
 
+    public void onBeforeSync(LayerClient client) {
+        // LayerClient is starting synchronization
+    }
 
+    public void onAfterSync(LayerClient client) {
+        // LayerClient has finshed synchronization
+        Log.d("Message syncing complete", "Message Syncing Complete");
+        ViewConversationsFragment frag = (ViewConversationsFragment) getSupportFragmentManager().findFragmentByTag("ConversationListViewFragment");
+        if (frag!=null) {
+            frag.refreshList();
+        }
+        // frag.scrollToBottom();
+    }
+
+    public void onSyncError(LayerClient layerClient, List<LayerException> layerExceptions) {
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.conversation, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -128,12 +160,12 @@ public class ConversationListActivity extends ActionBarActivity {
                                     participants.add(getIntent().getStringExtra("mUserId"));
 
                                     //Create new conversation
-                                    Conversation newConversation = Conversation.newInstance(participants);
+                                    Conversation newConversation = layerClient.newConversation(participants);
                                     Log.d("newConversationCheck", "newConversationCheck" + newConversation.getParticipants());
-                                    MessagePart messagePart = MessagePart.newInstance("text/plain", "Created a new Conversation".getBytes());
-                                    Message message = Message.newInstance(newConversation, Arrays.asList(messagePart));
+                                    MessagePart messagePart = layerClient.newMessagePart("text/plain", "Created a new Conversation".getBytes());
+                                    Message message = layerClient.newMessage(Arrays.asList(messagePart));
 
-                                    layerClient.sendMessage(message);
+                                    newConversation.send(message);
                                     while (!message.isSent()) {
                                         Log.d("Check", "Check if message is sent" + message.isSent());
                                     }
@@ -184,15 +216,49 @@ public class ConversationListActivity extends ActionBarActivity {
         private String mUserId;
         private ConversationsAdapter adapter;
         private List<Conversation> conversations;
-
+        private SwipeRefreshLayout mSwipeRefreshLayout;
         public ViewConversationsFragment() {
         }
 
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            return super.onCreateView(inflater, container, savedInstanceState);
+
+        /**
+         * @return the fragment's {@link android.support.v4.widget.SwipeRefreshLayout} widget.
+         */
+        public SwipeRefreshLayout getSwipeRefreshLayout() {
+            return mSwipeRefreshLayout;
         }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            // Create the list fragment's content view by calling the super method
+            final View listFragmentView = super.onCreateView(inflater, container, savedInstanceState);
+
+            // Now create a SwipeRefreshLayout to wrap the fragment's content view
+            mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(container.getContext());
+
+            // Add the list fragment's content view to the SwipeRefreshLayout, making sure that it fills
+            // the SwipeRefreshLayout
+            mSwipeRefreshLayout.addView(listFragmentView,
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+            // Make sure that the SwipeRefreshLayout will fill the fragment
+            mSwipeRefreshLayout.setLayoutParams(
+                    new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT));
+
+            mSwipeRefreshLayout.setColorScheme(android.R.color.holo_green_light);
+            // Now return the SwipeRefreshLayout as this fragment's content view
+            return mSwipeRefreshLayout;
+        }
+
+        public void setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener listener) {
+            mSwipeRefreshLayout.setOnRefreshListener(listener);
+        }
+
 
         public static ViewConversationsFragment newInstance(String mUserId) {
             ViewConversationsFragment f = new ViewConversationsFragment();
@@ -220,14 +286,50 @@ public class ConversationListActivity extends ActionBarActivity {
             intent.putExtra("mUserId", mUserId);
             startActivity(intent);
             getActivity().finish();
+            layerClient.unregisterSyncListener((LayerSyncListener)getActivity());
+
         }
 
         @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
+        public void onActivityCreated(Bundle savedInstanceState){
+            super.onActivityCreated(savedInstanceState);
+        }
+
+        public void setRefreshing(boolean refreshing) {
+            mSwipeRefreshLayout.setRefreshing(refreshing);
+        }
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+
+
+            setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    refreshList();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            setRefreshing(false);
+                            Log.d("On Refresh Called", "onRefresh called from SwipeRefreshLayout");
+                        }
+                    }, 1500);
+
+                }
+            });
+
+        }
+
+        @Override
+        public void onStart() {
             Bundle args = getArguments();
             mUserId = args.getString("mUserId");
+            Query query = Query.builder(Conversation.class).sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+                    .build();
+
             Log.d("Layer Client Conversations","layerClient Conversations in fragment"+layerClient.getConversations().toString());
-            conversations = layerClient.getConversations();
+            conversations = layerClient.executeQuery(query, Query.ResultType.OBJECTS);
 
 
 
@@ -259,10 +361,78 @@ public class ConversationListActivity extends ActionBarActivity {
             });
 
 
-            super.onActivityCreated(savedInstanceState);
+            super.onStart();
         }
 
 
+        public void refreshList(){
+            Query query = Query.builder(Conversation.class).sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+                    .build();
+
+            if(!(layerClient.executeQuery(query, Query.ResultType.OBJECTS).equals(conversations))) {
+                onStart();
+                adapter.notifyDataSetChanged();
+            }
+        }
+
+
+        /**
+         * Sub-class of {@link android.support.v4.widget.SwipeRefreshLayout} for use in this
+         * {@link android.support.v4.app.ListFragment}. The reason that this is needed is because
+         * {@link android.support.v4.widget.SwipeRefreshLayout} only supports a single child, which it
+         * expects to be the one which triggers refreshes. In our case the layout's child is the content
+         * view returned from
+         * {@link android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)}
+         * which is a {@link android.view.ViewGroup}.
+         *
+         * <p>To enable 'swipe-to-refresh' support via the {@link android.widget.ListView} we need to
+         * override the default behavior and properly signal when a gesture is possible. This is done by
+         * overriding {@link #canChildScrollUp()}.
+         */
+        private class ListFragmentSwipeRefreshLayout extends SwipeRefreshLayout {
+
+            public ListFragmentSwipeRefreshLayout(Context context) {
+                super(context);
+            }
+
+            /**
+             * As mentioned above, we need to override this method to properly signal when a
+             * 'swipe-to-refresh' is possible.
+             *
+             * @return true if the {@link android.widget.ListView} is visible and can scroll up.
+             */
+            @Override
+            public boolean canChildScrollUp() {
+                final ListView listView = getListView();
+                if (listView.getVisibility() == View.VISIBLE) {
+                    return canListViewScrollUp(listView);
+                } else {
+                    return false;
+                }
+            }
+
+        }
+
+        // BEGIN_INCLUDE (check_list_can_scroll)
+        /**
+         * Utility method to check whether a {@link ListView} can scroll up from it's current position.
+         * Handles platform version differences, providing backwards compatible functionality where
+         * needed.
+         */
+        private static boolean canListViewScrollUp(ListView listView) {
+            if (android.os.Build.VERSION.SDK_INT >= 14) {
+                // For ICS and above we can call canScrollVertically() to determine this
+                return ViewCompat.canScrollVertically(listView, -1);
+            } else {
+                // Pre-ICS we need to manually check the first visible item and the child view's top
+                // value
+                return listView.getChildCount() > 0 &&
+                        (listView.getFirstVisiblePosition() > 0
+                                || listView.getChildAt(0).getTop() < listView.getPaddingTop());
+            }
+        }
+
+        // END_INCLUDE (check_list_can_scroll)
         private class ConversationsAdapter extends ArrayAdapter<Conversation> {
 
             public ConversationsAdapter(List<Conversation> conversationsLocal) {
@@ -418,7 +588,6 @@ public class ConversationListActivity extends ActionBarActivity {
             return v;
         }
     }
+
+
 }
-
-
-// **** xXX_rkanderson_XXx wuz here ****
