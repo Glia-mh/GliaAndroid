@@ -57,7 +57,14 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerSync
 
 
     }
-
+    @Override
+    public void onBackPressed (){
+        layerClient.unregisterSyncListener(this);
+        Intent intent=new Intent(this, ConversationListActivity.class);
+        intent.putExtra("mUserId",layerClient.getAuthenticatedUserId().toString());
+        startActivity(intent);
+        finish();
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
