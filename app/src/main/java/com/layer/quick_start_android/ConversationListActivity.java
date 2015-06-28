@@ -62,6 +62,7 @@ import java.util.List;
 public class ConversationListActivity extends ActionBarActivity implements LayerSyncListener {
     static LayerClient layerClient;
     LoginController loginController;
+    static Context context;
  //   SwipeRefreshLayout swipeLayout;
 //    static Bitmap vanilliconBitmap;
 
@@ -149,7 +150,7 @@ public class ConversationListActivity extends ActionBarActivity implements Layer
                                     if (e == null) {
                                         if (response.equals("valid")) participants.add(id);
                                         else if (response.equals("invalid")) {
-                                            Toast.makeText(MainActivity.context, "ID " + id + " is invalid.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(context, "ID " + id + " is invalid.", Toast.LENGTH_SHORT).show();
                                         }
                                         if (java.util.Arrays.asList(ids).indexOf(id) == ids.length - 1 && participants.size() > 0)
                                             makeConversation();
