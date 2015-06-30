@@ -330,7 +330,7 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerSync
             public View getView(final int position, View convertView, ViewGroup parent) {
 
 
-                Message message = getItem(position);
+                Message  message = getItem(position);
                 String messageText = getMessageText(message);
                 Log.d("User ID Sent", "UserID of Sent Message: " + message.getSentByUserId());
                 Log.d("User ID from Intent", "User ID from Intent: " + mUserId);
