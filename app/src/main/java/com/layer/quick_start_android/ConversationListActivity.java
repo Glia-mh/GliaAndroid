@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
@@ -150,7 +149,8 @@ public class ConversationListActivity extends ActionBarActivity implements Layer
                                     if (e == null) {
                                         if (response.equals("valid")) participants.add(id);
                                         else if (response.equals("invalid")) {
-                                            Toast.makeText(context, "ID " + id + " is invalid.", Toast.LENGTH_SHORT).show();
+                                           // Toast.makeText(context, "ID " + id + " is invalid.", Toast.LENGTH_SHORT).show();
+                                            Log.d("Not working","not working");
                                         }
                                         if (java.util.Arrays.asList(ids).indexOf(id) == ids.length - 1 && participants.size() > 0)
                                             makeConversation();
