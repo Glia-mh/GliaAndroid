@@ -332,12 +332,12 @@ public class ViewMessagesActivity extends ActionBarActivity implements LayerSync
 
                 Message  message = getItem(position);
                 String messageText = getMessageText(message);
-                Log.d("User ID Sent", "UserID of Sent Message: " + message.getSentByUserId());
+                Log.d("User ID Sent", "UserID of Sent Message: " + message.getSender().getUserId());
                 Log.d("User ID from Intent", "User ID from Intent: " + mUserId);
                 Log.d("Message Sent", "Message Text: "+ getMessageText(message));
                 Log.d("Instructions", "UserID of Sent Message should equal UserID from Intent");
 
-                if (message.getSentByUserId().equals(mUserId)) {
+                if (message.getSender().getUserId().equals(mUserId)) {
                     //if (convertView == null) {
                         Log.d("Converting View", "Creating Green Row");
                         convertView = getActivity().getLayoutInflater().inflate(R.layout.my_sms_row, null);

@@ -521,7 +521,7 @@ public class ConversationListActivity extends ActionBarActivity implements Layer
                 TextView familyTitle = (TextView) convertView.findViewById(R.id.list_item_title);
                 familyTitle.setText(participants_ids);
                 TextView subtitle = (TextView) convertView.findViewById(R.id.list_item_subtitle);
-                subtitle.setText(conversation.getLastMessage().getSentByUserId()+": "+getMessageText(conversation.getLastMessage()));
+                subtitle.setText(conversation.getLastMessage().getSender().getUserId()+": "+getMessageText(conversation.getLastMessage()));
 
                 return convertView;
 
