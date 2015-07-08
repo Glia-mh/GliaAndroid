@@ -66,6 +66,7 @@
         </receiver>
         <service android:name="com.layer.sdk.services.GcmIntentService"/>
         <!-- Listen for Layer-generated push Intents -->
+        <!--
         <receiver android:name=".LayerPushReceiver">
             <intent-filter>
                 <action android:name="com.layer.sdk.PUSH"/>
@@ -75,7 +76,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <category android:name="com.layer.quick_start_android"/>
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
 
 
