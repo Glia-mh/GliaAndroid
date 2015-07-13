@@ -1,0 +1,14 @@
+{
+  "global": {
+    "parseVersion": "1.4.2"
+  },
+  "applications": {
+    "Common Roots": {
+      "applicationId": "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl",
+      "masterKey": "6wdeENwivOPTqQBPFDBVUMXKR68IuN2sTXUk4coP"
+    },
+    "_default": {
+      "link": "Common Roots"
+    }
+  }
+}
