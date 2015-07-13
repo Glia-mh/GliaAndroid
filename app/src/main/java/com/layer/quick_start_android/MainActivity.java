@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,38 +37,42 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         super.onCreate(savedInstanceState);
         context = this;
         Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
-        // Create a LayerClient object no UserId included
         getSupportActionBar().hide();
+
+        // Create a LayerClient object no UserId included
         loginController = new LoginController();
-
         loginController.setLayerClient(context, this);
-
         setContentView(R.layout.activity_main);
     }
+
+
     //Called before syncing with the Layer servers
     public void onBeforeSync(LayerClient layerClient) {
-        System.out.println("Sync starting");
-        //Draw a UI element such as a spinning icon in a non-obtrusive section of your app
     }
 
     //Called after syncing with the Layer servers
     public void onAfterSync(LayerClient layerClient) {
-        //Hide the UI element
+
+        //Suggestions from Layer for 50 or more conversations--not implemented as of now
+        //because it does not seem neccessary
+
         //place this in a different thread and set a timer for 10 seconds before hand
         //and check for calling onBeforeSync do not execute rest of thread if onBeforeSync is called abort thread
         //run a final thread that unregister sync listener
+
+
         Intent intent = new Intent(context, ConversationListActivity.class);
         intent.putExtra("mUserId", loginString);
-        Log.d("Conversations","Conversations in Main Activity:"+loginController.getLayerClient().getConversations());
         finish();
         startActivity(intent);
         loginController.getLayerClient().unregisterSyncListener(this);
     }
 
+
     //Captures any errors with syncing
     public void onSyncError(LayerClient layerClient, List<LayerException> layerExceptions) {
-
     }
+
 
     protected void onResume(){
 
@@ -103,6 +106,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         });
 
 
+
         //Login if Authentication exists from last session
 
         if (loginController.getLayerClient().isAuthenticated()) {
@@ -110,9 +114,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
             loggingoutintext.setText("Loading...");
             loginString=loginController.getLayerClient().getAuthenticatedUserId();
-
             loginController.login(loginString);
-
         }
     }
 
