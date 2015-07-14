@@ -25,7 +25,8 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
 
         //Add the authenticated user
         //--removed check if there is an effect on run
-        participantMap.put("107070",new Participant("You","107070","http://icons.iconarchive.com/icons/mazenl77/I-like-buttons-3a/512/Cute-Ball-Go-icon.png"));
+        //eventually mdHash it and add to participants provider--or may not be needed because
+       // participantMap.put("",new Participant("You","107070","http://icons.iconarchive.com/icons/mazenl77/I-like-buttons-3a/512/Cute-Ball-Go-icon.png"));
 
 
 

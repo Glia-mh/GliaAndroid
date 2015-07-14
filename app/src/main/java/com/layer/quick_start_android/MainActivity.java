@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,11 +16,15 @@ import android.widget.Toast;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerSyncListener;
+import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,6 +36,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     static Context context;
     String loginString;
     LoginController loginController;
+    static public ParticipantProvider participantProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +147,37 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     }
 
     public void onUserAuthenticated(){
-        loginController.getLayerClient().registerSyncListener(this);
+        //Populate Participant Provider
+        participantProvider  = new ParticipantProvider();
+
+
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Counselors");
+        query.whereEqualTo("counselorType", "1");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> counselorList, ParseException e) {
+                try {
+                    if (e == null) {
+                        List<Participant> counselorLocalList=new ArrayList<Participant>();
+
+                        Log.d("counselors", "Retrieved " + counselorList.size() + " counselors");
+                        for (ParseObject parseCounselor : counselorList) {
+                            // participantMap.put(parseCounselor.getString("userID"), new Participant(parseCounselor.getString("Name"), parseCounselor.getString("userID"), parseCounselor.getString("Photo_URL")));
+                            counselorLocalList.add(new Participant(parseCounselor.getString("Name"), parseCounselor.getString("userID"), parseCounselor.getString("Photo_URL")));
+                            // Log.d("Username",participantMap.get(parseCounselor.getString("userID")).getID()+" Username");
+                        }
+                        participantProvider.refresh(counselorLocalList);
+                    } else {
+                        Log.d("counselors", "Error: counselors" + e.getMessage());
+                    }
+
+                } catch (Exception a) {
+                    Log.d("Error", "Error" + a.toString());
+                }
+                loginController.getLayerClient().registerSyncListener(MainActivity.this);
+            }
+        });
+
+
     }
 }
