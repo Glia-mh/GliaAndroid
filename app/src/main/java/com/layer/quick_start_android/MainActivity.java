@@ -27,6 +27,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends ActionBarActivity implements LayerSyncListener{
@@ -152,13 +153,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Counselors");
+        /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Counselors");
         query.whereEqualTo("counselorType", "1");
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> counselorList, ParseException e) {
                 try {
                     if (e == null) {
-                        List<Participant> counselorLocalList=new ArrayList<Participant>();
+                        List<Participant> counselorLocalList = new ArrayList<Participant>();
 
                         Log.d("counselors", "Retrieved " + counselorList.size() + " counselors");
                         for (ParseObject parseCounselor : counselorList) {
@@ -176,7 +177,33 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 }
                 loginController.getLayerClient().registerSyncListener(MainActivity.this);
             }
+        });*/
+
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<String>() {
+            public void done(String returned, ParseException e) {
+                if (e == null) {
+                    Log.d("cc", "Returned string from cloud function is: "+returned);
+                    List<Participant> counselorLocalList = new ArrayList<Participant>();
+
+                    String[] counselors = returned.split(Pattern.quote("$"));
+                    Log.d("cc", "counselors.length="+counselors.length);
+                    for (String c : counselors) {
+                        Log.d("cc","String in counselers array is "+c);
+                        String[] props = c.split(","); // [Name, userID, Photo_URL]
+                        counselorLocalList.add(new Participant(props[0], props[1], props[2]));
+                        Log.d("cc","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]);
+                    }
+                    participantProvider.refresh(counselorLocalList);
+                }
+                loginController.getLayerClient().registerSyncListener(MainActivity.this);
+
+
+            }
         });
+
+
 
 
     }
