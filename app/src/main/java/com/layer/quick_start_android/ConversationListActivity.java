@@ -11,8 +11,6 @@ import android.view.View;
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
-import com.parse.Parse;
-
 
 
 /**
@@ -30,16 +28,20 @@ public class ConversationListActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
+
+        //set layer Client and Authentication Listeners to ConversationListActivity
         loginController = new LoginController();
         loginController.authenticationListener.assignConversationListActivity(this);
         layerClient = loginController.getLayerClient();
 
-
         setContentView(R.layout.activity_list_conversation);
-        if (savedInstanceState==null){
-            participantProvider  = new ParticipantProvider();
-            participantProvider.refresh();
+
+
+       // if (savedInstanceState==null){
+
+            participantProvider=MainActivity.participantProvider;
+
+            //initialize Conversation List
             myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
             myConversationList.init(layerClient, participantProvider);
             myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
@@ -48,16 +50,24 @@ public class ConversationListActivity extends ActionBarActivity  {
                 }
             });
 
+            //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
             layerClient.registerEventListener(myConversationList);
 
+            //to start a new conversation
             View newconversation = findViewById(R.id.newconversation);
             newconversation.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     startMessagesActivity(null);
                 }
             });
-        }
+
+
+       // }
+
+
     }
+
+    //enters or starts a conversation
     private void startMessagesActivity(Conversation c){
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
         if(c != null)
@@ -65,6 +75,13 @@ public class ConversationListActivity extends ActionBarActivity  {
         startActivity(intent);
     }
 
+    //for logout
+    public void onUserDeauthenticated() {
+        Intent logoutIntent = new Intent(this, MainActivity.class);
+
+        startActivity(logoutIntent);
+        finish();
+    }
 
 
     @Override
@@ -90,12 +107,6 @@ public class ConversationListActivity extends ActionBarActivity  {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onUserDeauthenticated() {
-        Intent logoutIntent = new Intent(this, MainActivity.class);
-
-        startActivity(logoutIntent);
-        finish();
-    }
 
 
 

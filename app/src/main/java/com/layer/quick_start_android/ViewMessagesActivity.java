@@ -31,31 +31,37 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             setContentView(R.layout.activity_messages_view);
 
 
-
+            //get current conversation
             Uri id = getIntent().getParcelableExtra("conversation-id");
             if(id != null)
                 conversation = ConversationListActivity.layerClient.getConversation(id);
 
-            messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
 
+            //set message list
+            messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
             messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider);
             messagesList.setConversation(conversation);
 
+            //a view with dynamic filtering of a list that allows you to add participants
             participantPicker = (AtlasParticipantPicker) findViewById(R.id.participantpicker);
             String[] currentUser = {ConversationListActivity.layerClient.getAuthenticatedUserId()};
             participantPicker.init(currentUser, ConversationListActivity.participantProvider);
             if(conversation != null)
                 participantPicker.setVisibility(View.GONE);
 
+            //to inform user if someone on the receiving end is typing
             typingIndicator = (AtlasTypingIndicator) findViewById(R.id.typingindicator);
             typingIndicator.init(conversation, new AtlasTypingIndicator.Callback(){
                 public void onTypingUpdate(AtlasTypingIndicator indicator, Set<String> typingUserIds) {
                 }
             });
 
+            //used to create and send messages
             atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
             atlasComposer.init(ConversationListActivity.layerClient, conversation);
             atlasComposer.setListener(new AtlasMessageComposer.Listener(){
+                //if returns false means the message will not send and participants not entered
+                //in new conversation
                 public boolean beforeSend(Message message) {
                     if(conversation == null){
                         String[] participants = participantPicker.getSelectedUserIds();
