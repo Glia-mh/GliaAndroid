@@ -3,10 +3,13 @@ package com.layer.quick_start_android;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.sdk.LayerClient;
@@ -23,6 +26,10 @@ public class ConversationListActivity extends ActionBarActivity  {
     private AtlasConversationsList myConversationList;
     static Context context;
 
+    private String[] mOptions;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +43,17 @@ public class ConversationListActivity extends ActionBarActivity  {
 
         setContentView(R.layout.activity_list_conversation);
 
+        //mOptions = new String[]{"Logout"};
+        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        //mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-       // if (savedInstanceState==null){
+        // Set the adapter for the list view
+        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_logout_button, mOptions));
+        // Set the list's click listener
+        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+
+        // if (savedInstanceState==null){
 
             participantProvider=MainActivity.participantProvider;
 
