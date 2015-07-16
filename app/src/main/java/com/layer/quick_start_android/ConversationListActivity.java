@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.sdk.LayerClient;
@@ -19,7 +22,7 @@ import com.layer.sdk.messaging.Conversation;
 /**
  * Created by adityaaggarwal on 2/16/15.
  */
-public class ConversationListActivity extends ActionBarActivity  {
+public class ConversationListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
     static LayerClient layerClient;
     LoginController loginController;
     static public ParticipantProvider participantProvider;
@@ -43,15 +46,20 @@ public class ConversationListActivity extends ActionBarActivity  {
 
         setContentView(R.layout.activity_list_conversation);
 
-        //mOptions = new String[]{"Logout"};
-        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        //mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mOptions = getResources().getStringArray(R.array.left_drawer_options);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_logout_button, mOptions));
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, mOptions));
         // Set the list's click listener
-        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerList.setOnItemClickListener(this);
 
+        //drawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer)
+
+        //mDrawerLayout.setDrawerListener(drawerListener);
+        //getSupportActionBar().setHomeButtonEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // if (savedInstanceState==null){
 
@@ -81,6 +89,18 @@ public class ConversationListActivity extends ActionBarActivity  {
        // }
 
 
+    }
+
+    /*@Override
+    protected void onPostCreate(Bundle savedInstanceState){
+        super.onPostCreate(savedInstanceState);
+        drawerListener.syncState();
+    }*/
+
+
+    // For when a nav drawer item is clicked
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+        if (mOptions[position].equals("Logout")) loginController.logout();
     }
 
     //enters or starts a conversation

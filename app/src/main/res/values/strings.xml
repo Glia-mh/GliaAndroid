@@ -4,5 +4,9 @@
     <string name="app_name">Common Roots</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="drawer_open">Drawer opened</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string-array name="left_drawer_options">
+        <item>Logout</item>
+    </string-array>
 </resources>
