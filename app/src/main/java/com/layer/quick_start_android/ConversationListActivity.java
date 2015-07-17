@@ -3,9 +3,9 @@ package com.layer.quick_start_android;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,7 +32,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private String[] mOptions;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
-
+    private ActionBarDrawerToggle drawerListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +55,21 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(this);
 
-        //drawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer)
+        drawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+            @Override
+            public void onDrawerOpened(View drawer) {
+                //Toast.makeText(context, "open", Toast.LENGTH_SHORT).show();
+            }
 
-        //mDrawerLayout.setDrawerListener(drawerListener);
-        //getSupportActionBar().setHomeButtonEnabled(true);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            public void onDrawerClosed(View drawer) {
+                //Toast.makeText(context, "closed", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDrawerLayout.setDrawerListener(drawerListener);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // if (savedInstanceState==null){
 
@@ -91,11 +101,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     }
 
-    /*@Override
+    @Override
     protected void onPostCreate(Bundle savedInstanceState){
         super.onPostCreate(savedInstanceState);
         drawerListener.syncState();
-    }*/
+    }
 
 
     // For when a nav drawer item is clicked
@@ -137,6 +147,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (drawerListener.onOptionsItemSelected(item)) {
             return true;
         }
 
