@@ -8,5 +8,8 @@
     <string name="drawer_close">Navigation drawer closed</string>
     <string-array name="left_drawer_options">
         <item>Logout</item>
+        <item>Settings</item>
+        <item>About Roots</item>
+        <item>Get Involved</item>
     </string-array>
 </resources>

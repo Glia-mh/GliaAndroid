@@ -165,7 +165,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     class MyAdapter extends BaseAdapter {
         String[] options;
-        int[] images = new int[]{R.drawable.ic_logout};
+        int[] images = new int[]{R.drawable.ic_logout,
+                R.drawable.ic_settings,
+                R.drawable.ic_launcher,
+                R.drawable.ic_get_involved};
         Context context;
 
         public MyAdapter(Context context) {
