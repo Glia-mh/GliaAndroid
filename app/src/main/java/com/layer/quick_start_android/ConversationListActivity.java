@@ -2,6 +2,7 @@ package com.layer.quick_start_android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -117,6 +118,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     // For when a nav drawer item is clicked
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
         if (mOptions[position].equals("Logout")) loginController.logout();
+        else if (mOptions[position].equals("Settings")) {
+            //go to settings (right nav drawer?...)
+        } else if (mOptions[position].equals("About Roots")) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
+            startActivity(browserIntent);
+        } else if (mOptions[position].equals("Get Involved")) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
+            startActivity(browserIntent);
+        }
     }
 
     //enters or starts a conversation
