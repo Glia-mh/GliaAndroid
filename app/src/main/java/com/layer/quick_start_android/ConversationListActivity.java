@@ -6,12 +6,17 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
@@ -51,7 +56,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, mOptions));
+        mDrawerList.setAdapter(new MyAdapter(this));
+        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, mOptions));
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(this);
 
@@ -157,7 +163,48 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         return super.onOptionsItemSelected(item);
     }
 
+    class MyAdapter extends BaseAdapter {
+        String[] options;
+        int[] images = new int[]{R.drawable.ic_logout};
+        Context context;
 
+        public MyAdapter(Context context) {
+            this.context = context;
+            options = context.getResources().getStringArray(R.array.left_drawer_options);
+        }
+
+        @Override
+        public int getCount() {
+            return options.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return options[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = null;
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                row = inflater.inflate(R.layout.custom_nav_drawer_row, parent, false);
+            } else {
+                row = convertView;
+            }
+            TextView titleTextView = (TextView) row.findViewById(R.id.textView);
+            ImageView titleImageView = (ImageView) row
+                    .findViewById(R.id.imageView);
+            titleTextView.setText(options[position]);
+            titleImageView.setImageResource(images[position]);
+            return row; ///
+        }
+    }
 
 
 }
