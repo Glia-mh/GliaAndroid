@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -16,5 +16,18 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+
+
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background"  tools:ignore="NewApi">@color/roots_green</item>
+        <item name="background">@color/roots_green</item>
+    </style>
+
+    <style name="CustomActionBarTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/MyActionBar</item>
+        <item name="actionBarStyle">@style/MyActionBar</item>
+
+    </style>
+
 
 </resources>
