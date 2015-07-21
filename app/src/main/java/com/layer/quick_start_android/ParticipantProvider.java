@@ -67,7 +67,7 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
     }
 
     @Override
-    public Atlas.Participant getParticipant(String userId) {
+    public Participant getParticipant(String userId) {
         return participantMap.get(userId);
     }
 }
