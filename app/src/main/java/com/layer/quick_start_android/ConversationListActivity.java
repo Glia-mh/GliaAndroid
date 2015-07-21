@@ -13,12 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.sdk.LayerClient;
@@ -87,10 +85,39 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             myConversationList.init(layerClient, participantProvider);
             myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
                 public void onItemClick(Conversation conversation) {
+                    SwipeDetector swipeDetector = new SwipeDetector();
+                    if (swipeDetector.swipeDetected()){
+                        if(swipeDetector.getAction().equals(SwipeDetector.Action.LR)){
+
+                        }
+                        // do the onSwipe action
+                    } else {
+                        // do the onItemClick action
+                    }
                     startMessagesActivity(conversation);
                 }
             });
+  /*  myConversationList.setLongClickListener(new AtlasConversationsList.ConversationLongClickListener() {
+            public void onItemLongClick(final Conversation conversation) {
 
+                final Dialog dialog = new Dialog(ConversationListActivity.this);
+                dialog.setContentView(R.layout.conversation_options);
+                dialog.setTitle("Conversation Options");
+                dialog.show();
+                dialog.findViewById(R.id.conversationdeleter).setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        layerClient.deleteConversation(conversation, LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                        myConversationList.getConversations().remove(conversation);
+                        myConversationList.getAdapter().notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                });
+
+
+            }
+        });*/
             //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
             layerClient.registerEventListener(myConversationList);
 
