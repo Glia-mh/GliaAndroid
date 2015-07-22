@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
 import com.layer.atlas.AtlasConversationsList;
@@ -72,6 +73,14 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             ImageView image = (ImageView)item.findViewById(R.id.counselorbarimage);
             text.setText(p.getFirstName()+" "+p.getLastName());   // set up text
             new LoadImage(image).execute(p.getAvatarString());   // set up image
+
+            item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("ConversationListAct", "Counselor clicked!");
+                    Toast.makeText(context, "Counselor clicked!", Toast.LENGTH_SHORT).show();
+                }
+            });
             counselorBar.addView(item);
         }
 
