@@ -22,9 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.layer.atlas.Atlas;
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.LayerClient;
@@ -32,7 +30,6 @@ import com.layer.sdk.messaging.Conversation;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
 
 
 /**
@@ -66,7 +63,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
         Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
 
-        for (Participant p: participants) {
+        for (final Participant p: participants) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
             TextView text = (TextView)item.findViewById(R.id.counselorbartext);
@@ -77,8 +74,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("ConversationListAct", "Counselor clicked!");
-                    Toast.makeText(context, "Counselor clicked!", Toast.LENGTH_SHORT).show();
+                    startNewMessagesActivity(p.getID());
                 }
             });
             counselorBar.addView(item);
@@ -162,12 +158,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             layerClient.registerEventListener(myConversationList);
 
             //to start a new conversation with + button
-            View newconversation = findViewById(R.id.newconversation);
+            /*View newconversation = findViewById(R.id.newconversation);
             newconversation.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     startMessagesActivity(null);
                 }
-            });
+            });*/
 
 
        // }
@@ -201,6 +197,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
         if(c != null)
             intent.putExtra("conversation-id",c.getId());
+        startActivity(intent);
+    }
+
+    //enters or starts a conversation
+    private void startNewMessagesActivity(String counselorID){
+        Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
+        intent.putExtra("counselor-id",counselorID);
         startActivity(intent);
     }
 

@@ -30,9 +30,16 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         private AtlasTypingIndicator typingIndicator;
         private AtlasMessageComposer atlasComposer;
         private Conversation conversation;
+        private String counselorId;
+
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_messages_view);
+
+            //if conversation does not exist set counselor Id for conversation initialization
+            counselorId=getIntent().getStringExtra("counselor-id");
+
+
 
 
             //get current conversation
@@ -46,12 +53,22 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider);
             messagesList.setConversation(conversation);
 
+
+
+
+
+            //automatically set to hidden
             //a view with dynamic filtering of a list that allows you to add participants
             participantPicker = (AtlasParticipantPicker) findViewById(R.id.participantpicker);
             String[] currentUser = {ConversationListActivity.layerClient.getAuthenticatedUserId()};
             participantPicker.init(currentUser, ConversationListActivity.participantProvider);
-            if(conversation != null)
-                participantPicker.setVisibility(View.GONE);
+            //if(conversation != null)
+
+
+            participantPicker.setVisibility(View.GONE);
+
+
+
 
             //to inform user if someone on the receiving end is typing
             typingIndicator = (AtlasTypingIndicator) findViewById(R.id.typingindicator);
@@ -59,6 +76,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 public void onTypingUpdate(AtlasTypingIndicator indicator, Set<String> typingUserIds) {
                 }
             });
+
+
 
             //used to create and send messages
             atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
@@ -69,7 +88,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 public boolean beforeSend(Message message) {
                     if(conversation == null){
                         //does not include sender only reciever
-                        String[] participants = participantPicker.getSelectedUserIds();
+                        String[] participants = {counselorId};
 
                         if(participants.length > 0){
 
