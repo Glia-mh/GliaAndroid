@@ -94,4 +94,9 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
     public Participant getParticipant(String userId) {
         return participantMap.get(userId);
     }
+
+    // Returns an array of type Participant
+    public Participant[] getCustomParticipants() {
+        return participantMap.values().toArray(new Participant[]{});
+    }
 }

@@ -184,16 +184,16 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<String>() {
             public void done(String returned, ParseException e) {
                 if (e == null) {
-                    Log.d("cc", "Returned string from cloud function is: "+returned);
+                    //Log.d("MainActivity", "Returned string from cloud function is: "+returned);
                     List<Participant> counselorLocalList = new ArrayList<Participant>();
 
                     String[] counselors = returned.split(Pattern.quote("$"));
-                    Log.d("cc", "counselors.length="+counselors.length);
+                    Log.d("MainActivity", "counselors.length="+counselors.length);
                     for (String c : counselors) {
-                        Log.d("cc","String in counselers array is "+c);
+                        //Log.d("MainActivity","String in counselers array is "+c);
                         String[] props = c.split(","); // [Name, userID, Photo_URL]
                         counselorLocalList.add(new Participant(props[0], props[1], props[2]));
-                        Log.d("cc","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]);
+                        Log.d("MainActivity","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]);
                     }
                     participantProvider.refresh(counselorLocalList);
                 }
