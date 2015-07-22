@@ -2,28 +2,36 @@ package com.layer.quick_start_android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.layer.atlas.Atlas;
 import com.layer.atlas.AtlasConversationsList;
+import com.layer.atlas.RoundImage;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Map;
 
 
 /**
@@ -45,7 +53,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
+        context = this;
         //set layer Client and Authentication Listeners to ConversationListActivity
         loginController = new LoginController();
         loginController.authenticationListener.assignConversationListActivity(this);
@@ -53,6 +61,22 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         setContentView(R.layout.activity_list_conversation);
 
+        // COUNSELOR BAR
+        LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
+        Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
+
+        for (Participant p: participants) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
+            TextView text = (TextView)item.findViewById(R.id.counselorbartext);
+            ImageView image = (ImageView)item.findViewById(R.id.counselorbarimage);
+            text.setText(p.getFirstName()+" "+p.getLastName());   // set up text
+            new LoadImage(image).execute(p.getAvatarString());   // set up image
+            counselorBar.addView(item);
+        }
+
+
+        // LEFT NAV DRAWER
         mOptions = getResources().getStringArray(R.array.left_drawer_options);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -88,10 +112,39 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             myConversationList.init(layerClient, participantProvider);
             myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
                 public void onItemClick(Conversation conversation) {
+                    SwipeDetector swipeDetector = new SwipeDetector();
+                    if (swipeDetector.swipeDetected()){
+                        if(swipeDetector.getAction().equals(SwipeDetector.Action.LR)){
+
+                        }
+                        // do the onSwipe action
+                    } else {
+                        // do the onItemClick action
+                    }
                     startMessagesActivity(conversation);
                 }
             });
+  /*  myConversationList.setLongClickListener(new AtlasConversationsList.ConversationLongClickListener() {
+            public void onItemLongClick(final Conversation conversation) {
 
+                final Dialog dialog = new Dialog(ConversationListActivity.this);
+                dialog.setContentView(R.layout.conversation_options);
+                dialog.setTitle("Conversation Options");
+                dialog.show();
+                dialog.findViewById(R.id.conversationdeleter).setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        layerClient.deleteConversation(conversation, LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                        myConversationList.getConversations().remove(conversation);
+                        myConversationList.getAdapter().notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                });
+
+
+            }
+        });*/
             //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
             layerClient.registerEventListener(myConversationList);
 
@@ -217,6 +270,42 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             titleTextView.setText(options[position]);
             titleImageView.setImageResource(images[position]);
             return row; ///
+        }
+    }
+
+    private class LoadImage extends AsyncTask<String, String, Bitmap> {
+        ImageView imageView=null;
+
+        //for passing image View
+        public LoadImage(ImageView imageViewLocal) {
+            super();
+            imageView=imageViewLocal;
+
+        }
+
+        //convert image of link to bitmap
+        protected Bitmap doInBackground(String... args) {
+            Bitmap bitmap=null;
+            try {
+                bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d("ConversationListAct", "failed to decode bitmap");
+            }
+            return bitmap;
+        }
+
+        //set image view to bitmap
+        protected void onPostExecute(Bitmap image ) {
+
+            if(image != null){
+                RoundImage roundImage=new RoundImage(image);
+                imageView.setImageDrawable(roundImage);
+
+            }else{
+                Log.d("ConversationListAct", "failed to set bitmap to image view");
+            }
         }
     }
 
