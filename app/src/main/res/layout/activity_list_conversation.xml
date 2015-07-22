@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="90dp"
@@ -28,6 +29,7 @@
 
                 </LinearLayout>
             </HorizontalScrollView>
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -36,7 +38,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
 
-                <View
+                <!--<View
                     android:id="@+id/newconversation"
                     android:layout_width ="72dp"
                     android:layout_height="72dp"
@@ -44,7 +46,7 @@
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
-                    android:background="@drawable/atlas_ctl_btn_plus_big" />
+                    android:background="@drawable/atlas_ctl_btn_plus_big" />-->
            </FrameLayout>
         </LinearLayout>
     </FrameLayout>
