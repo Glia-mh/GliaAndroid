@@ -97,6 +97,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     startMessagesActivity(conversation);
                 }
             });
+
+  //eventual dialog for conversation options
   /*  myConversationList.setLongClickListener(new AtlasConversationsList.ConversationLongClickListener() {
             public void onItemLongClick(final Conversation conversation) {
 
@@ -118,10 +120,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
             }
         });*/
+
+
             //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
             layerClient.registerEventListener(myConversationList);
 
-            //to start a new conversation
+            //to start a new conversation with + button
             View newconversation = findViewById(R.id.newconversation);
             newconversation.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
