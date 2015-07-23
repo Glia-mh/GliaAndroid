@@ -2,11 +2,10 @@ package com.layer.quick_start_android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,6 +35,11 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     LoginController loginController;
     static public ParticipantProvider participantProvider;
 
+
+    //account type 1 is counselor
+    //account type 0 is student
+    //default set to 0
+    private int accountType;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +51,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         loginController = new LoginController();
         loginController.setLayerClient(context, this);
         setContentView(R.layout.activity_main);
+
+
     }
 
 
@@ -81,6 +87,38 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     protected void onResume(){
 
         super.onResume();
+
+        final SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        accountType = mPrefs.getInt("accounttype",0);
+
+
+        final TextView textViewCounselorLogin=(TextView)findViewById(R.id.counselorlogin);
+        if(accountType==0) {
+            textViewCounselorLogin.setText("Counselor Login");
+            textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SharedPreferences.Editor mEditor = mPrefs.edit();
+                    mEditor.putInt("accounttype", 1).commit();
+                    onResume();
+                }
+            });
+        }
+        else {
+
+            textViewCounselorLogin.setText("Student Login");
+
+            textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    SharedPreferences.Editor mEditor = mPrefs.edit();
+                    mEditor.putInt("accounttype", 0).commit();
+                    onResume();
+                }
+            });
+        }
+
         //Program Login Button
         Button loginButton = (Button) findViewById(R.id.loginbutton);
 
@@ -89,26 +127,35 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 EditText loginEditText = (EditText) findViewById(R.id.loginedittext);
                 loginString = loginEditText.getText().toString().trim();
                 loginEditText.setText("");
-                HashMap<String, String> params = new HashMap<String, String>();
-                params.put("userID", loginString);
-                ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
-                    @Override
-                    public void done(String s, ParseException e) {
-                        if (s.equals("valid")) {
-                            setContentView(R.layout.loading_screen);
-                            TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
-                            loggingoutintext.setText("Loading...");
-                            loginController.login(loginString);
-                        } else {
-                            Toast.makeText(context, "Invalid ID.", Toast.LENGTH_SHORT).show();
-                        }
 
-                    }
-                });
+                //login validation type
+                if(accountType==0) {
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("userID", loginString);
+                    ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                        @Override
+                        public void done(String s, ParseException e) {
+                            if (s.equals("valid")) {
+                                setContentView(R.layout.loading_screen);
+                                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                                loggingoutintext.setText("Loading...");
+                                loginController.login(loginString);
+                            } else {
+                                Toast.makeText(context, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+                } else {
+                    //no validation logic included for now --direct login
+                    setContentView(R.layout.loading_screen);
+                    TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                    loggingoutintext.setText("Loading...");
+                    loginController.login(loginString);
+                }
 
             }
         });
-
 
 
         //Login if Authentication exists from last session
@@ -122,27 +169,9 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
-        return super.onOptionsItemSelected(item);
-    }
 
     public void onUserAuthenticated(){
         //Populate Participant Provider
@@ -150,6 +179,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
 
+        //Non cloud query
         /*ParseQuery<ParseObject> query = ParseQuery.getQuery("Counselors");
         query.whereEqualTo("counselorType", "1");
         query.findInBackground(new FindCallback<ParseObject>() {
