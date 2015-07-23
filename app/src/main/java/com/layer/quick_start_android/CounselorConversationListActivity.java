@@ -49,13 +49,9 @@ public class CounselorConversationListActivity extends ConversationListActivity{
 
         // LEFT NAV DRAWER
         mOptions = getResources().getStringArray(R.array.left_drawer_options_counselor);
-<<<<<<< HEAD
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.counselor_drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.counselor_left_drawer);
-=======
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
->>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
 
         // Set the adapter for the list view
         mDrawerList.setAdapter(new MyAdapter(this));
@@ -155,11 +151,9 @@ public class CounselorConversationListActivity extends ConversationListActivity{
 
     //enters or starts a conversation
     private void startMessagesActivity(Conversation c){
-<<<<<<< HEAD
+
         Intent intent = new Intent(CounselorConversationListActivity.this, CounselorViewMessagesActivity.class);
-=======
-        Intent intent = new Intent(CounselorConversationListActivity.this, ViewMessagesActivity.class);
->>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
+
         if(c != null)
             intent.putExtra("conversation-id",c.getId());
         startActivity(intent);
@@ -209,11 +203,9 @@ public class CounselorConversationListActivity extends ConversationListActivity{
 
         public MyAdapter(Context context) {
             this.context = context;
-<<<<<<< HEAD
+
             options = context.getResources().getStringArray(R.array.left_drawer_options_counselor);
-=======
-            options = context.getResources().getStringArray(R.array.left_drawer_options);
->>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
+
         }
 
         @Override
