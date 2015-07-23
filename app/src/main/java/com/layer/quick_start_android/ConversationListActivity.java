@@ -2,6 +2,7 @@ package com.layer.quick_start_android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -47,11 +48,20 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private ListView mDrawerList;
     private ActionBarDrawerToggle drawerListener;
 
+
+    //account type 1 is counselor
+    //account type 0 is student
+    //default set to 0
+    private int accountType;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         context = this;
+        SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        accountType = mPrefs.getInt("accounttype",0);
+
+
         //set layer Client and Authentication Listeners to ConversationListActivity
         loginController = new LoginController();
         loginController.authenticationListener.assignConversationListActivity(this);
@@ -59,32 +69,42 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         setContentView(R.layout.activity_list_conversation);
 
+
+
         // COUNSELOR BAR
         LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
-        Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
+        if(accountType==0) {
+
+            Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
 
 
-        //final must be used because data copied into anonymous class there for changes in anonymous class not visible to method (anonymous class is OnClickListener
-        for (final Participant p: participants) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
-            TextView text = (TextView)item.findViewById(R.id.counselorbartext);
-            ImageView image = (ImageView)item.findViewById(R.id.counselorbarimage);
-            text.setText(p.getFirstName()+" "+p.getLastName());   // set up text
-            new LoadImage(image).execute(p.getAvatarString());   // set up image
+            for (final Participant p : participants) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
+                TextView text = (TextView) item.findViewById(R.id.counselorbartext);
+                ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
+                text.setText(p.getFirstName() + " " + p.getLastName());   // set up text
+                new LoadImage(image).execute(p.getAvatarString());   // set up image
 
-            item.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startNewMessagesActivity(p.getID());
-                }
-            });
-            counselorBar.addView(item);
+                item.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startNewMessagesActivity(p.getID());
+                    }
+                });
+                counselorBar.addView(item);
+            }
+        } else {
+            counselorBar.setVisibility(View.GONE);
         }
 
 
         // LEFT NAV DRAWER
-        mOptions = getResources().getStringArray(R.array.left_drawer_options);
+        if(accountType==0) {
+            mOptions = getResources().getStringArray(R.array.left_drawer_options);
+        } else {
+            mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
+        }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
@@ -107,16 +127,21 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         };
 
         mDrawerLayout.setDrawerListener(drawerListener);
+
+       //might be a good idea to comment these out and see results *********************************************
+        //seems like uneccessary code
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
+        //try to uncomment and see result later ************************************
         // if (savedInstanceState==null){
 
         participantProvider=MainActivity.participantProvider;
 
         //initialize Conversation List
         myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
-        myConversationList.init(layerClient, participantProvider);
+        myConversationList.init(layerClient, participantProvider, accountType);
         myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
             public void onItemClick(Conversation conversation) {
                 SwipeDetector swipeDetector = new SwipeDetector();
@@ -159,7 +184,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
         layerClient.registerEventListener(myConversationList);
 
-        //to start a new conversation with + button
+        //to start a new conversation with + button may be used on counselor side eventually
             /*View newconversation = findViewById(R.id.newconversation);
             newconversation.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -182,8 +207,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     // For when a nav drawer item is clicked
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-        if (mOptions[position].equals("Logout")) loginController.logout();
-        else if (mOptions[position].equals("Settings")) {
+        if (mOptions[position].equals("Logout")) {
+            setContentView(R.layout.loading_screen);
+            getSupportActionBar().hide();
+            TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
+            loggingoutintext.setText("Logging Out...");
+            loginController.logout();
+        } else if (mOptions[position].equals("Settings")) {
             //go to settings (right nav drawer?...)
         } else if (mOptions[position].equals("About Roots")) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
@@ -255,7 +285,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         public MyAdapter(Context context) {
             this.context = context;
-            options = context.getResources().getStringArray(R.array.left_drawer_options);
+            options = mOptions;
         }
 
         @Override

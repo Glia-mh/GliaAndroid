@@ -44,7 +44,7 @@ public class CounselorViewMessagesActivity extends ActionBarActivity  {
 
         //set message list
         messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
-        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider);
+        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider, 0);
         messagesList.setConversation(conversation);
 
         //a view with dynamic filtering of a list that allows you to add participants
