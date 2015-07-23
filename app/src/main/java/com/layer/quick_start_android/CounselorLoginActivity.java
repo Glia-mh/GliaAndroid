@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 
-public class MainActivity extends ActionBarActivity implements LayerSyncListener{
+public class CounselorLoginActivity extends MainActivity{
 
 
     //other variables
@@ -49,15 +49,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         // Create a LayerClient object no UserId included
         loginController = new LoginController();
         loginController.setLayerClient(context, this);
-        setContentView(R.layout.activity_main);
-
-        findViewById(R.id.counselorlogin).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, CounselorLoginActivity.class);
-                startActivity(intent);
-            }
-        });
+        setContentView(R.layout.activity_login_counselor);
     }
 
 
@@ -76,7 +68,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         //run a final thread that unregister sync listener
 
 
-        Intent intent = new Intent(context, ConversationListActivity.class);
+        Intent intent = new Intent(context, CounselorConversationListActivity.class);
         intent.putExtra("mUserId", loginString);
         finish();
         startActivity(intent);
@@ -205,7 +197,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                     }
                     participantProvider.refresh(counselorLocalList);
                 }
-                loginController.getLayerClient().registerSyncListener(MainActivity.this);
+                loginController.getLayerClient().registerSyncListener(CounselorLoginActivity.this);
 
 
             }

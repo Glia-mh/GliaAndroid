@@ -12,4 +12,9 @@
         <item>About Roots</item>
         <item>Get Involved</item>
     </string-array>
+    <string-array name="left_drawer_options_counselor">
+        <item>Logout</item>
+        <item>Settings</item>
+    </string-array>
+    <string name="title_activity_counselor_view_messages">CounselorViewMessagesActivity</string>
 </resources>
