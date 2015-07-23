@@ -68,7 +68,11 @@ public class CounselorLoginActivity extends MainActivity{
         //run a final thread that unregister sync listener
 
 
+<<<<<<< HEAD
         Intent intent = new Intent(context, CounselorConversationListActivity.class);
+=======
+        Intent intent = new Intent(context, ConversationListActivity.class);
+>>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
         intent.putExtra("mUserId", loginString);
         finish();
         startActivity(intent);

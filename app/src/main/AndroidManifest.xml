@@ -49,8 +49,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ConversationListActivity" />
         </activity>
+<<<<<<< HEAD
         <activity android:name=".CounselorLoginActivity" />
         <activity android:name=".CounselorConversationListActivity" />
+=======
+        <activity android:name=".CounselorConversationListActivity">
+
+        </activity>
+        <activity android:name=".CounselorLoginActivity">
+
+        </activity>
+>>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
         <!-- Layer SDK has these for monitoring network, boot, and GCM -->
         <receiver android:name="com.layer.sdk.services.LayerReceiver" >
             <intent-filter>

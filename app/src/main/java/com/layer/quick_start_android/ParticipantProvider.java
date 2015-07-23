@@ -41,6 +41,30 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
 
     }
 
+    public Map<String, Participant> getCustomParticipants(String filter, Map<String, Participant> result) {
+        if (result == null) {
+            result = new HashMap<String, Participant>();
+        }
+
+        if (filter == null) {
+            for (Participant p : participantMap.values()) {
+                result.put(p.getID(), p);
+            }
+            return result;
+        }
+
+        for (Participant p : participantMap.values()) {
+            if (p.getFirstName() != null && !p.getFirstName().toLowerCase().contains(filter)) {
+                result.remove(p.getID());
+                continue;
+            }
+
+            result.put(p.getID(), p);
+        }
+
+        return result;
+    }
+
     public Map<String, Atlas.Participant> getParticipants(String filter, Map<String,
             Atlas.Participant> result) {
         if (result == null) {

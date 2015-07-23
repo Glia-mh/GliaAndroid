@@ -1,6 +1,10 @@
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+<<<<<<< HEAD
     android:id="@+id/counselor_drawer_layout"
+=======
+    android:id="@+id/drawer_layout"
+>>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -42,7 +46,11 @@
     </FrameLayout>
 
     <!-- The navigation drawer -->
+<<<<<<< HEAD
     <ListView android:id="@+id/counselor_left_drawer"
+=======
+    <ListView android:id="@+id/left_drawer"
+>>>>>>> cd30bf6ebe911243eb94af6fb434c00bc29c4f74
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
