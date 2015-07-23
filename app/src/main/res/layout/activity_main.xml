@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Counselor Login"
-        android:textColor="#ff0028ea"
+        android:textColor="@color/tappable_blue"
         android:id="@+id/counselorlogin"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
