@@ -81,7 +81,7 @@ public class CounselorConversationListActivity extends ConversationListActivity{
 
         //initialize Conversation List
         myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
-        myConversationList.init(layerClient, participantProvider);
+        myConversationList.init(layerClient, participantProvider,1);
         myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
             public void onItemClick(Conversation conversation) {
                 SwipeDetector swipeDetector = new SwipeDetector();

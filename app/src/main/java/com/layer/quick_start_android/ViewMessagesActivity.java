@@ -1,5 +1,6 @@
 package com.layer.quick_start_android;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.layer.atlas.AtlasMessageComposer;
@@ -40,9 +42,18 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private Conversation conversation;
     private String counselorId=null;
 
+    //account type 1 is counselor
+    //account type 0 is student
+    //default set to 0
+    private int accountType;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages_view);
+
+
+        SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        accountType = mPrefs.getInt("accounttype",0);
 
         //if conversation does not exist set counselor Id for conversation initialization
         counselorId=getIntent().getStringExtra("counselor-id");
@@ -56,9 +67,33 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             conversation = ConversationListActivity.layerClient.getConversation(id);
 
 
+        if(counselorId==null){
+            Map<String, String> counselor=(Map)conversation.getMetadata().get("counselor");
+            counselorId=counselor.get("ID");
+        }
+
+        LinearLayout bioInformationBar=(LinearLayout)findViewById(R.id.counselorbiobar);
+        bioInformationBar.setVisibility(View.VISIBLE);
+        //Bio View
+        if (accountType==0) {
+            ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
+
+            new LoadImage(imageViewCounselor).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
+
+            TextView counselorTitle = (TextView) findViewById(R.id.bioinformationtitle);
+            counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
+
+            TextView counselorInfo = (TextView) findViewById(R.id.bioinformation);
+            counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
+        } else {
+
+            bioInformationBar.setVisibility(View.GONE);
+        }
+
+
         //set message list
         messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
-        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider);
+        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider, accountType);
         messagesList.setConversation(conversation);
 
 
@@ -71,22 +106,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         String[] currentUser = {ConversationListActivity.layerClient.getAuthenticatedUserId()};
         participantPicker.init(currentUser, ConversationListActivity.participantProvider);
         //if(conversation != null)
-
-
         participantPicker.setVisibility(View.GONE);
-        if(counselorId==null){
-            Map<String, String> counselor=(Map)conversation.getMetadata().get("counselor");
-            counselorId=counselor.get("ID");
-        }
 
-        ImageView imageViewCounselor=(ImageView)findViewById(R.id.counselorbioimage);
-        new LoadImage(imageViewCounselor).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
 
-        TextView counselorTitle=(TextView)findViewById(R.id.bioinformationtitle);
-        counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
 
-        TextView counselorInfo=(TextView)findViewById(R.id.bioinformation);
-        counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
+
+
+
+
 
 
 
@@ -129,13 +156,12 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         student.put("ID",ConversationListActivity.layerClient.getAuthenticatedUserId());
                         student.put("avatarString",getVanilliconLink());
                         metadataMap.put("counselor",counselor);
-                        metadataMap.put("student",student);
+                        metadataMap.put("student", student);
 
 
 
 
 
-                        participantPicker.setVisibility(View.GONE);
                         conversation = ConversationListActivity.layerClient.newConversation(participants);
 
                         //set metatdata
