@@ -47,7 +47,7 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:background="@drawable/atlas_ctl_btn_plus_big" />-->
-           </FrameLayout>
+            </FrameLayout>
         </LinearLayout>
     </FrameLayout>
 
@@ -57,7 +57,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="#ff8bbe4a">
-        </ListView>
+    </ListView>
 
 
 </android.support.v4.widget.DrawerLayout>

@@ -63,6 +63,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
         Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
 
+
+        //final must be used because data copied into anonymous class there for changes in anonymous class not visible to method (anonymous class is OnClickListener
         for (final Participant p: participants) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
@@ -110,27 +112,27 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         // if (savedInstanceState==null){
 
-            participantProvider=MainActivity.participantProvider;
+        participantProvider=MainActivity.participantProvider;
 
-            //initialize Conversation List
-            myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
-            myConversationList.init(layerClient, participantProvider);
-            myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
-                public void onItemClick(Conversation conversation) {
-                    SwipeDetector swipeDetector = new SwipeDetector();
-                    if (swipeDetector.swipeDetected()){
-                        if(swipeDetector.getAction().equals(SwipeDetector.Action.LR)){
+        //initialize Conversation List
+        myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
+        myConversationList.init(layerClient, participantProvider);
+        myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
+            public void onItemClick(Conversation conversation) {
+                SwipeDetector swipeDetector = new SwipeDetector();
+                if (swipeDetector.swipeDetected()){
+                    if(swipeDetector.getAction().equals(SwipeDetector.Action.LR)){
 
-                        }
-                        // do the onSwipe action
-                    } else {
-                        // do the onItemClick action
                     }
-                    startMessagesActivity(conversation);
+                    // do the onSwipe action
+                } else {
+                    // do the onItemClick action
                 }
-            });
+                startMessagesActivity(conversation);
+            }
+        });
 
-  //eventual dialog for conversation options
+        //eventual dialog for conversation options
   /*  myConversationList.setLongClickListener(new AtlasConversationsList.ConversationLongClickListener() {
             public void onItemLongClick(final Conversation conversation) {
 
@@ -154,10 +156,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         });*/
 
 
-            //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
-            layerClient.registerEventListener(myConversationList);
+        //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
+        layerClient.registerEventListener(myConversationList);
 
-            //to start a new conversation with + button
+        //to start a new conversation with + button
             /*View newconversation = findViewById(R.id.newconversation);
             newconversation.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -166,7 +168,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             });*/
 
 
-       // }
+        // }
 
 
     }

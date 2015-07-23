@@ -3,7 +3,6 @@ package com.layer.quick_start_android;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,14 +14,10 @@ import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
-import com.layer.sdk.listeners.LayerSyncListener;
-import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -194,7 +189,7 @@ public class CounselorLoginActivity extends MainActivity{
                     for (String c : counselors) {
                         //Log.d("MainActivity","String in counselers array is "+c);
                         String[] props = c.split(","); // [Name, userID, Photo_URL]
-                        counselorLocalList.add(new Participant(props[0], props[1], props[2]));
+                        counselorLocalList.add(new Participant(props[0], props[1], props[2],"A Bio"));
                         Log.d("MainActivity","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]);
                     }
                     participantProvider.refresh(counselorLocalList);
