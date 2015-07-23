@@ -15,15 +15,27 @@
 
         android:orientation="horizontal"
         android:background="@color/counselor_bar">
-
-        <ImageView android:id="@+id/counselorbioimage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_margin="10dp"
-            android:scaleType="centerCrop"
-            android:background="@drawable/atlas_shape_circle_gray"
-            />
-
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content">
+            <ImageView android:id="@+id/counselorbioimage"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="10dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/atlas_shape_circle_gray"
+                />
+            <TextView
+                android:id="@+id/callbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="Call"
+                android:textSize="@dimen/atlas_text_size_general"
+                android:textColor="@color/tappable_blue"/>
+        </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"

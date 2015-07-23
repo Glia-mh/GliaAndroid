@@ -188,9 +188,9 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                     Log.d("MainActivity", "counselors.length="+counselors.length);
                     for (String c : counselors) {
                         //Log.d("MainActivity","String in counselers array is "+c);
-                        String[] props = c.split(","); // [Name, userID, Photo_URL]
-                        counselorLocalList.add(new Participant(props[0], props[1], props[2],"A Bio"));
-                        Log.d("MainActivity","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]);
+                        String[] props = c.split(","); // [Name, userID, Photo_URL, Bio]
+                        counselorLocalList.add(new Participant(props[0], props[1], props[2], props[3]));
+                        Log.d("MainActivity","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]+", Bio="+props[3]);
                     }
                     participantProvider.refresh(counselorLocalList);
                 }

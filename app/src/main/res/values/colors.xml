@@ -2,4 +2,5 @@
 <resources>
     <color name="roots_green">#ff8bbe4a</color>
     <color name="counselor_bar">#99c6c6c6</color>
+    <color name="tappable_blue">#ff0028ea</color>
 </resources>
