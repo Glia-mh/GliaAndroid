@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.layer.sdk.LayerClient;
 
+import java.util.UUID;
+
 /**
  * Created by adityaaggarwal on 2/18/15.
  */
@@ -18,8 +20,8 @@ public class LoginController {
     }
 
     public void setLayerClient(Context context, MainActivity ma) {
-       // UUID appID = UUID.fromString("e25bc8da-9f52-11e4-97ea-142b010033d0");
-        layerClient = LayerClient.newInstance(context, "e25bc8da-9f52-11e4-97ea-142b010033d0");
+        UUID appID = UUID.fromString("e25bc8da-9f52-11e4-97ea-142b010033d0");
+        layerClient = LayerClient.newInstance(context, "layer:///apps/staging/"+appID);
         connectionListener = new MyConnectionListener(ma);
         authenticationListener = new MyAuthenticationListener(ma);
     }

@@ -50,9 +50,6 @@
                 android:value=".ConversationListActivity" />
         </activity>
 
-        <activity android:name=".CounselorLoginActivity" />
-        <activity android:name=".CounselorConversationListActivity" />
-
         <activity android:name=".CounselorConversationListActivity">
 
         </activity>
@@ -92,14 +89,6 @@
         </receiver>
         -->
 
-        <activity
-            android:name=".CounselorViewMessagesActivity"
-            android:label="@string/title_activity_counselor_view_messages"
-            android:parentActivityName=".CounselorConversationListActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.layer.quick_start_android.CounselorConversationListActivity" />
-        </activity>
     </application>
 
 </manifest>

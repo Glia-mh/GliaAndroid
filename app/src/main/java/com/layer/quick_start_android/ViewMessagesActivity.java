@@ -20,13 +20,12 @@ import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.Metadata;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -68,8 +67,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
         if(counselorId==null){
-            Map<String, String> counselor=(Map)conversation.getMetadata().get("counselor");
-            counselorId=counselor.get("ID");
+            counselorId=(String)conversation.getMetadata().get("counselor.ID");
         }
 
         LinearLayout bioInformationBar=(LinearLayout)findViewById(R.id.counselorbiobar);
@@ -145,18 +143,25 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-                        //set MetaData to Conversations
-                        HashMap<String,HashMap<String, String>> metadataMap=new HashMap<String, HashMap<String, String>>();
-                        HashMap<String, String> counselor=new HashMap<String, String>();
-                        HashMap<String, String> student=new HashMap<String, String>();
+                        Metadata counselor=Metadata.newInstance();
                         counselor.put("name",ConversationListActivity.participantProvider.getParticipant(participants[0]).getFirstName());
                         counselor.put("ID",ConversationListActivity.participantProvider.getParticipant(participants[0]).getID());
                         counselor.put("avatarString",ConversationListActivity.participantProvider.getParticipant(participants[0]).getAvatarString());
-                        student.put("name","Anonymous User 123");
-                        student.put("ID",ConversationListActivity.layerClient.getAuthenticatedUserId());
+
+                        Metadata student=Metadata.newInstance();
+                        student.put("name","hi");
+                        student.put("ID", ConversationListActivity.layerClient.getAuthenticatedUserId());
                         student.put("avatarString",getVanilliconLink());
-                        metadataMap.put("counselor",counselor);
-                        metadataMap.put("student", student);
+                        //set MetaData to Conversations
+/*                        HashMap<String,HashMap<String, String>> metadataMap=new HashMap<String, HashMap<String, String>>();
+                        HashMap<String, String> counselor=new HashMap<String, String>();
+                        HashMap<String, String> student=new HashMap<String, String>();*/
+
+                       Metadata metadataConv=Metadata.newInstance();
+
+
+                        metadataConv.put("counselor",counselor);
+                        metadataConv.put("student", student);
 
 
 
@@ -165,7 +170,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         conversation = ConversationListActivity.layerClient.newConversation(participants);
 
                         //set metatdata
-                        conversation.putMetadata((Map)metadataMap, false);
+                        conversation.putMetadata(metadataConv, false);
                         Log.d("getting Metadata", "MetaData:" + conversation.getMetadata().toString());
 
 

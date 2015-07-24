@@ -97,6 +97,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
         final TextView textViewCounselorLogin=(TextView)findViewById(R.id.counselorlogin);
+
+        findViewById(R.id.counselor_login_indicator).setVisibility(View.VISIBLE);
+        findViewById(R.id.counselor_login_edittext_username).setVisibility(View.VISIBLE);
+        findViewById(R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);
+        findViewById(R.id.login_cr_logo).setVisibility(View.VISIBLE);
+        findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);
+
         if(accountType==0) {   // In student login
             // set counselor login indicator to be gone and cr logo visible
             findViewById(R.id.counselor_login_indicator).setVisibility(View.GONE);
@@ -182,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                 setContentView(R.layout.loading_screen);
                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                                 loggingoutintext.setText("Loading...");
-                                loginController.login((String)user.get("userID"));
+                                loginController.login((String) user.get("userID"));
                             } else {
                                 // Signup failed. Look at the ParseException to see what happened.
                                 Toast.makeText(context, "Invalid Login.", Toast.LENGTH_SHORT).show();
