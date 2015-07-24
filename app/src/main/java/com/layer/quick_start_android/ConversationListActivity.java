@@ -241,6 +241,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     //for logout
     public void onUserDeauthenticated() {
+    if(accountType==1) {
+        SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        SharedPreferences.Editor mEditor = mPrefs.edit();
+        mEditor.putString("username", "").commit();
+    }
         Intent logoutIntent = new Intent(this, MainActivity.class);
 
         startActivity(logoutIntent);

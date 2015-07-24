@@ -179,13 +179,17 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 } else {
                     // As a counselor, login as a parse user
                     TextView usernameEditText = (TextView)findViewById(R.id.counselor_login_edittext_username);
-                    String username = usernameEditText.getText().toString();
+                    final String username = usernameEditText.getText().toString();
                     TextView pwEditText = (TextView)findViewById(R.id.counselor_login_edittext_password);
                     String password = pwEditText.getText().toString();
                     ParseUser.logInInBackground(username, password, new LogInCallback() {
                         public void done(ParseUser user, ParseException e) {
                             if (user != null) {
                                 // Hooray! The user is logged in.
+
+                                SharedPreferences.Editor mEditor = mPrefs.edit();
+                                mEditor.putString("username", username).commit();
+
                                 setContentView(R.layout.loading_screen);
                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                                 loggingoutintext.setText("Loading...");
@@ -205,13 +209,35 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
         //Login if Authentication exists from last session
 
-        if (loginController.getLayerClient().isAuthenticated()) {
-            setContentView(R.layout.loading_screen);
-            TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
-            loggingoutintext.setText("Loading...");
-            loginString=loginController.getLayerClient().getAuthenticatedUserId();
-            loginController.login(loginString);
-        }
+            if (loginController.getLayerClient().isAuthenticated()) {
+                if(accountType==0) {
+                    loginString = loginController.getLayerClient().getAuthenticatedUserId();
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("userID", loginString);
+                    ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                        @Override
+                        public void done(String s, ParseException e) {
+                            if (s.equals("valid")) {
+                                setContentView(R.layout.loading_screen);
+                                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                                loggingoutintext.setText("Loading...");
+                                loginController.login(loginString);
+                            } else {
+                                Toast.makeText(context, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+                } else {
+                    if(!(mPrefs.getString("username","").equals(""))){
+                        setContentView(R.layout.loading_screen);
+                        TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                        loggingoutintext.setText("Loading...");
+                        loginController.login(loginString);
+                    }
+                }
+                }
+
     }
 
 
