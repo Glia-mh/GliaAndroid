@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.RoundImage;
@@ -31,6 +32,7 @@ import com.layer.sdk.messaging.Conversation;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 
 
 /**
@@ -89,7 +91,22 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startNewMessagesActivity(p.getID());
+                        // Check if there are any conversations with p.getID() if so, startConversation(c)
+                        // otherwise start a new one
+                        for(Conversation c: myConversationList.getConversations()) {
+                            List<String> localIDs = c.getParticipants(); //[counselorID, myID]
+                            Log.d("CLA","the following are participant id's found in a conversation");
+                            for (String str: localIDs) Log.d("CLA",str);  //DEBUG
+                            if (localIDs.size()==2 && (localIDs.get(0).equals(p.getID())||localIDs.get(1).equals(p.getID()))) {
+                                Log.d("CLA","Found conversation with matching userID, entering... I think");
+                                startMessagesActivity(c);
+                                break;
+                            } else {
+                                startNewMessagesActivity(p.getID());
+                            }
+                            //Log.d("CLA",c.getParticipants().toString());
+                        }
+
                     }
                 });
                 counselorBar.addView(item);
@@ -227,8 +244,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     //enters or starts a conversation
     private void startMessagesActivity(Conversation c){
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
-        if(c != null)
-            intent.putExtra("conversation-id",c.getId());
+        if(c != null) {
+            intent.putExtra("conversation-id", c.getId());
+            //intent.putExtra("counselor.ID", c.getMetadata().get("counselor.ID").toString());
+            //Log.d("ConversatonListActivity",c.getMetadata().get("counselor.ID").toString());
+        }
         startActivity(intent);
     }
 
