@@ -10,8 +10,9 @@
     tools:context="com.layer.quick_start_android"
     android:background="#FFFFFF"
     >-->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     android:background="#FFFFFF"
@@ -21,6 +22,58 @@
     android:paddingTop="10dp"
     tools:context="com.layer.quick_start_android">
 
+    <!-- for COUNSELOR -->
+    <TextView
+        android:id="@+id/counselor_login_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Counselor Login"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/atlas_text_size_title"
+        android:layout_marginTop="50dp"/>
+
+    <!-- for COUNSELOR -->
+    <ImageView
+        android:id="@+id/login_cr_logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/ic_launcher"
+        android:visibility="visible"
+        android:layout_alignBottom="@+id/counselor_login_indicator"
+        android:layout_alignLeft="@+id/counselor_login_indicator"
+        android:layout_alignStart="@+id/counselor_login_indicator" />
+
+    <EditText
+        android:id="@+id/counselor_login_edittext_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Type in Your Username"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_horizontal" />
+
+    <!-- for COUNSELOR -->
+    <EditText
+        android:id="@+id/counselor_login_edittext_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Type in Your Passowrd"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:layout_below="@+id/counselor_login_edittext_username"
+        android:layout_alignLeft="@+id/counselor_login_edittext_username"
+        android:layout_alignStart="@+id/counselor_login_edittext_username"
+        android:layout_gravity="center_horizontal" />
+
+
+    <!-- for STUDENT -->
+
+    <!-- for STUDENT -->
     <EditText
         android:id="@+id/loginedittext"
         android:layout_width="wrap_content"
@@ -28,8 +81,9 @@
         android:hint="Type in Your ID"
         android:textSize="15sp"
         android:gravity="center"
+        android:layout_above="@+id/counselor_login_edittext_password"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+        android:layout_gravity="center_horizontal" />
 
     <Button
         android:id="@+id/loginbutton"
@@ -43,10 +97,8 @@
         android:shadowColor="#ffaaaaaa"
 
         android:layout_height="wrap_content"
-        android:layout_below="@+id/loginedittext"
         android:text="Login"
-        android:layout_marginTop="25dp"
-        android:layout_centerHorizontal="true"/>
+        android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -55,9 +107,7 @@
         android:text="Counselor Login"
         android:textColor="@color/tappable_blue"
         android:id="@+id/counselorlogin"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_gravity="right"/>
 
     <!--
         <ScrollView
@@ -93,4 +143,4 @@
                 android:id="@+id/practiceauthenticatebutton"/>
 
         </LinearLayout>-->
-</RelativeLayout>
+</LinearLayout>
