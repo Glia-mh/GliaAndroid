@@ -16,9 +16,11 @@ import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerSyncListener;
 import com.parse.FunctionCallback;
+import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,12 +90,24 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
         super.onResume();
 
+        Log.d("Main Activity", "onResume executed.");
+
         final SharedPreferences mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
 
 
         final TextView textViewCounselorLogin=(TextView)findViewById(R.id.counselorlogin);
-        if(accountType==0) {
+        if(accountType==0) {   // In student login
+            // set counselor login indicator to be gone and cr logo visible
+            findViewById(R.id.counselor_login_indicator).setVisibility(View.GONE);
+            findViewById(R.id.login_cr_logo).setVisibility(View.VISIBLE);
+
+            // set student login field to visible and counselor's to gone
+            findViewById(R.id.counselor_login_edittext_username).setVisibility(View.GONE);
+            findViewById(R.id.counselor_login_edittext_password).setVisibility(View.GONE);
+            findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);
+
+            // option of selecting counselor login
             textViewCounselorLogin.setText("Counselor Login");
             textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -104,8 +118,17 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 }
             });
         }
-        else {
+        else {   // In counselor login
+            // set counselor login indicator to be visible and cr logo gone
+            findViewById(R.id.counselor_login_indicator).setVisibility(View.VISIBLE);
+            findViewById(R.id.login_cr_logo).setVisibility(View.GONE);
 
+            // set counselor login fields to visible and student's to gone
+            findViewById(R.id.counselor_login_edittext_username).setVisibility(View.VISIBLE);
+            findViewById(R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);
+            findViewById(R.id.loginedittext).setVisibility(View.GONE);
+
+            // option of selecting student login.
             textViewCounselorLogin.setText("Student Login");
 
             textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
@@ -147,11 +170,26 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         }
                     });
                 } else {
-                    //no validation logic included for now --direct login
-                    setContentView(R.layout.loading_screen);
-                    TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                    loggingoutintext.setText("Loading...");
-                    loginController.login(loginString);
+                    // As a counselor, login as a parse user
+                    TextView usernameEditText = (TextView)findViewById(R.id.counselor_login_edittext_username);
+                    String username = usernameEditText.getText().toString();
+                    TextView pwEditText = (TextView)findViewById(R.id.counselor_login_edittext_password);
+                    String password = pwEditText.getText().toString();
+                    ParseUser.logInInBackground(username, password, new LogInCallback() {
+                        public void done(ParseUser user, ParseException e) {
+                            if (user != null) {
+                                // Hooray! The user is logged in.
+                                setContentView(R.layout.loading_screen);
+                                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                                loggingoutintext.setText("Loading...");
+                                loginController.login((String)user.get("userID"));
+                            } else {
+                                // Signup failed. Look at the ParseException to see what happened.
+                                Toast.makeText(context, "Invalid Login.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
                 }
 
             }
