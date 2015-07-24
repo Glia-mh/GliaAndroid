@@ -89,7 +89,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startNewMessagesActivity(p.getID());
+                        Log.d("counselorsin","Counselors in Conversation With"+myConversationList.getCounselorsinConversationWith().toString());
+                        if(myConversationList.getCounselorsinConversationWith().contains(p.getID())){
+                            Log.d("counselorsinconver","counselorsinconversationwith"+myConversationList.getCounselorsinConversationWith().contains(p.getID()));
+                            startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
+                        } else {
+                            startNewMessagesActivity(p.getID());
+                        }
                     }
                 });
                 counselorBar.addView(item);
