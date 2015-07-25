@@ -56,7 +56,7 @@
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#ff8bbe4a">
+        android:background="@color/counselor_bar">
     </ListView>
 
 
