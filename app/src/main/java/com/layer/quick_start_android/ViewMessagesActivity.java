@@ -133,7 +133,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             public boolean beforeSend(Message message) {
                 if(conversation == null){
                     //does not include sender only reciever
-                    String[] participants = {counselorId};
+                    String[] participants = {counselorId, "1"};
 
                     if(participants.length > 0){
 
@@ -149,7 +149,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         counselor.put("avatarString",ConversationListActivity.participantProvider.getParticipant(participants[0]).getAvatarString());
 
                         Metadata student=Metadata.newInstance();
-                        student.put("name","hi");
+                        student.put("name","");
                         student.put("ID", ConversationListActivity.layerClient.getAuthenticatedUserId());
                         student.put("avatarString",getVanilliconLink());
                         //set MetaData to Conversations

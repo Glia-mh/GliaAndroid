@@ -91,6 +91,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         // Check if there are any conversations with p.getID() if so, startConversation(c)
                         // otherwise start a new one
                         for(Conversation c: myConversationList.getConversations()) {
@@ -106,6 +107,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                             }
                             //Log.d("CLA",c.getParticipants().toString());
                         }
+
+                        // this was red. commented it out 4 now. wasn't sure if it handled conversations with 3 or more participants
+                        /*Log.d("counselorsin","Counselors in Conversation With"+myConversationList.getCounselorsinConversationWith().toString());
+                        if(myConversationList.getCounselorsinConversationWith().contains(p.getID())){
+                            Log.d("counselorsinconver","counselorsinconversationwith"+myConversationList.getCounselorsinConversationWith().contains(p.getID()));
+                            startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
+                        } else {
+                            startNewMessagesActivity(p.getID());
+                        }*/
 
                     }
                 });
