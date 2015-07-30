@@ -74,6 +74,17 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
+        <TextView
+            android:id="@+id/counselor_unavailible_warning"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This counselor is offline. Don't expect an immediate response!"
+            android:background="#ffffb0b2"
+            android:textColor="#ffff0709"
+            android:textSize="@dimen/atlas_text_size_general"
+            android:gravity="center"
+            android:padding="5dp"/>
 
         <com.layer.atlas.AtlasMessagesList
             android:id="@+id/messageslist"

@@ -27,6 +27,7 @@
         <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/MyActionBar</item>
         <item name="actionBarStyle">@style/MyActionBar</item>
 
+
     </style>
 
 

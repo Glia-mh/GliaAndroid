@@ -3,6 +3,8 @@ package com.layer.quick_start_android;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -75,8 +77,13 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         //Bio View
         if (accountType==0) {
             ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
-
-            new LoadImage(imageViewCounselor).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
+            boolean fadeImage = false;
+            Log.d("ViewMessagesAct","ConversationListActivity.participantprovder.getPartticipant(counselorId)=="+ConversationListActivity.participantProvider.getParticipant(counselorId));
+            if(ConversationListActivity.participantProvider.getParticipant(counselorId).getIsAvailable()==false) {
+                fadeImage=true;
+                findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
+            }
+            new LoadImage(imageViewCounselor, fadeImage).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
 
             TextView counselorTitle = (TextView) findViewById(R.id.bioinformationtitle);
             counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
@@ -217,9 +224,10 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         ImageView imageView=null;
 
         //for passing image View
-        public LoadImage(ImageView imageViewLocal) {
+        public LoadImage(ImageView imageViewLocal, boolean grayOut) {
             super();
             imageView=imageViewLocal;
+            if(grayOut) fadeImage(imageView);
 
         }
 
@@ -228,7 +236,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             Bitmap bitmap=null;
             try {
                 bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
-
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("ConversationListAct", "failed to decode bitmap");
@@ -246,6 +253,15 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             }else{
                 Log.d("ConversationListAct", "failed to set bitmap to image view");
             }
+        }
+
+        public void fadeImage(ImageView v)
+        {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);  //0 means grayscale
+            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
+            v.setColorFilter(cf);
+            v.setAlpha(128);   // 128 = 0.5
         }
     }
 }

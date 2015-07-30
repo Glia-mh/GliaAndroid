@@ -23,7 +23,11 @@ import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +49,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     //account type 0 is student
     //default set to 0
     private int accountType;
+    public static String myID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,20 +98,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     protected void onResume(){
 
         super.onResume();
-
-        Log.d("Main Activity", "onResume executed.");
+        Log.d("MainActivity", "onResume executed.");
 
         final SharedPreferences mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
 
 
         final TextView textViewCounselorLogin=(TextView)findViewById(R.id.counselorlogin);
-
-        //findViewById(R.id.counselor_login_indicator).setVisibility(View.VISIBLE);  ///
-        //findViewById(R.id.counselor_login_edittext_username).setVisibility(View.VISIBLE);   ////
-        //findViewById(R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);   ///
-        //findViewById(R.id.login_cr_logo).setVisibility(View.VISIBLE);   ///
-        //findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);   ///
 
         if(accountType==0) {   // In student login
             // set counselor login indicator to be gone and cr logo visible
@@ -179,6 +178,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         @Override
                         public void done(String s, ParseException e) {
                             if (s.equals("valid")) {
+                                myID = s;
+                                Log.d("MainActivity","My ID saved.");
                                 setContentView(R.layout.loading_screen);
                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                                 loggingoutintext.setText("Loading...");
@@ -199,7 +200,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         public void done(ParseUser user, ParseException e) {
                             if (user != null) {
                                 // Hooray! The user is logged in.
-
+                                myID = user.getString("userID");
+                                Log.d("MainActivity","myID saved as "+user.getString("userID"));
                                 SharedPreferences.Editor mEditor = mPrefs.edit();
                                 mEditor.putString("username", username).commit();
 
@@ -263,11 +265,27 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
         final HashMap<String, Object> params = new HashMap<String, Object>();
-        ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<String>() {
-            public void done(String returned, ParseException e) {
+        ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<ArrayList<String>>() {
+            public void done(ArrayList<String> returned, ParseException e) {
                 if (e == null) {
-                    //Log.d("MainActivity", "Returned string from cloud function is: "+returned);
                     List<Participant> counselorLocalList = new ArrayList<Participant>();
+                    for(String obj: returned) {
+                        Log.d("MainActivity", "Returned string from cloud function is: "+obj);
+                        try {
+                            JSONObject j = new JSONObject(obj);
+                            counselorLocalList.add(new Participant(j.getString("name"),
+                                    j.getString("userID"), j.getString("photoURL"),
+                                    j.getString("bio"), j.getBoolean("isAvailable")));
+                            Log.d("MainActivity","Successfully made JSON.");
+                        } catch(JSONException exception) {
+                            exception.printStackTrace();
+                            Log.d("MainActivity","Couldn't convert string to JSON.");
+                        }
+
+                    }
+                    participantProvider.refresh(counselorLocalList);
+
+                    /*List<Participant> counselorLocalList = new ArrayList<Participant>();
 
                     String[] counselors = returned.split(Pattern.quote("$"));
                     Log.d("MainActivity", "counselors.length="+counselors.length);
@@ -277,7 +295,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         counselorLocalList.add(new Participant(props[0], props[1], props[2], props[3]));
                         Log.d("MainActivity","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]+", Bio="+props[3]);
                     }
-                    participantProvider.refresh(counselorLocalList);
+                    participantProvider.refresh(counselorLocalList);*/
                 }
                 loginController.getLayerClient().registerSyncListener(MainActivity.this);
 

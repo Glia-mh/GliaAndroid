@@ -19,6 +19,8 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
             new HashMap<String, Participant>();
 
     public void refresh(List<Participant> participants) {
+        Log.d("ParticipantProvider", "refresh called.");
+
         //Connect to your user management service and sync the user's
         // contact list, making sure you include the authenticated user.
         // Then, store those users in the participant map
@@ -26,16 +28,15 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
         //Add the authenticated user
         //--removed check if there is an effect on run
         //eventually mdHash it and add to participants provider--or may not be needed because
-       // participantMap.put("",new Participant("You","107070","http://icons.iconarchive.com/icons/mazenl77/I-like-buttons-3a/512/Cute-Ball-Go-icon.png"));
+        // participantMap.put("",new Participant("You","107070","http://icons.iconarchive.com/icons/mazenl77/I-like-buttons-3a/512/Cute-Ball-Go-icon.png"));
 
-
-
-        for (Participant participant:participants){
-            participantMap.put(participant.getID(), participant);
-        }
 
         //Populate counselors with counselors from parse
-        Log.d("Refresh Check", "Refresh Check");
+        for (Participant participant:participants){
+            participantMap.put(participant.getID(), participant);
+            Log.d("ParticipantProvider","Participant with id of "+participant.getID()+" added to map.");
+        }
+
 
 
 
@@ -92,6 +93,10 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
 
     @Override
     public Participant getParticipant(String userId) {
+        Log.d("ParticipantProvider","getParticipant called");
+        Log.d("ParticipantProvider","requested userID=="+userId);
+        Log.d("ParticipantProvider","map is "+participantMap.toString());
+        Log.d("ParticipantProvider","participantMap.get(userId)=="+participantMap.get(userId));
         return participantMap.get(userId);
     }
 

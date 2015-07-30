@@ -14,7 +14,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
+            <!--<LinearLayout
+                android:id="@+id/enable_or_disable_availability"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp">
+                <TextView
+                    android:id="@+id/enable_or_disable_availability_text"
+                    android:layout_width="298dp"
+                    android:layout_height="56dp"
+                    android:gravity="center"
+                    android:text="Check to flag yourself as available"/>
+                <CheckBox
+                    android:id="@+id/enable_or_disable_availability_checkbox"
+                    android:layout_width="48dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"/>
+            </LinearLayout>-->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,11 +71,19 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- The navigation drawer -->
+    <!-- The navigation drawer (LEFT) -->
     <ListView android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="#ffffffff">
+    </ListView>
+
+    <!-- The navigation drawer (RIGHT) -->
+    <ListView android:id="@+id/right_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
         android:background="#ffffffff">
     </ListView>
 
