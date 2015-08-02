@@ -8,9 +8,12 @@ import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,9 +33,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
-/**
- * Created by adityaaggarwal on 2/16/15.
- */
 public class ViewMessagesActivity extends ActionBarActivity  {
 
 
@@ -72,8 +72,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             counselorId=(String)conversation.getMetadata().get("counselor.ID");
         }
 
-        LinearLayout bioInformationBar=(LinearLayout)findViewById(R.id.counselorbiobar);
-        bioInformationBar.setVisibility(View.VISIBLE);
+        FrameLayout bioInformationDrawer=(FrameLayout)findViewById(R.id.counselor_bio_drawer);
+        bioInformationDrawer.setVisibility(View.VISIBLE);
         //Bio View
         if (accountType==0) {
             ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
@@ -92,7 +92,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
         } else {
 
-            bioInformationBar.setVisibility(View.GONE);
+            bioInformationDrawer.setVisibility(View.GONE);
         }
 
 
@@ -190,6 +190,12 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 return true;
             }
         });
+
+        // Open counselor info nav drawer automatically
+        DrawerLayout dl = (DrawerLayout)findViewById(R.id.view_messages_drawer_layout);
+        dl.openDrawer(Gravity.RIGHT);
+
+
     }
 
     protected void onResume() {

@@ -4,9 +4,6 @@ import android.util.Log;
 
 import com.layer.atlas.Atlas;
 
-/**
- * Created by adityaaggarwal on 7/1/15.
- */
 public class Participant implements Atlas.Participant {
 
     private String name;

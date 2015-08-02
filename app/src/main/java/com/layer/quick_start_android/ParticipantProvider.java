@@ -1,9 +1,5 @@
 package com.layer.quick_start_android;
 
-/**
- * Created by adityaaggarwal on 7/1/15.
- */
-
 import android.util.Log;
 
 import com.layer.atlas.Atlas;

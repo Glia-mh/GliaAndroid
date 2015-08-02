@@ -44,9 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-/**
- * Created by adityaaggarwal on 2/16/15.
- */
 public class ConversationListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
     static LayerClient layerClient;
     LoginController loginController;
@@ -96,7 +93,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
                 TextView text = (TextView) item.findViewById(R.id.counselorbartext);
                 ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
-                text.setText(p.getFirstName() + " " + p.getLastName());   // set up text
+                text.setText(p.getFirstName());   // set up text
                 boolean greyImage = false;
                 if(p.getIsAvailable()==false) greyImage=true;
                 new LoadImage(image, greyImage).execute(p.getAvatarString());   // set up image

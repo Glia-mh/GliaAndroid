@@ -204,6 +204,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                 Log.d("MainActivity","myID saved as "+user.getString("userID"));
                                 SharedPreferences.Editor mEditor = mPrefs.edit();
                                 mEditor.putString("username", username).commit();
+                                //mEditor.putString("userID",myID).commit();
 
                                 setContentView(R.layout.loading_screen);
                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
@@ -227,6 +228,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             if (loginController.getLayerClient().isAuthenticated()) {
                 if(accountType==0) {
                     loginString = loginController.getLayerClient().getAuthenticatedUserId();
+                    myID = loginString;
                     HashMap<String, String> params = new HashMap<String, String>();
                     params.put("userID", loginString);
                     ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
@@ -244,14 +246,17 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         }
                     });
                 } else {
-                    if(!(mPrefs.getString("username","").equals(""))){
+                    if(!mPrefs.getString("username","").equals("") && !mPrefs.getString("userID","").equals("")){
                         setContentView(R.layout.loading_screen);
                         TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                         loggingoutintext.setText("Loading...");
-                        loginController.login(loginString);
+                        myID=mPrefs.getString("userID","");
+                        //Toast.makeText(context, "myID saved as "+myID, Toast.LENGTH_SHORT).show();
+                        loginController.login(myID);
                     }
+
                 }
-                }
+            }
 
     }
 
