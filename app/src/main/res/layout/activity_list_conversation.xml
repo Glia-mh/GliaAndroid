@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+            <!--The stuff commented out was an alternate way to enable.disable availibility. Ignore it 4 now -Ryan-->
             <!--<LinearLayout
                 android:id="@+id/enable_or_disable_availability"
                 android:orientation="horizontal"

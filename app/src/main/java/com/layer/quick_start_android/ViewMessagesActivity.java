@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,6 +44,9 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private Conversation conversation;
     private String counselorId=null;
 
+    private String DRAWER_OPEN = "DrawerOpen";
+    private boolean drawerOpen;
+
     //account type 1 is counselor
     //account type 0 is student
     //default set to 0
@@ -50,6 +54,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(savedInstanceState!=null){
+            drawerOpen=savedInstanceState.getBoolean(DRAWER_OPEN);
+        } else {
+            drawerOpen=true;
+        }
+
+
         setContentView(R.layout.activity_messages_view);
 
 
@@ -91,8 +103,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             TextView counselorInfo = (TextView) findViewById(R.id.bioinformation);
             counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
         } else {
-
-            bioInformationDrawer.setVisibility(View.GONE);
+            View bioNavDrawer = findViewById(R.id.counselor_bio_drawer);
+            ((ViewManager)bioNavDrawer.getParent()).removeView(bioNavDrawer);
         }
 
 
@@ -134,44 +146,36 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         //used to create and send messages
         atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
         atlasComposer.init(ConversationListActivity.layerClient, conversation);
-        atlasComposer.setListener(new AtlasMessageComposer.Listener(){
+        atlasComposer.setListener(new AtlasMessageComposer.Listener() {
             //if returns false means the message will not send and participants not entered
             //in new conversation
             public boolean beforeSend(Message message) {
-                if(conversation == null){
+                if (conversation == null) {
                     //does not include sender only reciever
                     String[] participants = {counselorId, "1"};
 
-                    if(participants.length > 0){
+                    if (participants.length > 0) {
 
 
+                        Metadata counselor = Metadata.newInstance();
+                        counselor.put("name", ConversationListActivity.participantProvider.getParticipant(participants[0]).getFirstName());
+                        counselor.put("ID", ConversationListActivity.participantProvider.getParticipant(participants[0]).getID());
+                        counselor.put("avatarString", ConversationListActivity.participantProvider.getParticipant(participants[0]).getAvatarString());
 
-
-
-
-
-                        Metadata counselor=Metadata.newInstance();
-                        counselor.put("name",ConversationListActivity.participantProvider.getParticipant(participants[0]).getFirstName());
-                        counselor.put("ID",ConversationListActivity.participantProvider.getParticipant(participants[0]).getID());
-                        counselor.put("avatarString",ConversationListActivity.participantProvider.getParticipant(participants[0]).getAvatarString());
-
-                        Metadata student=Metadata.newInstance();
-                        student.put("name","");
+                        Metadata student = Metadata.newInstance();
+                        student.put("name", "");
                         student.put("ID", ConversationListActivity.layerClient.getAuthenticatedUserId());
-                        student.put("avatarString",getVanilliconLink());
+                        student.put("avatarString", getVanilliconLink());
                         //set MetaData to Conversations
 /*                        HashMap<String,HashMap<String, String>> metadataMap=new HashMap<String, HashMap<String, String>>();
                         HashMap<String, String> counselor=new HashMap<String, String>();
                         HashMap<String, String> student=new HashMap<String, String>();*/
 
-                       Metadata metadataConv=Metadata.newInstance();
+                        Metadata metadataConv = Metadata.newInstance();
 
 
-                        metadataConv.put("counselor",counselor);
+                        metadataConv.put("counselor", counselor);
                         metadataConv.put("student", student);
-
-
-
 
 
                         conversation = ConversationListActivity.layerClient.newConversation(participants);
@@ -191,11 +195,39 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             }
         });
 
-        // Open counselor info nav drawer automatically
+
         DrawerLayout dl = (DrawerLayout)findViewById(R.id.view_messages_drawer_layout);
-        dl.openDrawer(Gravity.RIGHT);
+        // set bio drawer listener
+        dl.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View view, float v) { }
+            @Override
+            public void onDrawerOpened(View view) {
+                drawerOpen=true;
+            }
+            @Override
+            public void onDrawerClosed(View view) {
+                drawerOpen=false;
+            }
+            @Override
+            public void onDrawerStateChanged(int i) {}
+        });
 
 
+        // Open counselor info nav drawer automatically if necessary
+        if(drawerOpen && accountType==0) {
+            dl.openDrawer(Gravity.RIGHT);
+        }
+
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(DRAWER_OPEN, drawerOpen);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     protected void onResume() {

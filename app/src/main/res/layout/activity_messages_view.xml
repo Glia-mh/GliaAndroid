@@ -1,4 +1,5 @@
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xmls="http://schemas.android.com/apk/res-auto"
     android:id="@+id/view_messages_drawer_layout"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
@@ -17,10 +18,11 @@
 
 
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+
+
+                <!--<RelativeLayout xmls:android="http://schemas.android.com/apk/res/android"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent">-->
 
                 <TextView
                     android:id="@+id/counselor_unavailible_warning"
@@ -34,27 +36,32 @@
                     android:gravity="center"
                     android:padding="5dp" />
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
                 <com.layer.atlas.AtlasMessagesList
                     android:id="@+id/messageslist"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
 
                 <com.layer.atlas.AtlasTypingIndicator
                     android:id="@+id/typingindicator"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"/>
 
                 <com.layer.atlas.AtlasParticipantPicker
                     android:id="@+id/participantpicker"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
 
             </FrameLayout>
 
             <com.layer.atlas.AtlasMessageComposer
                 android:id="@+id/textinput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
 
         </LinearLayout>

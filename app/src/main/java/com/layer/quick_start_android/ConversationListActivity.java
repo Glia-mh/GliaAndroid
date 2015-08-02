@@ -53,9 +53,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     private String[] mOptions;
     private String[] mOptionsRightDrawer;
-    private DrawerLayout mDrawerLayoutLeft;
+    private DrawerLayout mDrawerLayout;
     private ListView mDrawerListLeft;
-    private DrawerLayout mDrawerLayoutRight;
     private ListView mDrawerListRight;
     private ActionBarDrawerToggle leftDrawerListener;
 
@@ -131,7 +130,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
             mOptionsRightDrawer=getResources().getStringArray(R.array.right_drawer_options_counselor);
         }
-        mDrawerLayoutLeft = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
@@ -139,20 +138,22 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         // Set the list's click listener
         mDrawerListLeft.setOnItemClickListener(this);
 
-        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayoutLeft,
+        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawer) {
                 //Toast.makeText(context, "open", Toast.LENGTH_SHORT).show();
+                mDrawerLayout.closeDrawer(Gravity.RIGHT);
             }
 
             public void onDrawerClosed(View drawer) {
                 //Toast.makeText(context, "closed", Toast.LENGTH_SHORT).show();
             }
         };
+        mDrawerLayout.setDrawerListener(leftDrawerListener);
 
         //right drawer
-        mDrawerLayoutRight = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
 
         // Set the adapter for the list view
