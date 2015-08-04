@@ -63,7 +63,6 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         loginController.setLayerClient(context, this);
         setContentView(R.layout.activity_main);
 
-
     }
 
 
@@ -201,7 +200,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                             if (user != null) {
                                 // Hooray! The user is logged in.
                                 myID = user.getString("userID");
-                                Log.d("MainActivity","myID saved as "+user.getString("userID"));
+                                Log.d("MainActivity", "myID saved as " + user.getString("userID"));
                                 SharedPreferences.Editor mEditor = mPrefs.edit();
                                 mEditor.putString("username", username).commit();
                                 //mEditor.putString("userID",myID).commit();
@@ -226,9 +225,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         //Login if Authentication exists from last session
 
             if (loginController.getLayerClient().isAuthenticated()) {
+                myID=loginController.getLayerClient().getAuthenticatedUserId();
                 if(accountType==0) {
-                    loginString = loginController.getLayerClient().getAuthenticatedUserId();
-                    myID = loginString;
+                    loginString = myID;
+                    //myID = loginString;
                     HashMap<String, String> params = new HashMap<String, String>();
                     params.put("userID", loginString);
                     ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
@@ -246,11 +246,11 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         }
                     });
                 } else {
-                    if(!mPrefs.getString("username","").equals("") && !mPrefs.getString("userID","").equals("")){
+                    if(!mPrefs.getString("username","").equals("") && !mPrefs.getString("userID", "").equals("")) {
                         setContentView(R.layout.loading_screen);
                         TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                         loggingoutintext.setText("Loading...");
-                        myID=mPrefs.getString("userID","");
+                        //myID=mPrefs.getString("userID","");
                         //Toast.makeText(context, "myID saved as "+myID, Toast.LENGTH_SHORT).show();
                         loginController.login(myID);
                     }
@@ -267,46 +267,9 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     public void onUserAuthenticated(){
         //Populate Participant Provider
         participantProvider  = new ParticipantProvider();
+        participantProvider.refresh();
 
-
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<ArrayList<String>>() {
-            public void done(ArrayList<String> returned, ParseException e) {
-                if (e == null) {
-                    List<Participant> counselorLocalList = new ArrayList<Participant>();
-                    for(String obj: returned) {
-                        Log.d("MainActivity", "Returned string from cloud function is: "+obj);
-                        try {
-                            JSONObject j = new JSONObject(obj);
-                            counselorLocalList.add(new Participant(j.getString("name"),
-                                    j.getString("userID"), j.getString("photoURL"),
-                                    j.getString("bio"), j.getBoolean("isAvailable")));
-                            Log.d("MainActivity","Successfully made JSON.");
-                        } catch(JSONException exception) {
-                            exception.printStackTrace();
-                            Log.d("MainActivity","Couldn't convert string to JSON.");
-                        }
-
-                    }
-                    participantProvider.refresh(counselorLocalList);
-
-                    /*List<Participant> counselorLocalList = new ArrayList<Participant>();
-
-                    String[] counselors = returned.split(Pattern.quote("$"));
-                    Log.d("MainActivity", "counselors.length="+counselors.length);
-                    for (String c : counselors) {
-                        //Log.d("MainActivity","String in counselers array is "+c);
-                        String[] props = c.split(","); // [Name, userID, Photo_URL, Bio]
-                        counselorLocalList.add(new Participant(props[0], props[1], props[2], props[3]));
-                        Log.d("MainActivity","New counselor added name="+props[0]+", userID="+props[1]+", photo_URL="+props[2]+", Bio="+props[3]);
-                    }
-                    participantProvider.refresh(counselorLocalList);*/
-                }
-                loginController.getLayerClient().registerSyncListener(MainActivity.this);
-
-
-            }
-        });
+        loginController.getLayerClient().registerSyncListener(MainActivity.this);
 
 
 

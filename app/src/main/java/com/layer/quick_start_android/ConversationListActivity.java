@@ -71,6 +71,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         SharedPreferences mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
 
+
+
         //set layer Client and Authentication Listeners to ConversationListActivity
         loginController = new LoginController();
         loginController.authenticationListener.assignConversationListActivity(this);
@@ -143,7 +145,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             @Override
             public void onDrawerOpened(View drawer) {
                 //Toast.makeText(context, "open", Toast.LENGTH_SHORT).show();
-                mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
+                if(drawerParams.gravity==Gravity.LEFT)mDrawerLayout.closeDrawer(Gravity.RIGHT);
             }
 
             public void onDrawerClosed(View drawer) {
@@ -412,6 +415,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 int index = ivparent.indexOfChild(iv);
                 ivparent.removeView(iv);
                 ivparent.addView(availableCheckBox, index);
+                try {
+                    Log.d("ConversationListAct","MainActivity.myID=="+MainActivity.myID);
+                    Log.d("ConversationListAct","MainActivity.participantProvider=="+MainActivity.participantProvider);
+                    Log.d("ConversationListAct","MainActivity.participantProvider.getParticipant(MainActivity.myID)=="+MainActivity.participantProvider.getParticipant(MainActivity.myID));
+                    boolean isChecked = MainActivity.participantProvider.getParticipant(MainActivity.myID).getIsAvailable();
+                    availableCheckBox.setChecked(isChecked);
+                } catch (NullPointerException exc) {
+                    Log.d("ConversationListAct","Uh oh, NullPointerException when trying to see if checked.");
+                }
                 availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
