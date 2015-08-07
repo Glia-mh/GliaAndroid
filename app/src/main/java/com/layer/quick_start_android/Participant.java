@@ -29,5 +29,9 @@ public class Participant implements Atlas.Participant {
     public boolean getIsAvailable() {
         return isAvailable;
     }
+
+    public void setAvailable(boolean available){
+        isAvailable=available;
+    }
 }
 

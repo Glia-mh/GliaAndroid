@@ -1,5 +1,8 @@
 package com.layer.quick_start_android;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,6 +40,7 @@ import java.util.Set;
 public class ViewMessagesActivity extends ActionBarActivity  {
 
 
+    private Context context;
     private AtlasMessagesList messagesList;
     private AtlasParticipantPicker participantPicker;
     private AtlasTypingIndicator typingIndicator;
@@ -54,6 +58,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context=this;
 
         if(savedInstanceState!=null){
             drawerOpen=savedInstanceState.getBoolean(DRAWER_OPEN);
@@ -219,6 +224,13 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             dl.openDrawer(Gravity.RIGHT);
         }
 
+        if (accountType==0 && mPrefs.getBoolean("firstTimeStudentOnViewMessagesAct", true)) {
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student_view_messages_act);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putBoolean("firstTimeStudentOnViewMessagesAct", false).commit();
+        }
+
 
     }
 
@@ -301,6 +313,19 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             v.setColorFilter(cf);
             v.setAlpha(128);   // 128 = 0.5
         }
+    }
+
+    private  AlertDialog getWelcomeAlertDialog(int stringAddress){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //do nothin' cuz we don't gotta
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
     }
 }
 

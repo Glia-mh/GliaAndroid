@@ -1,6 +1,10 @@
 package com.layer.quick_start_android;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -57,6 +61,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private ListView mDrawerListLeft;
     private ListView mDrawerListRight;
     private ActionBarDrawerToggle leftDrawerListener;
+    private SharedPreferences mPrefs;
 
 
     //account type 1 is counselor
@@ -68,7 +73,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         super.onCreate(savedInstanceState);
         context = this;
-        SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
 
 
@@ -161,11 +166,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         // Set the adapter for the list view
         if(accountType==1)mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
-        // Set the list's click listener
-        //mDrawerListRight.setOnItemClickListener(this);
 
 
-       //might be a good idea to comment these out and see results *********************************************
+        //might be a good idea to comment these out and see results *********************************************
         //seems like uneccessary code
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -231,6 +234,21 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
         // }
+
+
+        // Show the welcome dialog if first time on
+        if (accountType==0 && mPrefs.getString("firstTimeStudent", "YARP").equals("YARP")) {  //Yaarp.....
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("firstTimeStudent", "NARP").commit(); //Naarp.......
+        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "YARP").equals("YARP")) {  //Yaarp.....
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_counselor);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("firstTimeCounselor", "NARP").commit();
+        }
+
 
 
     }
@@ -427,6 +445,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        MainActivity.participantProvider.getParticipant(MainActivity.myID).setAvailable(isChecked);
+
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put("userID", MainActivity.myID);
                         if(isChecked) {
@@ -521,4 +541,16 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     }
 
 
+    private  AlertDialog getWelcomeAlertDialog(int stringAddress){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //do nothin' cuz we don't gotta
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
 }

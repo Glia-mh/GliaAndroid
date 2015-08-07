@@ -240,7 +240,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                 loggingoutintext.setText("Loading...");
                                 loginController.login(loginString);
                             } else {
-                                Toast.makeText(context, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(context, "Invalid ID.", Toast.LENGTH_SHORT).show();
                             }
 
                         }
