@@ -14,11 +14,34 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+            <!--The stuff commented out was an alternate way to enable.disable availibility. Ignore it 4 now -Ryan-->
+            <!--<LinearLayout
+                android:id="@+id/enable_or_disable_availability"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/enable_or_disable_availability_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textSize="@dimen/atlas_text_size_general"
+                    android:layout_weight="4"
+                    android:text="I am available to talk to."/>
+                <CheckBox
+                    android:id="@+id/enable_or_disable_availability_checkbox"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:layout_weight="1"/>
+            </LinearLayout>-->
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/counselor_bar">
+                android:background="@color/counselor_bar"
+                android:scrollbars="none">
                 <LinearLayout
                     android:id="@+id/counselorbar"
                     android:layout_width="match_parent"
@@ -28,7 +51,13 @@
                     android:background="@color/counselor_bar">
 
                 </LinearLayout>
+
             </HorizontalScrollView>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"/>
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -51,12 +80,20 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- The navigation drawer -->
+    <!-- The navigation drawer (LEFT) -->
     <ListView android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/counselor_bar">
+        android:background="#ffffffff">
+    </ListView>
+
+    <!-- The navigation drawer (RIGHT) -->
+    <ListView android:id="@+id/right_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="#ffffffff">
     </ListView>
 
 

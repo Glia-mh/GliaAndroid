@@ -50,12 +50,6 @@
                 android:value=".ConversationListActivity" />
         </activity>
 
-        <activity android:name=".CounselorConversationListActivity">
-
-        </activity>
-        <activity android:name=".CounselorLoginActivity">
-
-        </activity>
         <!-- Layer SDK has these for monitoring network, boot, and GCM -->
         <receiver android:name="com.layer.sdk.services.LayerReceiver" >
             <intent-filter>

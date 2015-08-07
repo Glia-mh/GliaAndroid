@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="roots_green">#ff8bbe4a</color>
-    <color name="counselor_bar">#ddc6c6c6</color>
+    <color name="roots_green">#ff87d367</color>
+    <color name="counselor_bar">#ddeeeeee</color>
     <color name="tappable_blue">#ff0028ea</color>
+    <color name="friendly_warning_red">#ffffb0b2</color>
 </resources>

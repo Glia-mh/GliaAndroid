@@ -1,10 +1,16 @@
 package com.layer.quick_start_android;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +18,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,23 +26,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
-/**
- * Created by adityaaggarwal on 2/16/15.
- */
 public class ConversationListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
     static LayerClient layerClient;
     LoginController loginController;
@@ -44,9 +56,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     static Context context;
 
     private String[] mOptions;
+    private String[] mOptionsRightDrawer;
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle drawerListener;
+    private ListView mDrawerListLeft;
+    private ListView mDrawerListRight;
+    private ActionBarDrawerToggle leftDrawerListener;
+    private SharedPreferences mPrefs;
 
 
     //account type 1 is counselor
@@ -58,8 +73,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         super.onCreate(savedInstanceState);
         context = this;
-        SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
+
 
 
         //set layer Client and Authentication Listeners to ConversationListActivity
@@ -76,75 +92,83 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         if(accountType==0) {
 
             Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
-
+            ArrayList<View> greyedOutCounselors = new ArrayList<View>();
 
             for (final Participant p : participants) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
                 TextView text = (TextView) item.findViewById(R.id.counselorbartext);
                 ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
-                text.setText(p.getFirstName() + " " + p.getLastName());   // set up text
-                new LoadImage(image).execute(p.getAvatarString());   // set up image
+                text.setText(p.getFirstName());   // set up text
+                boolean greyImage = false;
+                if(p.getIsAvailable()==false) greyImage=true;
+                new LoadImage(image, greyImage).execute(p.getAvatarString());   // set up image
 
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        if(myConversationList.getCounselorsinConversationWith().contains(p.getID())){
-                            Log.d("counselorsinconver","counselorsinconversationwith"+myConversationList.getCounselorsinConversationWith().contains(p.getID()));
+                        if (myConversationList.getCounselorsinConversationWith().contains(p.getID())) {
+                            Log.d("ConversationListAct", "counselorsinconversationwith" + myConversationList.getCounselorsinConversationWith().contains(p.getID()));
                             startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
                         } else {
                             startNewMessagesActivity(p.getID());
                         }
 
-                        // this was red. commented it out 4 now. wasn't sure if it handled conversations with 3 or more participants
-                        /*Log.d("counselorsin","Counselors in Conversation With"+myConversationList.getCounselorsinConversationWith().toString());
-                        if(myConversationList.getCounselorsinConversationWith().contains(p.getID())){
-                            Log.d("counselorsinconver","counselorsinconversationwith"+myConversationList.getCounselorsinConversationWith().contains(p.getID()));
-                            startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
-                        } else {
-                            startNewMessagesActivity(p.getID());
-                        }*/
-
                     }
                 });
-                counselorBar.addView(item);
+                if(p.getIsAvailable()==false) greyedOutCounselors.add(item);
+                else counselorBar.addView(item);
             }
+            // Add greyed out counselors last
+            for(View item: greyedOutCounselors) counselorBar.addView(item);
         } else {
             counselorBar.setVisibility(View.GONE);
         }
 
 
-        // LEFT NAV DRAWER
+        // LEFT/RIGHT NAV DRAWERS
+
+        //left drawer
         if(accountType==0) {
             mOptions = getResources().getStringArray(R.array.left_drawer_options);
+            mOptionsRightDrawer = getResources().getStringArray(R.array.right_drawer_options);
         } else {
             mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
+            mOptionsRightDrawer=getResources().getStringArray(R.array.right_drawer_options_counselor);
         }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new MyAdapter(this));
-        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, mOptions));
+        mDrawerListLeft.setAdapter(new MyAdapter(this));
         // Set the list's click listener
-        mDrawerList.setOnItemClickListener(this);
+        mDrawerListLeft.setOnItemClickListener(this);
 
-        drawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
+        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawer) {
                 //Toast.makeText(context, "open", Toast.LENGTH_SHORT).show();
+                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
+                if(drawerParams.gravity==Gravity.LEFT)mDrawerLayout.closeDrawer(Gravity.RIGHT);
             }
 
             public void onDrawerClosed(View drawer) {
                 //Toast.makeText(context, "closed", Toast.LENGTH_SHORT).show();
             }
         };
+        mDrawerLayout.setDrawerListener(leftDrawerListener);
 
-        mDrawerLayout.setDrawerListener(drawerListener);
+        //right drawer
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
 
-       //might be a good idea to comment these out and see results *********************************************
+        // Set the adapter for the list view
+        if(accountType==1)mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
+
+
+        //might be a good idea to comment these out and see results *********************************************
         //seems like uneccessary code
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -212,12 +236,27 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         // }
 
 
+        // Show the welcome dialog if first time on
+        if (accountType==0 && mPrefs.getString("firstTimeStudent", "YARP").equals("YARP")) {  //Yaarp.....
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("firstTimeStudent", "NARP").commit(); //Naarp.......
+        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "YARP").equals("YARP")) {  //Yaarp.....
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_counselor);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("firstTimeCounselor", "NARP").commit();
+        }
+
+
+
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState){
         super.onPostCreate(savedInstanceState);
-        drawerListener.syncState();
+        leftDrawerListener.syncState();
     }
 
 
@@ -230,7 +269,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             loggingoutintext.setText("Logging Out...");
             loginController.logout();
         } else if (mOptions[position].equals("Settings")) {
-            //go to settings (right nav drawer?...)
+            //go to settings (right nav drawer)
+            DrawerLayout dl = (DrawerLayout)findViewById(R.id.drawer_layout);
+            dl.closeDrawer(Gravity.LEFT);
+            dl.openDrawer(Gravity.RIGHT);
         } else if (mOptions[position].equals("About Roots")) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
             startActivity(browserIntent);
@@ -292,13 +334,14 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             return true;
         }
 
-        if (drawerListener.onOptionsItemSelected(item)) {
+        if (leftDrawerListener.onOptionsItemSelected(item)) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    // Left drawer
     class MyAdapter extends BaseAdapter {
         String[] options;
         int[] images = new int[]{R.drawable.ic_logout,
@@ -345,13 +388,121 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         }
     }
 
+    // RIGHT drawer (counselor)
+    class CounselorRightDrawerAdapter extends BaseAdapter {
+        String[] options;
+        Context context;
+        CheckBox availableCheckBox;
+
+        public CounselorRightDrawerAdapter(Context context) {
+            this.context = context;
+            options = mOptionsRightDrawer;
+            availableCheckBox = new CheckBox(context);
+        }
+
+        @Override
+        public int getCount() {
+            return options.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return options[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = null;
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                row = inflater.inflate(R.layout.custom_nav_drawer_row, parent, false);
+            } else {
+                row = convertView;
+            }
+            TextView tv = (TextView)row.findViewById(R.id.textView);
+            tv.setText(options[position]);
+            //Replace image view with another view based on option
+            if(position==0) { //First option for counselor: enable/disable isAvailable. Checkbox
+                ImageView iv = (ImageView)row.findViewById(R.id.imageView);
+                ViewGroup ivparent = (ViewGroup)iv.getParent();
+                int index = ivparent.indexOfChild(iv);
+                ivparent.removeView(iv);
+                ivparent.addView(availableCheckBox, index);
+                try {
+                    Log.d("ConversationListAct","MainActivity.myID=="+MainActivity.myID);
+                    Log.d("ConversationListAct","MainActivity.participantProvider=="+MainActivity.participantProvider);
+                    Log.d("ConversationListAct","MainActivity.participantProvider.getParticipant(MainActivity.myID)=="+MainActivity.participantProvider.getParticipant(MainActivity.myID));
+                    boolean isChecked = MainActivity.participantProvider.getParticipant(MainActivity.myID).getIsAvailable();
+                    availableCheckBox.setChecked(isChecked);
+                } catch (NullPointerException exc) {
+                    Log.d("ConversationListAct","Uh oh, NullPointerException when trying to see if checked.");
+                }
+                availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        MainActivity.participantProvider.getParticipant(MainActivity.myID).setAvailable(isChecked);
+
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        params.put("userID", MainActivity.myID);
+                        if(isChecked) {
+                            //ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
+                            ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
+                                    params, new FunctionCallback<String>() {
+                                @Override
+                                public void done(String s, ParseException e) {
+                                    if (e==null) {
+                                        Toast.makeText(context,
+                                                "You have been flagged as available.",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context,
+                                                "Unable to change availability. " +
+                                                        "Are you connected to the internet?",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+
+                                }
+                            });
+                        }
+                        else {
+                            ParseCloud.callFunctionInBackground("setCounselorStateToUnavailable",
+                                    params, new FunctionCallback<String>() {
+                                        @Override
+                                        public void done(String s, ParseException e) {
+                                            if (e==null) {
+                                                Toast.makeText(context,
+                                                        "You have been flagged as unavailable.",
+                                                        Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(context,
+                                                        "Unable to change availability. " +
+                                                                "Are you connected to the internet?",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+
+                                        }
+                                    });
+                        }
+                    }
+                });
+            }
+            return row;
+        }
+    }
+
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imageView=null;
 
         //for passing image View
-        public LoadImage(ImageView imageViewLocal) {
+        public LoadImage(ImageView imageViewLocal, boolean grayOut) {
             super();
             imageView=imageViewLocal;
+            if(grayOut) fadeImage(imageView);
 
         }
 
@@ -360,7 +511,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             Bitmap bitmap=null;
             try {
                 bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
-
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("ConversationListAct", "failed to decode bitmap");
@@ -379,7 +529,28 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 Log.d("ConversationListAct", "failed to set bitmap to image view");
             }
         }
+
+        public void fadeImage(ImageView v)
+        {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);  //0 means grayscale
+            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
+            v.setColorFilter(cf);
+            v.setAlpha(128);   // 128 = 0.5
+        }
     }
 
 
+    private  AlertDialog getWelcomeAlertDialog(int stringAddress){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //do nothin' cuz we don't gotta
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
 }

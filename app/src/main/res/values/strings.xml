@@ -16,6 +16,17 @@
         <item>Logout</item>
         <item>Settings</item>
     </string-array>
+    <string-array name="right_drawer_options">
+        <!--settings for students?-->
+    </string-array>
+    <string-array name="right_drawer_options_counselor">
+        <item>I am available to talk.</item>
+    </string-array>
+
+    <string name="dialog_welcome_student">Welcome to Team Roots! Tap a counselor\'s picture to start a conversation.</string>
+    <string name="dialog_welcome_student_view_messages_act">Displayed is this counselor\'s bio. You can swipe to the right to hide it.</string>
+    <string name="dialog_welcome_counselor">Welcome to Team Roots! Students will message you anonymously. You can tell students you are unavailable to talk to in settings.</string>
+    <string name="ok">Ok</string>
 
     <string name="title_activity_counselor_view_messages">CounselorViewMessagesActivity</string>
 

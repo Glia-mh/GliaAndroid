@@ -7,9 +7,6 @@ import com.layer.sdk.LayerClient;
 
 import java.util.UUID;
 
-/**
- * Created by adityaaggarwal on 2/18/15.
- */
 public class LoginController {
     static LayerClient layerClient;
     static MyAuthenticationListener authenticationListener;
