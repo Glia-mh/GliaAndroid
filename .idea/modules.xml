@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Roots.iml" filepath="$PROJECT_DIR$/Roots.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/Atlas-Android/layer-atlas/layer-atlas.iml" filepath="$PROJECT_DIR$/Atlas-Android/layer-atlas/layer-atlas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quick-start-android.iml" filepath="$PROJECT_DIR$/quick-start-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/quick-start-android.iml" filepath="$PROJECT_DIR$/quick-start-android.iml" />
     </modules>
   </component>
 </project>

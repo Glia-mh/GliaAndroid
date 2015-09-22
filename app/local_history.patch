@@ -1,0 +1,79 @@
+Index: app/src/main/java/com/layer/quick_start_android/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/layer/quick_start_android/MainActivity.java	(revision )
++++ app/src/main/java/com/layer/quick_start_android/MainActivity.java	(revision )
+@@ -36,6 +36,7 @@
+     LoginController loginController;
+     static public ParticipantProvider participantProvider;
+ 
++    int preSynced=0;
+ 
+     //account type 1 is counselor
+     //account type 0 is student
+@@ -61,24 +62,24 @@
+ 
+     }
+ 
+-    public void onSyncProgress(LayerClient layerClient, int progress){
++   /* public void onSyncProgress(LayerClient layerClient, int progress){
+     if (progress==100) {
+         Intent intent = new Intent(context, ConversationListActivity.class);
+         intent.putExtra("mUserId", loginString);
+         finish();
+         startActivity(intent);
+         loginController.getLayerClient().unregisterSyncListener(this);
+-        Log.d("helloworld","helloworldaditya");
+     }
+-    }
++    }*/
+ 
+     //Called before syncing with the Layer servers
+     public void onBeforeSync(LayerClient layerClient) {
++
+     }
+ 
+     //Called after syncing with the Layer servers
+     public void onAfterSync(LayerClient layerClient) {
+-        Log.d("helloworld","helloworldaditya");
++
+         //Suggestions from Layer for 50 or more conversations--not implemented as of now
+         //because it does not seem neccessary
+ 
+@@ -241,6 +242,7 @@
+                         @Override
+                         public void done(String s, ParseException e) {
+                             if (s.equals("valid")) {
++                                preSynced=1;
+                                 setContentView(R.layout.loading_screen);
+                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                                 loggingoutintext.setText("Loading...");
+@@ -253,6 +255,7 @@
+                     });
+                 } else {
+                     if(myID!=null) {
++                        preSynced=1;
+                         setContentView(R.layout.loading_screen);
+                         TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                         loggingoutintext.setText("Loading...");
+@@ -271,9 +274,14 @@
+ 
+ 
+     public void onUserAuthenticated(){
+-
+-        Log.d("helloworld","helloworldaditya");
+-        loginController.getLayerClient().registerSyncListener(MainActivity.this);
++        if(preSynced==1){
++            Intent intent = new Intent(context, ConversationListActivity.class);
++            intent.putExtra("mUserId", loginString);
++            finish();
++            startActivity(intent);
++        } else {
++            loginController.getLayerClient().registerSyncListener(this);
++        }
+ 
+ 
+ 
+\ No newline at end of file
