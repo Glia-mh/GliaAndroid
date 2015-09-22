@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.layer.atlas.Atlas;
 import com.parse.FunctionCallback;
-import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 
@@ -45,9 +44,10 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
                         try {
                             JSONObject j = new JSONObject(obj);
                             participants.add(new Participant(j.getString("name"),
-                                    j.getString("userID"), j.getString("photoURL"),
+                                    j.getString("objectId"), j.getString("photoURL"),
                                     j.getString("bio"), j.getBoolean("isAvailable")));
                             Log.d("MainActivity", "Successfully made JSON.");
+                            Log.d("ObjectId",j.getString("objectId")+"objectId of Counselor");
                         } catch (JSONException exception) {
                             exception.printStackTrace();
                             Log.d("MainActivity", "Couldn't convert string to JSON.");

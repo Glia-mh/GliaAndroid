@@ -14,18 +14,19 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
 import com.layer.atlas.AtlasParticipantPicker;
 import com.layer.atlas.AtlasTypingIndicator;
+import com.layer.atlas.DiskLruImageCache;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -50,6 +51,15 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
     private String DRAWER_OPEN = "DrawerOpen";
     private boolean drawerOpen;
+
+    //Image Caching
+    private LruCache<String, Bitmap> mMemoryCache;
+    private com.layer.atlas.DiskLruImageCache mDiskLruCache;
+    private boolean mDiskCacheStarting = true;
+    private final Object mDiskCacheLock = new Object();
+    private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+
+
 
     //account type 1 is counselor
     //account type 0 is student
@@ -95,15 +105,41 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         if (accountType==0) {
             ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
             boolean fadeImage = false;
-            Log.d("ViewMessagesAct","ConversationListActivity.participantprovder.getPartticipant(counselorId)=="+ConversationListActivity.participantProvider.getParticipant(counselorId));
+            Log.d("ViewMessagesAct", "ConversationListActivity.participantprovder.getPartticipant(counselorId)==" + ConversationListActivity.participantProvider.getParticipant(counselorId));
+
+
+            final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+            // Use 1/8th of the available memory for this memory cache.
+            final int cacheSize = maxMemory;
+            //if(savedInstanceState==null) {
+            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    // The cache size will be measured in kilobytes rather than
+                    // number of items.
+                    return bitmap.getByteCount() / 1024;
+                }
+            };
+
+            new InitDiskCacheTask().execute();
+
+
+
             if(ConversationListActivity.participantProvider.getParticipant(counselorId).getIsAvailable()==false) {
                 fadeImage=true;
                 findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
             }
-            new LoadImage(imageViewCounselor, fadeImage).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
+            if(getBitmapFromCache(counselorId.toLowerCase())==null) {
+                new LoadImage(imageViewCounselor, fadeImage).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
+            } else {
+                RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorId.toLowerCase()));
+                imageViewCounselor.setImageDrawable(roundImage);
+            }
+
+
 
             TextView counselorTitle = (TextView) findViewById(R.id.bioinformationtitle);
-            counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
+            counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getName());
 
             TextView counselorInfo = (TextView) findViewById(R.id.bioinformation);
             counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
@@ -115,7 +151,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //set message list
         messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
-        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider, accountType);
+        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider, accountType, this);
         messagesList.setConversation(conversation);
 
 
@@ -219,16 +255,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         });
 
 
-        // Open counselor info nav drawer automatically if necessary
-        if(drawerOpen && accountType==0) {
-            dl.openDrawer(Gravity.RIGHT);
-        }
+
 
         if (accountType==0 && mPrefs.getBoolean("firstTimeStudentOnViewMessagesAct", true)) {
             AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student_view_messages_act);
             welcomeAlertDialog.show();
             SharedPreferences.Editor mEditor = mPrefs.edit();
             mEditor.putBoolean("firstTimeStudentOnViewMessagesAct", false).commit();
+            dl.openDrawer(Gravity.RIGHT);
         }
 
 
@@ -270,6 +304,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         String vanilliconLink = "http://vanillicon.com/" + sb.toString() + ".png";
         return vanilliconLink;
     }
+
+
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imageView=null;
 
@@ -297,8 +333,18 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         protected void onPostExecute(Bitmap image ) {
 
             if(image != null){
-                RoundImage roundImage=new RoundImage(image);
-                imageView.setImageDrawable(roundImage);
+                    //Log.d("caching","caching");
+                    String upperCaseData;
+                    if(accountType==0) {
+                        upperCaseData = (String) conversation.getMetadata().get("counselor.ID");
+                    }else {
+                        upperCaseData = (String) conversation.getMetadata().get("student.ID");
+                    }
+                    addBitmapToCache(upperCaseData.toLowerCase(),image);
+                    RoundImage roundImage=new RoundImage(image);
+                    imageView.setImageDrawable(roundImage);
+
+
 
             }else{
                 Log.d("ConversationListAct", "failed to set bitmap to image view");
@@ -315,6 +361,53 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
     }
 
+    class InitDiskCacheTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void ... params) {
+            synchronized (mDiskCacheLock) {
+                mDiskLruCache= new DiskLruImageCache(context, "thumbnails", DISK_CACHE_SIZE, Bitmap.CompressFormat.PNG, 50);
+                mDiskCacheStarting = false; // Finished initialization
+                mDiskCacheLock.notifyAll(); // Wake any waiting threads
+            }
+            return null;
+        }
+    }
+
+    public Bitmap getBitmapFromCache(String key) {
+        if (mMemoryCache.get(key)!=null) {
+            return mMemoryCache.get(key);
+        } else {
+            synchronized (mDiskCacheLock) {
+                // Wait while disk cache is started from background thread
+                while (mDiskCacheStarting) {
+                    try {
+                        mDiskCacheLock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+                if (mDiskLruCache != null) {
+                    mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                    return mDiskLruCache.getBitmap(key);
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+
+    public void addBitmapToCache(String key, Bitmap bitmap) {
+        // Add to memory cache
+        mMemoryCache.put(key, bitmap);
+
+
+        // Also add to disk cache
+        synchronized (mDiskCacheLock) {
+            if (mDiskLruCache != null && mDiskLruCache.getBitmap(key) == null) {
+                mDiskLruCache.put(key, bitmap);
+            }
+        }
+    }
     private  AlertDialog getWelcomeAlertDialog(int stringAddress){
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(context);

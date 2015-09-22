@@ -1,10 +1,8 @@
 package com.layer.quick_start_android;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -23,16 +21,10 @@ import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 
 public class MainActivity extends ActionBarActivity implements LayerSyncListener{
@@ -44,6 +36,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     LoginController loginController;
     static public ParticipantProvider participantProvider;
 
+    int preSynced=0;
 
     //account type 1 is counselor
     //account type 0 is student
@@ -57,6 +50,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         context = this;
         Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
         getSupportActionBar().hide();
+        //Populate Participant Provider
+        participantProvider  = new ParticipantProvider();
+        participantProvider.refresh();
+
 
         // Create a LayerClient object no UserId included
         loginController = new LoginController();
@@ -65,9 +62,21 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
     }
 
+   public void onSyncProgress(LayerClient layerClient, int progress){
+        if (progress==100) {
+            Intent intent = new Intent(context, ConversationListActivity.class);
+            intent.putExtra("mUserId", loginString);
+            finish();
+            startActivity(intent);
+            loginController.getLayerClient().unregisterSyncListener(this);
+        }
+    }
+    
+
 
     //Called before syncing with the Layer servers
     public void onBeforeSync(LayerClient layerClient) {
+
     }
 
     //Called after syncing with the Layer servers
@@ -199,16 +208,16 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         public void done(ParseUser user, ParseException e) {
                             if (user != null) {
                                 // Hooray! The user is logged in.
-                                myID = user.getString("userID");
-                                Log.d("MainActivity", "myID saved as " + user.getString("userID"));
+                                myID = user.getObjectId();
+                                Log.d("MainActivity", "myID saved as " + user.getObjectId());
                                 SharedPreferences.Editor mEditor = mPrefs.edit();
-                                mEditor.putString("username", username).commit();
+                                //mEditor.putString("username", username).commit();
                                 //mEditor.putString("userID",myID).commit();
 
                                 setContentView(R.layout.loading_screen);
                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                                 loggingoutintext.setText("Loading...");
-                                loginController.login((String) user.get("userID"));
+                                loginController.login(myID);
                             } else {
                                 // Signup failed. Look at the ParseException to see what happened.
                                 Toast.makeText(context, "Invalid Login.", Toast.LENGTH_SHORT).show();
@@ -235,6 +244,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         @Override
                         public void done(String s, ParseException e) {
                             if (s.equals("valid")) {
+                                preSynced=1;
                                 setContentView(R.layout.loading_screen);
                                 TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                                 loggingoutintext.setText("Loading...");
@@ -246,7 +256,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         }
                     });
                 } else {
-                    if(!mPrefs.getString("username","").equals("") && !mPrefs.getString("userID", "").equals("")) {
+                    if(myID!=null) {
+                        preSynced=1;
                         setContentView(R.layout.loading_screen);
                         TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                         loggingoutintext.setText("Loading...");
@@ -265,11 +276,14 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     public void onUserAuthenticated(){
-        //Populate Participant Provider
-        participantProvider  = new ParticipantProvider();
-        participantProvider.refresh();
-
-        loginController.getLayerClient().registerSyncListener(MainActivity.this);
+        if(preSynced==1){
+            Intent intent = new Intent(context, ConversationListActivity.class);
+            intent.putExtra("mUserId", loginString);
+            finish();
+            startActivity(intent);
+        } else {
+            loginController.getLayerClient().registerSyncListener(this);
+        }
 
 
 

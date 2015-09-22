@@ -22,6 +22,7 @@ public class Participant implements Atlas.Participant {
 
     public String getFirstName() { return name.split(" ")[0]; }
     public String getLastName() { return name.split(" ")[1]; }
+    public String getName() {return name; }
     public String getID(){ return ID;}
     public String getBio() {return bio; }
     public String getAvatarString(){ return avatarString;}
