@@ -50,6 +50,7 @@ tools:context="com.layer.quick_start_android">
         android:hint="Type in Your Password"
         android:textSize="15sp"
         android:gravity="center"
+        android:password="true"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/counselor_login_edittext_username"
         android:layout_marginTop="3dp"/>

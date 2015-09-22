@@ -2,6 +2,7 @@
 <resources>
     <color name="roots_green">#ff87d367</color>
     <color name="counselor_bar">#ddeeeeee</color>
+    <color name="text_counselor_bar">#dd9b9ca0</color>
     <color name="tappable_blue">#ff0028ea</color>
     <color name="friendly_warning_red">#ffffb0b2</color>
 </resources>

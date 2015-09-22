@@ -86,7 +86,8 @@
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content">
+                android:layout_width="wrap_content"
+                android:layout_gravity="center">
 
                 <ImageView
                     android:id="@+id/counselorbioimage"
@@ -95,31 +96,31 @@
                     android:layout_margin="10dp"
                     android:scaleType="centerCrop"
                     android:background="@drawable/atlas_shape_circle_gray" />
+                <ImageView
+                    android:layout_height="80dp"
+                    android:layout_width="80dp"
+                    android:layout_margin="10dp"
+                    android:id="@+id/loadinglogo"
+                    android:src="@drawable/phoneicon"
+                    />
 
-                <TextView
-                    android:id="@+id/bioinformationtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:layout_gravity="center"
-                    android:textSize="@dimen/atlas_text_size_title"
-                    android:text="Tomaz Stolfa"
-                    android:layout_margin="10dp"/>
 
-                <TextView
-                    android:id="@+id/callbutton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:layout_gravity="center"
-                    android:text="Call"
-                    android:textSize="@dimen/atlas_text_size_tiny"
-                    android:textColor="@color/tappable_blue" />
+
+
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/bioinformationtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textSize="@dimen/atlas_text_size_title"
+                android:text="Tomaz Stolfa"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"/>
             <ScrollView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:id="@+id/scrollView">
 
@@ -127,6 +128,7 @@
                     android:id="@+id/bioinformation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="You did it! When are we going to see the..."
                     android:textSize="@dimen/atlas_text_size_smaller" />
             </ScrollView>

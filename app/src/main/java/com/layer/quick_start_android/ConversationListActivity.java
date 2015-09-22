@@ -1,8 +1,6 @@
 package com.layer.quick_start_android;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +16,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,7 +61,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private ListView mDrawerListRight;
     private ActionBarDrawerToggle leftDrawerListener;
     private SharedPreferences mPrefs;
-
+    private LruCache<String, Bitmap> mMemoryCache;
+    private DiskLruImageCache mDiskLruCache;
+    private final Object mDiskCacheLock = new Object();
+    private boolean mDiskCacheStarting = true;
+    private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
     //account type 1 is counselor
     //account type 0 is student
@@ -87,9 +91,26 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
 
-        // COUNSELOR BAR
+
+        // COUNSELOR BAR*************************************************************
         LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
         if(accountType==0) {
+            final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+            // Use 1/8th of the available memory for this memory cache.
+            final int cacheSize = maxMemory;
+            //if(savedInstanceState==null) {
+            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    // The cache size will be measured in kilobytes rather than
+                    // number of items.
+                    return bitmap.getByteCount() / 1024;
+                }
+            };
+
+                new InitDiskCacheTask().execute();
+            //}
 
             Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
             ArrayList<View> greyedOutCounselors = new ArrayList<View>();
@@ -102,7 +123,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 text.setText(p.getFirstName());   // set up text
                 boolean greyImage = false;
                 if(p.getIsAvailable()==false) greyImage=true;
-                new LoadImage(image, greyImage).execute(p.getAvatarString());   // set up image
+                if (getBitmapFromCache(p.getID().toLowerCase()) == null) {
+                    new LoadImage(image, greyImage).execute(p.getAvatarString(), p.getID().toLowerCase());   // set up image
+                } else {
+                    RoundImage roundImage;
+                    roundImage = new RoundImage(getBitmapFromCache(p.getID().toLowerCase()));
+                    image.setImageDrawable(roundImage);
+                    Log.d("cached", "cachedcounselorbarpic");
+                }
+
 
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -126,10 +155,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             counselorBar.setVisibility(View.GONE);
         }
 
+        //***********************************************************************
 
-        // LEFT/RIGHT NAV DRAWERS
-
-        //left drawer
+        //Setting options for Drawers
         if(accountType==0) {
             mOptions = getResources().getStringArray(R.array.left_drawer_options);
             mOptionsRightDrawer = getResources().getStringArray(R.array.right_drawer_options);
@@ -137,13 +165,19 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
             mOptionsRightDrawer=getResources().getStringArray(R.array.right_drawer_options_counselor);
         }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // LEFT/RIGHT NAV DRAWERS*********************************************
+
+        //Left Drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
         mDrawerListLeft.setAdapter(new MyAdapter(this));
         // Set the list's click listener
-        mDrawerListLeft.setOnItemClickListener(this);
+        //mDrawerListLeft.setOnItemClickListener(this);
 
         leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
@@ -158,20 +192,21 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 //Toast.makeText(context, "closed", Toast.LENGTH_SHORT).show();
             }
         };
+
         mDrawerLayout.setDrawerListener(leftDrawerListener);
+        mDrawerListLeft.setOnItemClickListener(this);
 
         //right drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
 
         // Set the adapter for the list view
-        if(accountType==1)mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
+        if(accountType==1) {
+            Log.d("attempt1","attempt1");
+            mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
+        }
 
 
-        //might be a good idea to comment these out and see results *********************************************
-        //seems like uneccessary code
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         //try to uncomment and see result later ************************************
@@ -181,21 +216,31 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         //initialize Conversation List
         myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
-        myConversationList.init(layerClient, participantProvider, accountType);
+        Log.d("I have reach here","I have reached here");
+        synchronized (mDiskCacheLock) {
+            myConversationList.init(layerClient, participantProvider, accountType, context);
+        }
         myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
             public void onItemClick(Conversation conversation) {
-                SwipeDetector swipeDetector = new SwipeDetector();
-                if (swipeDetector.swipeDetected()){
-                    if(swipeDetector.getAction().equals(SwipeDetector.Action.LR)){
-
-                    }
-                    // do the onSwipe action
-                } else {
-                    // do the onItemClick action
-                }
                 startMessagesActivity(conversation);
             }
         });
+
+        //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
+        layerClient.registerEventListener(myConversationList);
+
+        // Show the welcome dialog if first time on
+        if (accountType==0 && mPrefs.getString("firstTimeStudent", "YARP").equals("YARP")) {  //Yaarp.....
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("firstTimeStudent", "NARP").commit(); //Naarp.......
+        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "YARP").equals("YARP")) {  //Yaarp.....
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_counselor);
+            welcomeAlertDialog.show();
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("firstTimeCounselor", "NARP").commit();
+        }
 
         //eventual dialog for conversation options
   /*  myConversationList.setLongClickListener(new AtlasConversationsList.ConversationLongClickListener() {
@@ -221,8 +266,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         });*/
 
 
-        //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
-        layerClient.registerEventListener(myConversationList);
+
 
         //to start a new conversation with + button may be used on counselor side eventually
             /*View newconversation = findViewById(R.id.newconversation);
@@ -236,22 +280,38 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         // }
 
 
-        // Show the welcome dialog if first time on
-        if (accountType==0 && mPrefs.getString("firstTimeStudent", "YARP").equals("YARP")) {  //Yaarp.....
-            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student);
-            welcomeAlertDialog.show();
-            SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("firstTimeStudent", "NARP").commit(); //Naarp.......
-        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "YARP").equals("YARP")) {  //Yaarp.....
-            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_counselor);
-            welcomeAlertDialog.show();
-            SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("firstTimeCounselor", "NARP").commit();
-        }
 
 
 
     }
+
+
+
+
+
+
+    public Bitmap getBitmapFromCache(String key) {
+        if (mMemoryCache.get(key)!=null) {
+            return mMemoryCache.get(key);
+        } else {
+            synchronized (mDiskCacheLock) {
+                // Wait while disk cache is started from background thread
+                while (mDiskCacheStarting) {
+                    try {
+                        mDiskCacheLock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+                if (mDiskLruCache != null) {
+                    return mDiskLruCache.getBitmap(key);
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState){
@@ -260,7 +320,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     }
 
 
-    // For when a nav drawer item is clicked
+    // For when a left nav drawer item is clicked
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
         if (mOptions[position].equals("Logout")) {
             setContentView(R.layout.loading_screen);
@@ -302,11 +362,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     //for logout
     public void onUserDeauthenticated() {
-    if(accountType==1) {
-        SharedPreferences mPrefs = getSharedPreferences("label", 0);
-        SharedPreferences.Editor mEditor = mPrefs.edit();
-        mEditor.putString("username", "").commit();
-    }
         Intent logoutIntent = new Intent(this, MainActivity.class);
 
         startActivity(logoutIntent);
@@ -329,10 +384,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+
 
         if (leftDrawerListener.onOptionsItemSelected(item)) {
             return true;
@@ -421,83 +473,128 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 row = inflater.inflate(R.layout.custom_nav_drawer_row, parent, false);
+                TextView tv = (TextView)row.findViewById(R.id.textView);
+                tv.setText(options[position]);
+                //Replace image view with another view based on option
+                if(position==0) { //First option for counselor: enable/disable isAvailable. Checkbox
+                    ImageView iv = (ImageView)row.findViewById(R.id.imageView);
+                    if (iv!=null) {
+                        Log.d("imageView","the Image View is "+iv.toString());
+
+                        ViewGroup ivparent = (ViewGroup) iv.getParent();
+                        int index = ivparent.indexOfChild(iv);
+                        ivparent.removeView(iv);
+                        ivparent.addView(availableCheckBox, index);
+                    }
+                    try {
+                        Log.d("ConversationListAct","MainActivity.myID=="+MainActivity.myID);
+                        Log.d("ConversationListAct","MainActivity.participantProvider=="+MainActivity.participantProvider);
+                        Log.d("ConversationListAct","MainActivity.participantProvider.getParticipant(MainActivity.myID)=="+MainActivity.participantProvider.getParticipant(MainActivity.myID));
+                        boolean isChecked = MainActivity.participantProvider.getParticipant(MainActivity.myID).getIsAvailable();
+                        availableCheckBox.setChecked(isChecked);
+                    } catch (NullPointerException exc) {
+                        Log.d("ConversationListAct","Uh oh, NullPointerException when trying to see if checked.");
+                    }
+
+                    availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            MainActivity.participantProvider.getParticipant(MainActivity.myID).setAvailable(isChecked);
+
+                            HashMap<String, String> params = new HashMap<String, String>();
+                            params.put("userID", MainActivity.myID);
+                            if(isChecked) {
+                                ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
+                                        params, new FunctionCallback<String>() {
+                                            @Override
+                                            public void done(String s, ParseException e) {
+                                                if (e == null) {
+                                                    Toast.makeText(context,
+                                                            "You have been flagged as available.",
+                                                            Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(context,
+                                                            "Unable to change availability. " +
+                                                                    "Are you connected to the internet?",
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+
+                                            }
+                                        });
+                            }
+                            else {
+                                ParseCloud.callFunctionInBackground("setCounselorStateToUnavailable",
+                                        params, new FunctionCallback<String>() {
+                                            @Override
+                                            public void done(String s, ParseException e) {
+                                                if (e==null) {
+                                                    Toast.makeText(context,
+                                                            "You have been flagged as unavailable.",
+                                                            Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(context,
+                                                            "Unable to change availability. " +
+                                                                    "Are you connected to the internet?",
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+
+                                            }
+                                        });
+                            }
+                        }
+                    });
+                }
             } else {
                 row = convertView;
             }
-            TextView tv = (TextView)row.findViewById(R.id.textView);
-            tv.setText(options[position]);
-            //Replace image view with another view based on option
-            if(position==0) { //First option for counselor: enable/disable isAvailable. Checkbox
-                ImageView iv = (ImageView)row.findViewById(R.id.imageView);
-                ViewGroup ivparent = (ViewGroup)iv.getParent();
-                int index = ivparent.indexOfChild(iv);
-                ivparent.removeView(iv);
-                ivparent.addView(availableCheckBox, index);
-                try {
-                    Log.d("ConversationListAct","MainActivity.myID=="+MainActivity.myID);
-                    Log.d("ConversationListAct","MainActivity.participantProvider=="+MainActivity.participantProvider);
-                    Log.d("ConversationListAct","MainActivity.participantProvider.getParticipant(MainActivity.myID)=="+MainActivity.participantProvider.getParticipant(MainActivity.myID));
-                    boolean isChecked = MainActivity.participantProvider.getParticipant(MainActivity.myID).getIsAvailable();
-                    availableCheckBox.setChecked(isChecked);
-                } catch (NullPointerException exc) {
-                    Log.d("ConversationListAct","Uh oh, NullPointerException when trying to see if checked.");
-                }
-                availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        MainActivity.participantProvider.getParticipant(MainActivity.myID).setAvailable(isChecked);
-
-                        HashMap<String, String> params = new HashMap<String, String>();
-                        params.put("userID", MainActivity.myID);
-                        if(isChecked) {
-                            //ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
-                            ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
-                                    params, new FunctionCallback<String>() {
-                                @Override
-                                public void done(String s, ParseException e) {
-                                    if (e==null) {
-                                        Toast.makeText(context,
-                                                "You have been flagged as available.",
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(context,
-                                                "Unable to change availability. " +
-                                                        "Are you connected to the internet?",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-
-                                }
-                            });
-                        }
-                        else {
-                            ParseCloud.callFunctionInBackground("setCounselorStateToUnavailable",
-                                    params, new FunctionCallback<String>() {
-                                        @Override
-                                        public void done(String s, ParseException e) {
-                                            if (e==null) {
-                                                Toast.makeText(context,
-                                                        "You have been flagged as unavailable.",
-                                                        Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(context,
-                                                        "Unable to change availability. " +
-                                                                "Are you connected to the internet?",
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-
-                                        }
-                                    });
-                        }
-                    }
-                });
-            }
+            Log.d("position", "position Right Drawer:" + position);
             return row;
         }
     }
 
+    class InitDiskCacheTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void ... params) {
+            synchronized (mDiskCacheLock) {
+                mDiskLruCache= new DiskLruImageCache(context, "thumbnails", DISK_CACHE_SIZE, Bitmap.CompressFormat.PNG, 50);
+                mDiskCacheStarting = false; // Finished initialization
+                mDiskCacheLock.notifyAll(); // Wake any waiting threads
+            }
+            return null;
+        }
+    }
+
+
+
+    public void addBitmapToCache(String key, Bitmap bitmap) {
+        // Add to memory cache as before
+        //if (getBitmapFromCache(key) == null) {
+            mMemoryCache.put(key, bitmap);
+
+
+            // Also add to disk cache
+            synchronized (mDiskCacheLock) {
+                // Wait while disk cache is started from background thread
+                while (mDiskCacheStarting) {
+                    try {
+                        mDiskCacheLock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+                if (mDiskLruCache != null && mDiskLruCache.getBitmap(key) == null) {
+                    mDiskLruCache.put(key, bitmap);
+                }
+            }
+        //}
+    }
+
+
+
+
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imageView=null;
-
+        String avatarString;
+        String lowerCaseId;
         //for passing image View
         public LoadImage(ImageView imageViewLocal, boolean grayOut) {
             super();
@@ -511,6 +608,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             Bitmap bitmap=null;
             try {
                 bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+                avatarString=args[0];
+                lowerCaseId= args[1];
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("ConversationListAct", "failed to decode bitmap");
@@ -524,6 +623,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if(image != null){
                 RoundImage roundImage=new RoundImage(image);
                 imageView.setImageDrawable(roundImage);
+                Log.d("cacheString", avatarString + "cacheString");
+                addBitmapToCache(lowerCaseId, image);
 
             }else{
                 Log.d("ConversationListAct", "failed to set bitmap to image view");
