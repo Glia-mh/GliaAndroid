@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -73,9 +74,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     //default set to 0
     private int accountType;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
+    protected void onStart() {
+        super.onStart();
+       // super.onCreate(savedInstanceState);
         context = this;
         mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
@@ -302,8 +303,14 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     } catch (InterruptedException e) {
                     }
                 }
+
                 if (mDiskLruCache != null) {
-                    return mDiskLruCache.getBitmap(key);
+                    if(mDiskLruCache.getBitmap(key)!=null) {
+                        mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                        return mDiskLruCache.getBitmap(key);
+                    } else {
+                        return null;
+                    }
                 } else {
                     return null;
                 }
@@ -590,7 +597,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
 
-
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imageView=null;
         String avatarString;
@@ -602,12 +608,46 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if(grayOut) fadeImage(imageView);
 
         }
+        public int calculateInSampleSize(
+                BitmapFactory.Options options, int reqWidth, int reqHeight) {
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+            if (height > reqHeight || width > reqWidth) {
+
+                final int halfHeight = height / 2;
+                final int halfWidth = width / 2;
+
+                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                // height and width larger than the requested height and width.
+                while ((halfHeight / inSampleSize) > reqHeight
+                        && (halfWidth / inSampleSize) > reqWidth) {
+                    inSampleSize *= 2;
+                }
+            }
+
+            return inSampleSize;
+        }
 
         //convert image of link to bitmap
         protected Bitmap doInBackground(String... args) {
             Bitmap bitmap=null;
             try {
-                bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+                BitmapFactory.Options options= new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                Rect padding=new Rect();
+                padding.setEmpty();
+                BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
+                //int imageHeight = options.outHeight;
+                //int imageWidth = options.outWidth;
+                //String imageType = options.outMimeType;
+
+                // Calculate inSampleSize
+                options.inSampleSize = calculateInSampleSize(options, 192, 192);
+                options.inJustDecodeBounds = false;
+                bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
                 avatarString=args[0];
                 lowerCaseId= args[1];
             } catch (Exception e) {
