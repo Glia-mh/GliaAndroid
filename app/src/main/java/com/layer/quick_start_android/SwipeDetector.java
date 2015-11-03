@@ -9,7 +9,7 @@ import android.view.View;
 
 public class SwipeDetector implements View.OnTouchListener {
 
-    public static enum Action {
+    public enum Action {
         LR, // Left to Right
         RL, // Right to Left
         TB, // Top to bottom

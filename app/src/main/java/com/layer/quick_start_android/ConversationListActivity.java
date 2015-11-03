@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -36,7 +37,6 @@ import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.RoundImage;
-import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -49,12 +49,11 @@ import java.util.HashMap;
 
 
 public class ConversationListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
-    static LayerClient layerClient;
     LoginController loginController;
     static public ParticipantProvider participantProvider;
     private AtlasConversationsList myConversationList;
     static Context context;
-
+    private String myID;
     private String[] mOptions;
     private String[] mOptionsRightDrawer;
     private DrawerLayout mDrawerLayout;
@@ -67,16 +66,20 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private final Object mDiskCacheLock = new Object();
     private boolean mDiskCacheStarting = true;
     private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-    private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
     //account type 1 is counselor
     //account type 0 is student
     //default set to 0
     private int accountType;
+
     @Override
-    protected void onStart() {
-        super.onStart();
-       // super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState){
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_conversation);
+
+
+
         context = this;
         mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype",0);
@@ -85,10 +88,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         //set layer Client and Authentication Listeners to ConversationListActivity
         loginController = new LoginController();
-        loginController.authenticationListener.assignConversationListActivity(this);
-        layerClient = loginController.getLayerClient();
+        LoginController.authenticationListener.assignConversationListActivity(this);
+        myID=LoginController.layerClient.getAuthenticatedUserId();
 
-        setContentView(R.layout.activity_list_conversation);
 
 
 
@@ -96,12 +98,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         // COUNSELOR BAR*************************************************************
         LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
         if(accountType==0) {
+
+
+            //Memory for caches
             final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
-            // Use 1/8th of the available memory for this memory cache.
-            final int cacheSize = maxMemory;
-            //if(savedInstanceState==null) {
-            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            mMemoryCache = new LruCache<String, Bitmap>(maxMemory) {
                 @Override
                 protected int sizeOf(String key, Bitmap bitmap) {
                     // The cache size will be measured in kilobytes rather than
@@ -109,37 +111,36 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     return bitmap.getByteCount() / 1024;
                 }
             };
+            new InitDiskCacheTask().execute();
 
-                new InitDiskCacheTask().execute();
-            //}
 
             Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
             ArrayList<View> greyedOutCounselors = new ArrayList<View>();
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             for (final Participant p : participants) {
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
                 View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
                 TextView text = (TextView) item.findViewById(R.id.counselorbartext);
                 ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
                 text.setText(p.getFirstName());   // set up text
+
                 boolean greyImage = false;
-                if(p.getIsAvailable()==false) greyImage=true;
+                if(!p.getIsAvailable()) greyImage=true;
+
                 if (getBitmapFromCache(p.getID().toLowerCase()) == null) {
                     new LoadImage(image, greyImage).execute(p.getAvatarString(), p.getID().toLowerCase());   // set up image
                 } else {
                     RoundImage roundImage;
                     roundImage = new RoundImage(getBitmapFromCache(p.getID().toLowerCase()));
                     image.setImageDrawable(roundImage);
-                    Log.d("cached", "cachedcounselorbarpic");
                 }
-
 
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
                         if (myConversationList.getCounselorsinConversationWith().contains(p.getID())) {
-                            Log.d("ConversationListAct", "counselorsinconversationwith" + myConversationList.getCounselorsinConversationWith().contains(p.getID()));
                             startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
                         } else {
                             startNewMessagesActivity(p.getID());
@@ -147,7 +148,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
                     }
                 });
-                if(p.getIsAvailable()==false) greyedOutCounselors.add(item);
+
+                if(!p.getIsAvailable()) greyedOutCounselors.add(item);
                 else counselorBar.addView(item);
             }
             // Add greyed out counselors last
@@ -177,21 +179,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         // Set the adapter for the list view
         mDrawerListLeft.setAdapter(new MyAdapter(this));
-        // Set the list's click listener
-        //mDrawerListLeft.setOnItemClickListener(this);
 
         leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawer) {
-                //Toast.makeText(context, "open", Toast.LENGTH_SHORT).show();
                 DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
-                if(drawerParams.gravity==Gravity.LEFT)mDrawerLayout.closeDrawer(Gravity.RIGHT);
+                if(drawerParams.gravity==Gravity.START)mDrawerLayout.closeDrawer(GravityCompat.END);
             }
 
-            public void onDrawerClosed(View drawer) {
-                //Toast.makeText(context, "closed", Toast.LENGTH_SHORT).show();
-            }
         };
 
         mDrawerLayout.setDrawerListener(leftDrawerListener);
@@ -210,152 +206,65 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
 
-        //try to uncomment and see result later ************************************
-        // if (savedInstanceState==null){
+        // ************************************
 
         participantProvider=MainActivity.participantProvider;
 
         //initialize Conversation List
         myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
-        Log.d("I have reach here","I have reached here");
-        synchronized (mDiskCacheLock) {
-            myConversationList.init(layerClient, participantProvider, accountType, context);
-        }
+
+
+        myConversationList.init(LoginController.layerClient, participantProvider, accountType, context);
+
+
         myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
             public void onItemClick(Conversation conversation) {
                 startMessagesActivity(conversation);
             }
         });
 
-        //to recieve feedback about events that you have not initiated (when another person texts the authenticated user)
-        layerClient.registerEventListener(myConversationList);
+
 
         // Show the welcome dialog if first time on
-        if (accountType==0 && mPrefs.getString("firstTimeStudent", "YARP").equals("YARP")) {  //Yaarp.....
+        if (accountType==0 && mPrefs.getString("firstTimeStudent", "1").equals("1")) {
             AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student);
             welcomeAlertDialog.show();
             SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("firstTimeStudent", "NARP").commit(); //Naarp.......
-        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "YARP").equals("YARP")) {  //Yaarp.....
+            mEditor.putString("firstTimeStudent", "0").apply();
+        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "1").equals("1")) {
             AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_counselor);
             welcomeAlertDialog.show();
             SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("firstTimeCounselor", "NARP").commit();
+            mEditor.putString("firstTimeCounselor", "0").apply();
         }
 
-        //eventual dialog for conversation options
-  /*  myConversationList.setLongClickListener(new AtlasConversationsList.ConversationLongClickListener() {
-            public void onItemLongClick(final Conversation conversation) {
-
-                final Dialog dialog = new Dialog(ConversationListActivity.this);
-                dialog.setContentView(R.layout.conversation_options);
-                dialog.setTitle("Conversation Options");
-                dialog.show();
-                dialog.findViewById(R.id.conversationdeleter).setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        layerClient.deleteConversation(conversation, LayerClient.DeletionMode.ALL_PARTICIPANTS);
-                        myConversationList.getConversations().remove(conversation);
-                        myConversationList.getAdapter().notifyDataSetChanged();
-                        dialog.dismiss();
-                    }
-                });
-
-
-            }
-        });*/
-
-
-
-
-        //to start a new conversation with + button may be used on counselor side eventually
-            /*View newconversation = findViewById(R.id.newconversation);
-            newconversation.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    startMessagesActivity(null);
-                }
-            });*/
-
-
-        // }
-
-
-
-
-
-    }
-
-
-
-
-
-
-    public Bitmap getBitmapFromCache(String key) {
-        if (mMemoryCache.get(key)!=null) {
-            return mMemoryCache.get(key);
-        } else {
-            synchronized (mDiskCacheLock) {
-                // Wait while disk cache is started from background thread
-                while (mDiskCacheStarting) {
-                    try {
-                        mDiskCacheLock.wait();
-                    } catch (InterruptedException e) {
-                    }
-                }
-
-                if (mDiskLruCache != null) {
-                    if(mDiskLruCache.getBitmap(key)!=null) {
-                        mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
-                        return mDiskLruCache.getBitmap(key);
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return null;
-                }
-            }
-        }
-    }
-
-
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState){
-        super.onPostCreate(savedInstanceState);
         leftDrawerListener.syncState();
+
+
     }
 
 
-    // For when a left nav drawer item is clicked
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-        if (mOptions[position].equals("Logout")) {
-            setContentView(R.layout.loading_screen);
-            getSupportActionBar().hide();
-            TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
-            loggingoutintext.setText("Logging Out...");
-            loginController.logout();
-        } else if (mOptions[position].equals("Settings")) {
-            //go to settings (right nav drawer)
-            DrawerLayout dl = (DrawerLayout)findViewById(R.id.drawer_layout);
-            dl.closeDrawer(Gravity.LEFT);
-            dl.openDrawer(Gravity.RIGHT);
-        } else if (mOptions[position].equals("About Roots")) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
-            startActivity(browserIntent);
-        } else if (mOptions[position].equals("Get Involved")) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
-            startActivity(browserIntent);
-        }
+
+
+    public void onResume() {
+        System.gc();
+        super.onResume();
+        //to receive feedback about events that you have not initiated (when another person texts the authenticated user)
+        LoginController.layerClient.registerEventListener(myConversationList);
     }
+
+
+    public void onPause() {
+        super.onPause();
+        LoginController.layerClient.unregisterEventListener(myConversationList);
+    }
+
 
     //enters or starts a conversation
     private void startMessagesActivity(Conversation c){
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
         if(c != null) {
             intent.putExtra("conversation-id", c.getId());
-            //intent.putExtra("counselor.ID", c.getMetadata().get("counselor.ID").toString());
-            //Log.d("ConversatonListActivity",c.getMetadata().get("counselor.ID").toString());
         }
         startActivity(intent);
     }
@@ -376,6 +285,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     }
 
 
+
+
+    //Options Menu Functions **********************************************
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -386,21 +298,17 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-
-
-        if (leftDrawerListener.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return leftDrawerListener.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
+    //**********************************************
 
-    // Left drawer
+
+
+
+
+
+    // Left drawer**********************************************************************
     class MyAdapter extends BaseAdapter {
         String[] options;
         int[] images = new int[]{R.drawable.ic_logout,
@@ -431,7 +339,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View row = null;
+            View row;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 row = inflater.inflate(R.layout.custom_nav_drawer_row, parent, false);
@@ -447,7 +355,41 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         }
     }
 
-    // RIGHT drawer (counselor)
+
+    // For when a left nav drawer item is clicked
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+        if (mOptions[position].equals("Logout")) {
+            setContentView(R.layout.loading_screen);
+            getSupportActionBar().hide();
+            TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
+            loggingoutintext.setText("Logging Out...");
+            loginController.logout();
+        } else if (mOptions[position].equals("Settings")) {
+            //go to settings (right nav drawer)
+            DrawerLayout dl = (DrawerLayout)findViewById(R.id.drawer_layout);
+            dl.closeDrawer(GravityCompat.START);
+            dl.openDrawer(GravityCompat.END);
+        } else if (mOptions[position].equals("About Roots")) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
+            startActivity(browserIntent);
+        } else if (mOptions[position].equals("Get Involved")) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
+            startActivity(browserIntent);
+        }
+    }
+    //**********************************************************************
+
+
+
+
+
+
+
+
+
+
+
+    // RIGHT drawer (counselor)**************************************************************
     class CounselorRightDrawerAdapter extends BaseAdapter {
         String[] options;
         Context context;
@@ -483,7 +425,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 TextView tv = (TextView)row.findViewById(R.id.textView);
                 tv.setText(options[position]);
                 //Replace image view with another view based on option
-                if(position==0) { //First option for counselor: enable/disable isAvailable. Checkbox
+                if(position==0) {
+
+                //First option for counselor: enable/disable isAvailable. Checkbox
                     ImageView iv = (ImageView)row.findViewById(R.id.imageView);
                     if (iv!=null) {
                         Log.d("imageView","the Image View is "+iv.toString());
@@ -494,10 +438,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                         ivparent.addView(availableCheckBox, index);
                     }
                     try {
-                        Log.d("ConversationListAct","MainActivity.myID=="+MainActivity.myID);
-                        Log.d("ConversationListAct","MainActivity.participantProvider=="+MainActivity.participantProvider);
-                        Log.d("ConversationListAct","MainActivity.participantProvider.getParticipant(MainActivity.myID)=="+MainActivity.participantProvider.getParticipant(MainActivity.myID));
-                        boolean isChecked = MainActivity.participantProvider.getParticipant(MainActivity.myID).getIsAvailable();
+
+                        boolean isChecked = MainActivity.participantProvider.getParticipant(myID).getIsAvailable();
                         availableCheckBox.setChecked(isChecked);
                     } catch (NullPointerException exc) {
                         Log.d("ConversationListAct","Uh oh, NullPointerException when trying to see if checked.");
@@ -506,10 +448,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            MainActivity.participantProvider.getParticipant(MainActivity.myID).setAvailable(isChecked);
+                            MainActivity.participantProvider.getParticipant(myID).setAvailable(isChecked);
 
                             HashMap<String, String> params = new HashMap<String, String>();
-                            params.put("userID", MainActivity.myID);
+                            params.put("userID", myID);
                             if(isChecked) {
                                 ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
                                         params, new FunctionCallback<String>() {
@@ -558,7 +500,20 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             return row;
         }
     }
+    //**************************************************************
 
+
+
+
+
+
+
+
+
+
+
+
+    //bitmap caching and loading********************************************************************
     class InitDiskCacheTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void ... params) {
@@ -575,7 +530,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     public void addBitmapToCache(String key, Bitmap bitmap) {
         // Add to memory cache as before
-        //if (getBitmapFromCache(key) == null) {
             mMemoryCache.put(key, bitmap);
 
 
@@ -586,16 +540,42 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     try {
                         mDiskCacheLock.wait();
                     } catch (InterruptedException e) {
+                        Log.w("disk cache start error","disk cache accessed before initialized");
                     }
                 }
                 if (mDiskLruCache != null && mDiskLruCache.getBitmap(key) == null) {
                     mDiskLruCache.put(key, bitmap);
                 }
             }
-        //}
     }
 
+    public Bitmap getBitmapFromCache(String key) {
+        if (mMemoryCache.get(key)!=null) {
+            return mMemoryCache.get(key);
+        } else {
+            synchronized (mDiskCacheLock) {
+                // Wait while disk cache is started from background thread
+                while (mDiskCacheStarting) {
+                    try {
+                        mDiskCacheLock.wait();
+                    } catch (InterruptedException e) {
+                        Log.w("disk cache start error","disk cache accessed before initialized");
+                    }
+                }
 
+                if (mDiskLruCache != null) {
+                    if(mDiskLruCache.getBitmap(key)!=null) {
+                        mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                        return mDiskLruCache.getBitmap(key);
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imageView=null;
@@ -640,9 +620,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 Rect padding=new Rect();
                 padding.setEmpty();
                 BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
-                //int imageHeight = options.outHeight;
-                //int imageWidth = options.outWidth;
-                //String imageType = options.outMimeType;
+
 
                 // Calculate inSampleSize
                 options.inSampleSize = calculateInSampleSize(options, 192, 192);
@@ -680,18 +658,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             v.setAlpha(128);   // 128 = 0.5
         }
     }
-
+    //********************************************************************
 
     private  AlertDialog getWelcomeAlertDialog(int stringAddress){
-        // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(stringAddress)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //do nothin' cuz we don't gotta
                     }
                 });
-        // Create the AlertDialog object and return it
         return builder.create();
     }
 }

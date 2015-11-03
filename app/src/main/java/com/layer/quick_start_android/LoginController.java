@@ -31,13 +31,16 @@ public class LoginController {
         layerClient.registerAuthenticationListener(authenticationListener);
 
         authenticationListener.setmUserId(mUserId);
+
         //add log statement
-        if(layerClient.isConnected() && !(layerClient.isAuthenticated())) {
+        if (!(layerClient.isConnected())) {
+            layerClient.connect();
+        } else if(!(layerClient.isAuthenticated())) {
             layerClient.authenticate();
-        }else {
-           layerClient.connect();
         }
+
     }
+
     public LayerClient getLayerClient(){
 
         return layerClient;
@@ -48,7 +51,7 @@ public class LoginController {
           //  layerClient.disconnect();
 
             layerClient.deauthenticate();
-            Log.d("changing","in login controller");
+            Log.d("changing", "in login controller");
     }
 
 }

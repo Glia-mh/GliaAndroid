@@ -7,6 +7,7 @@ import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerConnectionListener;
 public class MyConnectionListener implements LayerConnectionListener {
     private MainActivity main_activity;
+    private boolean receive=false;
     private ConversationListActivity conversationListActivity;
     public MyConnectionListener(MainActivity ma){
         main_activity=ma;
@@ -18,14 +19,17 @@ public class MyConnectionListener implements LayerConnectionListener {
     @Override
     public void onConnectionConnected(LayerClient client) {
         Log.d("ConnectionCheckConnect", "ConnectionCheckConnect");
-        if(client.isAuthenticated()){
-            main_activity.onUserAuthenticated();
-        }else {
+        if(!(client.isAuthenticated())){
             client.authenticate();
+        } else if (!receive){
+            main_activity.onUserAuthenticated();
+            Log.d("ConnectionCheckConnect2","ConnectionCheckConnect2");
         }
     }
 
-
+    public void setReceive(boolean receiveValue){
+        receive=receiveValue;
+    }
     @Override
     public void onConnectionDisconnected(LayerClient arg0) {
         // TODO Auto-generated method stub
