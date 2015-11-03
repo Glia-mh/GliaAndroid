@@ -31,7 +31,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/CustomActionBarTheme" >
+        android:theme="@style/CustomActionBarTheme"
+        android:name=".RootsApp">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -49,7 +50,6 @@
         <activity
             android:name=".ViewMessagesActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".ConversationListActivity"
             android:windowSoftInputMode="adjustResize" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -62,19 +62,22 @@
                 <action android:name="com.layer.sdk.PUSH"/>
                 <category android:name="com.layer.quick_start_android"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="com.layer.quick_start_android"/>
+            </intent-filter>
         </receiver>
 
         <!-- Layer's GCM Receiver and Service -->
         <receiver android:name="com.layer.sdk.services.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter android:priority="950">
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
+               <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
                 <category android:name="com.layer.quick_start_android"/>
             </intent-filter>
         </receiver>
         <service android:name="com.layer.sdk.services.GcmIntentService"/>
-
 
     </application>
 

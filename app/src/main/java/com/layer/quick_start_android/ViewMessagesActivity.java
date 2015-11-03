@@ -12,11 +12,11 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.LruCache;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewManager;
 import android.widget.FrameLayout;
@@ -49,7 +49,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private AtlasMessageComposer atlasComposer;
     private Conversation conversation;
     private String counselorId=null;
-
     private String DRAWER_OPEN = "DrawerOpen";
     private boolean drawerOpen;
 
@@ -82,18 +81,17 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
         SharedPreferences mPrefs = getSharedPreferences("label", 0);
-        accountType = mPrefs.getInt("accounttype",0);
+        accountType = mPrefs.getInt("accounttype", 0);
 
         //if conversation does not exist set counselor Id for conversation initialization
         counselorId=getIntent().getStringExtra("counselor-id");
 
 
 
-
         //get current conversation
         Uri id = getIntent().getParcelableExtra("conversation-id");
         if(id != null)
-            conversation = ConversationListActivity.layerClient.getConversation(id);
+            conversation = LoginController.layerClient.getConversation(id);
 
 
         if(counselorId==null){
@@ -126,7 +124,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-            if(ConversationListActivity.participantProvider.getParticipant(counselorId).getIsAvailable()==false) {
+            if(!ConversationListActivity.participantProvider.getParticipant(counselorId).getIsAvailable()) {
                 fadeImage=true;
                 findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
             }
@@ -152,7 +150,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //set message list
         messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
-        messagesList.init(ConversationListActivity.layerClient, ConversationListActivity.participantProvider, accountType, this);
+        messagesList.init(LoginController.layerClient, ConversationListActivity.participantProvider, accountType, this);
         messagesList.setConversation(conversation);
 
 
@@ -162,7 +160,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         //automatically set to hidden
         //a view with dynamic filtering of a list that allows you to add participants
         participantPicker = (AtlasParticipantPicker) findViewById(R.id.participantpicker);
-        String[] currentUser = {ConversationListActivity.layerClient.getAuthenticatedUserId()};
+        String[] currentUser = {LoginController.layerClient.getAuthenticatedUserId()};
         participantPicker.init(currentUser, ConversationListActivity.participantProvider);
         //if(conversation != null)
         participantPicker.setVisibility(View.GONE);
@@ -187,7 +185,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //used to create and send messages
         atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
-        atlasComposer.init(ConversationListActivity.layerClient, conversation);
+        atlasComposer.init(LoginController.layerClient, conversation);
         atlasComposer.setListener(new AtlasMessageComposer.Listener() {
             //if returns false means the message will not send and participants not entered
             //in new conversation
@@ -206,7 +204,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
                         Metadata student = Metadata.newInstance();
                         student.put("name", "");
-                        student.put("ID", ConversationListActivity.layerClient.getAuthenticatedUserId());
+                        student.put("ID", LoginController.layerClient.getAuthenticatedUserId());
                         student.put("avatarString", getVanilliconLink());
                         //set MetaData to Conversations
 /*                        HashMap<String,HashMap<String, String>> metadataMap=new HashMap<String, HashMap<String, String>>();
@@ -220,7 +218,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         metadataConv.put("student", student);
 
 
-                        conversation = ConversationListActivity.layerClient.newConversation(participants);
+                        conversation = LoginController.layerClient.newConversation(participants);
 
                         //set metatdata
                         conversation.putMetadata(metadataConv, false);
@@ -262,8 +260,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student_view_messages_act);
             welcomeAlertDialog.show();
             SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putBoolean("firstTimeStudentOnViewMessagesAct", false).commit();
-            dl.openDrawer(Gravity.RIGHT);
+            mEditor.putBoolean("firstTimeStudentOnViewMessagesAct", false).apply();
+            dl.openDrawer(GravityCompat.END);
         }
 
 
@@ -279,17 +277,17 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
     protected void onResume() {
         super.onResume();
-        ConversationListActivity.layerClient.registerEventListener(messagesList);
+        LoginController.layerClient.registerEventListener(messagesList);
     }
 
     protected void onPause(){
         super.onPause();
-        ConversationListActivity.layerClient.unregisterEventListener(messagesList);
+        LoginController.layerClient.unregisterEventListener(messagesList);
     }
 
     public String getVanilliconLink() {
         //load Vanillicon
-        byte[] bytesofTest = ConversationListActivity.layerClient.getAuthenticatedUserId().getBytes();
+        byte[] bytesofTest = LoginController.layerClient.getAuthenticatedUserId().getBytes();
         MessageDigest messageDigest = null;
         try {
             messageDigest = MessageDigest.getInstance("MD5");
