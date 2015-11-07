@@ -1,10 +1,12 @@
 package com.layer.quick_start_android;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
@@ -13,6 +15,8 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -43,6 +47,7 @@ import com.parse.ParseCloud;
 import com.parse.ParseException;
 
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,6 +71,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private final Object mDiskCacheLock = new Object();
     private boolean mDiskCacheStarting = true;
     private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+
+
+    public static myHandler availabilityHandler;
 
     //account type 1 is counselor
     //account type 0 is student
@@ -117,6 +125,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
             ArrayList<View> greyedOutCounselors = new ArrayList<View>();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            availabilityHandler= new myHandler(this);
 
             for (final Participant p : participants) {
 
@@ -125,16 +134,23 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
                 text.setText(p.getFirstName());   // set up text
 
-                boolean greyImage = false;
-                if(!p.getIsAvailable()) greyImage=true;
+
+
+                image.setTag(p.getID());
 
                 if (getBitmapFromCache(p.getID().toLowerCase()) == null) {
-                    new LoadImage(image, greyImage).execute(p.getAvatarString(), p.getID().toLowerCase());   // set up image
+                    new LoadImage(image).execute(p.getAvatarString(), p.getID().toLowerCase());   // set up image
                 } else {
                     RoundImage roundImage;
                     roundImage = new RoundImage(getBitmapFromCache(p.getID().toLowerCase()));
                     image.setImageDrawable(roundImage);
                 }
+
+
+                if(!p.getIsAvailable())
+                    fadeImage(image, p.getIsAvailable());
+
+
 
                 item.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -160,6 +176,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         //***********************************************************************
 
+
+
+
+
+        // LEFT/RIGHT NAV DRAWERS********************************************* onCreate
+
         //Setting options for Drawers
         if(accountType==0) {
             mOptions = getResources().getStringArray(R.array.left_drawer_options);
@@ -171,7 +193,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // LEFT/RIGHT NAV DRAWERS*********************************************
+
+
+
 
         //Left Drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -193,15 +217,44 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         mDrawerLayout.setDrawerListener(leftDrawerListener);
         mDrawerListLeft.setOnItemClickListener(this);
 
+
+
+
+
+
         //right drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
-
-        // Set the adapter for the list view
+        PackageManager pm = this.getPackageManager();
         if(accountType==1) {
-            Log.d("attempt1","attempt1");
+
+            if(!MainActivity.participantProvider.getParticipant(myID).getIsAvailable()) {
+                Log.d("Disabled","Disabled");
+                ComponentName receiver = new ComponentName(this, LayerPushReceiver.class);
+
+
+                pm.setComponentEnabledSetting(receiver,
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP);
+
+            }
+
+            ComponentName receiverParseAvailability=new ComponentName(this, AvailabilityBroadcastReceiver.class);
+            pm.setComponentEnabledSetting(receiverParseAvailability,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
             mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
+        }else {
+            ComponentName receiverParseAvailability=new ComponentName(this, AvailabilityBroadcastReceiver.class);
+            if (pm.getComponentEnabledSetting(receiverParseAvailability)==PackageManager.COMPONENT_ENABLED_STATE_DISABLED){
+                pm.setComponentEnabledSetting(receiverParseAvailability,
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                        PackageManager.DONT_KILL_APP);
+            }
+
         }
+
+
 
 
 
@@ -243,8 +296,62 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     }
 
+    public void fadeImage(ImageView v, boolean isAvailable)
+    {
+        if(isAvailable) {
+            v.clearColorFilter();
+            v.setAlpha(1.0f);
+        } else {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);  //0 means grayscale
+            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
+            v.setColorFilter(cf);
+            v.setAlpha(0.5f);  // 128 = 0.5
+        }
+    }
 
+    static class myHandler extends Handler {
+        public final WeakReference<ConversationListActivity> convListActivityVars;
+        public WeakReference<ViewMessagesActivity> viewMessagesActivityWeakReference;
+                myHandler(ConversationListActivity conv) {
+                    convListActivityVars = new WeakReference<ConversationListActivity>(conv);
+             }
 
+        public void setViewMessagesActivityWeakReference(ViewMessagesActivity messagesActivity) {
+            viewMessagesActivityWeakReference = new WeakReference<ViewMessagesActivity>(messagesActivity);
+        }
+
+        @Override
+        public void handleMessage (Message msg){
+            ConversationListActivity conversationListActivity = convListActivityVars.get();
+            if (conversationListActivity.accountType == 0) {
+                String userID = (String) msg.obj;
+                ImageView v = (ImageView) conversationListActivity.findViewById(R.id.horizontal_scroll_view_counselors).findViewWithTag(userID);
+                Log.d("gray value", "gray value function must be called");
+                if (msg.what == 0) {
+                    conversationListActivity.fadeImage(v, false);
+                    participantProvider.getParticipant(userID).setAvailable(false);
+                    Log.d("called", "called false");
+                    if(viewMessagesActivityWeakReference!=null){
+                        ViewMessagesActivity viewMessagesActivity=viewMessagesActivityWeakReference.get();
+                        viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+                    }
+
+                } else {
+
+                    conversationListActivity.fadeImage(v, true);
+                    participantProvider.getParticipant(userID).setAvailable(true);
+
+                    if(viewMessagesActivityWeakReference!=null){
+                        ViewMessagesActivity viewMessagesActivity=viewMessagesActivityWeakReference.get();
+                        viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+                    }
+                    Log.d("called", "called true");
+                }
+            }
+        }
+
+    }
 
     public void onResume() {
         System.gc();
@@ -453,6 +560,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                             HashMap<String, String> params = new HashMap<String, String>();
                             params.put("userID", myID);
                             if(isChecked) {
+
                                 ParseCloud.callFunctionInBackground("setCounselorStateToAvailable",
                                         params, new FunctionCallback<String>() {
                                             @Override
@@ -461,6 +569,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                                                     Toast.makeText(context,
                                                             "You have been flagged as available.",
                                                             Toast.LENGTH_SHORT).show();
+
+                                                        ComponentName receiver = new ComponentName(getApplicationContext(), LayerPushReceiver.class);
+                                                        PackageManager pm = getApplicationContext().getPackageManager();
+
+                                                        pm.setComponentEnabledSetting(receiver,
+                                                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                                                                PackageManager.DONT_KILL_APP);
+
+
                                                 } else {
                                                     Toast.makeText(context,
                                                             "Unable to change availability. " +
@@ -472,6 +589,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                                         });
                             }
                             else {
+                            //Gray Value function should be here
                                 ParseCloud.callFunctionInBackground("setCounselorStateToUnavailable",
                                         params, new FunctionCallback<String>() {
                                             @Override
@@ -480,6 +598,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                                                     Toast.makeText(context,
                                                             "You have been flagged as unavailable.",
                                                             Toast.LENGTH_SHORT).show();
+
+                                                    ComponentName receiver = new ComponentName(getApplicationContext(), LayerPushReceiver.class);
+                                                    PackageManager pm = getApplicationContext().getPackageManager();
+
+                                                    pm.setComponentEnabledSetting(receiver,
+                                                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                                            PackageManager.DONT_KILL_APP);
                                                 } else {
                                                     Toast.makeText(context,
                                                             "Unable to change availability. " +
@@ -582,10 +707,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         String avatarString;
         String lowerCaseId;
         //for passing image View
-        public LoadImage(ImageView imageViewLocal, boolean grayOut) {
+        public LoadImage(ImageView imageViewLocal) {
             super();
             imageView=imageViewLocal;
-            if(grayOut) fadeImage(imageView);
 
         }
         public int calculateInSampleSize(
@@ -647,15 +771,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             }else{
                 Log.d("ConversationListAct", "failed to set bitmap to image view");
             }
-        }
-
-        public void fadeImage(ImageView v)
-        {
-            ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(0);  //0 means grayscale
-            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
-            v.setColorFilter(cf);
-            v.setAlpha(128);   // 128 = 0.5
         }
     }
     //********************************************************************

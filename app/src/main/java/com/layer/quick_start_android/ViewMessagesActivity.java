@@ -80,6 +80,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         setContentView(R.layout.activity_messages_view);
 
 
+
         SharedPreferences mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype", 0);
 
@@ -97,6 +98,10 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         if(counselorId==null){
             counselorId=(String)conversation.getMetadata().get("counselor.ID");
         }
+
+
+        ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
+
 
         FrameLayout bioInformationDrawer=(FrameLayout)findViewById(R.id.counselor_bio_drawer);
         bioInformationDrawer.setVisibility(View.VISIBLE);
