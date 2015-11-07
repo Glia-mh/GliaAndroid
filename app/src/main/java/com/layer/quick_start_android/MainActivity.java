@@ -17,7 +17,6 @@ import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerSyncListener;
 import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
-import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -54,8 +53,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         getSupportActionBar().hide();
         mPrefs= getSharedPreferences("label", 0);
 
-        //Parse setup
-        Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
+
         participantProvider  = new ParticipantProvider();
         participantProvider.refresh();
 
@@ -241,6 +239,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         if (isSynced){
             Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
             intent.putExtra("mUserId", loginString);
+
+            //needed to avoid future calls to onUserAuthenticated when phone disconnects
             loginController.connectionListener.setReceive(true);
             finish();
             startActivity(intent);

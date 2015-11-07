@@ -21,7 +21,7 @@ public class LayerPushReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         //Don't show a notification on boot
-        if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
+        if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
             return;
 
         // Get notification content
@@ -56,10 +56,7 @@ public class LayerPushReceiver extends BroadcastReceiver {
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.notify(1, mBuilder.build());
 
-        Log.d("received","received");
-
-
-
+        Log.d("received", "received");
 
 
     }

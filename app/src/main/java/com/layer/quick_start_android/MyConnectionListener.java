@@ -7,11 +7,21 @@ import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerConnectionListener;
 public class MyConnectionListener implements LayerConnectionListener {
     private MainActivity main_activity;
+
+    //if connection disconnected while in account, want to modify on connection connected callback
     private boolean receive=false;
+
+
     private ConversationListActivity conversationListActivity;
+
+
+
     public MyConnectionListener(MainActivity ma){
         main_activity=ma;
     }
+
+
+
     public MyConnectionListener(ConversationListActivity cla){
         conversationListActivity=cla;
     }
@@ -27,9 +37,11 @@ public class MyConnectionListener implements LayerConnectionListener {
         }
     }
 
+
     public void setReceive(boolean receiveValue){
         receive=receiveValue;
     }
+
     @Override
     public void onConnectionDisconnected(LayerClient arg0) {
         // TODO Auto-generated method stub
@@ -39,7 +51,6 @@ public class MyConnectionListener implements LayerConnectionListener {
     public void onConnectionError(LayerClient arg0, LayerException e) {
         // TODO Auto-generated method stub
         Log.d("ConnectionCheckFail", "ConnectionCheckFail");
-
     }
 
 }

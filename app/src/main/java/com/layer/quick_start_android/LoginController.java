@@ -12,13 +12,13 @@ public class LoginController {
     static MyAuthenticationListener authenticationListener;
     static MyConnectionListener connectionListener;
 
-    public void LoginController() {
+    public  LoginController() {
 
     }
 
     public void setLayerClient(Context context, MainActivity ma) {
         LayerClient.Options options = new LayerClient.Options();
-        options.googleCloudMessagingSenderId("155377978502");
+        options.googleCloudMessagingSenderId("155377978502,1076345567071");
         options.historicSyncPolicy(LayerClient.Options.HistoricSyncPolicy.ALL_MESSAGES);
         UUID appID = UUID.fromString("e25bc8da-9f52-11e4-97ea-142b010033d0");
         layerClient = LayerClient.newInstance(context, "layer:///apps/staging/"+appID, options);

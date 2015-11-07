@@ -41,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/counselor_bar"
+                android:id="@+id/horizontal_scroll_view_counselors"
                 android:scrollbars="none">
                 <LinearLayout
                     android:id="@+id/counselorbar"
