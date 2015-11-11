@@ -185,7 +185,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                     loginController.login(loginString);
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
-                                    //onResume();
+                                    onResume();
                                 }
 
                             }
@@ -217,7 +217,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                 } else {
 
                                     Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
-                                    //onResume();
+                                    onResume();
                                 }
                             }
                         });

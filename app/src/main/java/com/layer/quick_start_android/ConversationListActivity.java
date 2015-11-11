@@ -230,7 +230,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
         PackageManager pm = this.getPackageManager();
         if(accountType==1) {
-                Log.d("MyID","MyID initial push notification receiver set "+myID);
+                Log.d("MyID", "MyID initial push notification receiver set " + myID);
                  if (!MainActivity.participantProvider.getParticipant(myID).getIsAvailable()) {
                     Log.d("Disabled", "Disabled");
                     ComponentName receiver = new ComponentName(this, LayerPushReceiver.class);
@@ -317,7 +317,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         public void handleMessage (Message msg){
             ConversationListActivity conversationListActivity = convListActivityVars.get();
             if(msg.what==2){
-                if(conversationListActivity!=null)
+                if(conversationListActivity.findViewById(R.id.counselor_unavailible_warning)!=null)
                     conversationListActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
 
                 if (viewMessagesActivityWeakReference != null) {
