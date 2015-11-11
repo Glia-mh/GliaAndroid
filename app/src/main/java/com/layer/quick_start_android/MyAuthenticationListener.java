@@ -18,6 +18,8 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
     String mUserId = "000000";
     MainActivity main_activity;
     ConversationListActivity conversationListActivity;
+    private boolean firstAuthentication=true;
+    private boolean firstDeauthentication=true;
 
     //Main Activity Constructor
     public MyAuthenticationListener(MainActivity ma){
@@ -32,10 +34,12 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
     @Override
     public void onAuthenticated(LayerClient client, String arg1) {
         System.out.println("Authentication successful");
-        Log.d("I reached here", "I reached here");
+        Log.d("I reached here", "I reached here " + firstAuthentication);
         //Start the conversation view after a successful authentication
-        if(main_activity != null)
+        if(main_activity != null && firstAuthentication) {
+            firstAuthentication = false;
             main_activity.onUserAuthenticated();
+        }
     }
 
 
@@ -112,8 +116,11 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
     public void onDeauthenticated(LayerClient client) {
         // TODO Auto-generated method stub
 
-        Log.d("Deauthenticated","Deauthenticated");
-        conversationListActivity.onUserDeauthenticated();
+        Log.d("Deauthenticated", "Deauthenticated");
+        if(firstDeauthentication) {
+            conversationListActivity.onUserDeauthenticated();
+            firstDeauthentication=false;
+        }
     }
 
 

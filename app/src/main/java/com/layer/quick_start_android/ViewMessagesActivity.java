@@ -79,6 +79,11 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         setContentView(R.layout.activity_messages_view);
 
+        if(!isNetworkAvailable()){
+            TextView networkErrorWarning=(TextView)findViewById(R.id.counselor_unavailible_warning);
+            networkErrorWarning.setText("Network Error, please connect to the Internet!");
+            networkErrorWarning.setVisibility(View.VISIBLE);
+        }
 
 
         SharedPreferences mPrefs = getSharedPreferences("label", 0);
@@ -100,13 +105,17 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
-        ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
-
-
         FrameLayout bioInformationDrawer=(FrameLayout)findViewById(R.id.counselor_bio_drawer);
         bioInformationDrawer.setVisibility(View.VISIBLE);
+
+        ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
         //Bio View
         if (accountType==0) {
+
+
+
+
+
             ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
             boolean fadeImage = false;
             Log.d("ViewMessagesAct", "ConversationListActivity.participantprovder.getPartticipant(counselorId)==" + ConversationListActivity.participantProvider.getParticipant(counselorId));
@@ -290,6 +299,11 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         LoginController.layerClient.unregisterEventListener(messagesList);
     }
 
+    private boolean isNetworkAvailable(){
+        RootsApp rootsAppInstance=(RootsApp)(getApplication());
+        return rootsAppInstance.isNetworkAvailable();
+    }
+
     public String getVanilliconLink() {
         //load Vanillicon
         byte[] bytesofTest = LoginController.layerClient.getAuthenticatedUserId().getBytes();
@@ -462,5 +476,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         // Create the AlertDialog object and return it
         return builder.create();
     }
+
 }
 

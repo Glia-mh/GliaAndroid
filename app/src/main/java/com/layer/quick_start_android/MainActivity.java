@@ -1,5 +1,7 @@
 package com.layer.quick_start_android;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -54,24 +56,32 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         mPrefs= getSharedPreferences("label", 0);
 
 
-        participantProvider  = new ParticipantProvider();
-        participantProvider.refresh();
 
 
 
-        setContentView(R.layout.activity_main);
+
+
+
+
 
     }
 
-
+    private boolean isNetworkAvailable(){
+        RootsApp rootsAppInstance=(RootsApp)(getApplication());
+        return rootsAppInstance.isNetworkAvailable();
+    }
     @Override
     protected void onResume() {
+        // Layer Setup
+        loginController = new LoginController();
+
+        if(isNetworkAvailable())
+            loginController.setLayerClient(getApplicationContext(), this);
+
 
         super.onResume();
 
-        // Layer Setup
-        loginController = new LoginController();
-        loginController.setLayerClient(getApplicationContext(), this);
+        setContentView(R.layout.activity_main);
 
 
         //get accounttype
@@ -81,7 +91,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         TextView textViewCounselorLogin = (TextView) findViewById(R.id.counselorlogin);
 
         if (accountType == 0) {
-
+            Log.d("is counselor","is counslor login indicator null :"+findViewById(R.id.counselor_login_indicator) + " "+ findViewById(R.id.root_main_activity_layout));
             //UI setup student login
             findViewById(R.id.counselor_login_indicator).setVisibility(View.GONE);
             findViewById(R.id.login_cr_logo).setVisibility(View.VISIBLE);
@@ -106,7 +116,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 }
             });
         } else {
-
+            Log.d("is counselor","is counslor login indicator null :"+findViewById(R.id.counselor_login_indicator) + " "+ findViewById(R.id.root_main_activity_layout));
             //UI setup counselor login
             // set counselor login indicator to be visible and cr logo gone
             findViewById(R.id.counselor_login_indicator).setVisibility(View.VISIBLE);
@@ -139,89 +149,118 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
         //Login Button
         Button loginButton = (Button) findViewById(R.id.loginbutton);
-
+        final MainActivity mainActivity=this;
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 EditText loginEditText = (EditText) findViewById(R.id.loginedittext);
                 loginString = loginEditText.getText().toString().trim();
                 loginEditText.setText("");
 
-                //login validation student
-                if (accountType == 0) {
-                    HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("userID", loginString);
-                    ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
-                        @Override
-                        public void done(String s, ParseException e) {
-                            if (s.equals("valid")) {
-                                setContentView(R.layout.loading_screen);
-                                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                                loggingoutintext.setText("Loading...");
-                                loginController.login(loginString);
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
+                if(isNetworkAvailable()) {
+                    if(loginController.getLayerClient()==null) {
+                        loginController.setLayerClient(getApplicationContext(), mainActivity);
+                    }
+
+                    participantProvider  = new ParticipantProvider();
+                    participantProvider.refresh();
+
+                    //login validation student
+                    if (accountType == 0) {
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        params.put("userID", loginString);
+                        setContentView(R.layout.loading_screen);
+                        ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                            @Override
+                            public void done(String s, ParseException e) {
+                                if (s.equals("valid")) {
+
+
+
+                                    Log.d("callback","valid user id");
+                                    TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                                    loggingoutintext.setText("Loading...");
+                                    if(mPrefs.getString("firstTimeStudent", "1").equals("1")){
+                                        loggingoutintext.setText("First Login May Take Time. Loading...");
+                                    }
+                                    loginController.login(loginString);
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
+                                    //onResume();
+                                }
+
                             }
+                        });
 
-                        }
-                    });
+                        //login validation counselor
+                    } else {
+                        TextView usernameEditText = (TextView) findViewById(R.id.counselor_login_edittext_username);
+                        String username = usernameEditText.getText().toString();
+                        TextView pwEditText = (TextView) findViewById(R.id.counselor_login_edittext_password);
+                        String password = pwEditText.getText().toString();
+                        setContentView(R.layout.loading_screen);
+                        ParseUser.logInInBackground(username, password, new LogInCallback() {
+                            public void done(ParseUser user, ParseException e) {
+                                if (user != null) {
 
-                //login validation counselor
+                                    loginString = user.getObjectId();
+                                    Log.d("user.getObjectId", "user.getObjectId=" + loginString);
+
+
+
+                                    TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+
+                                    loggingoutintext.setText("Loading...");
+                                    if(mPrefs.getString("firstTimeCounselor", "1").equals("1")){
+                                        loggingoutintext.setText("First Login May Take Time. Loading...");
+                                    }
+                                    loginController.login(user.getObjectId());
+                                } else {
+
+                                    Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
+                                    //onResume();
+                                }
+                            }
+                        });
+
+                    }
                 } else {
-                    TextView usernameEditText = (TextView) findViewById(R.id.counselor_login_edittext_username);
-                    String username = usernameEditText.getText().toString();
-                    TextView pwEditText = (TextView) findViewById(R.id.counselor_login_edittext_password);
-                    String password = pwEditText.getText().toString();
-
-                    ParseUser.logInInBackground(username, password, new LogInCallback() {
-                        public void done(ParseUser user, ParseException e) {
-                            if (user != null) {
-
-                                loginString=user.getObjectId();
-                                Log.d("user.getObjectId","user.getObjectId="+loginString);
-
-                                setContentView(R.layout.loading_screen);
-
-                                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                                loggingoutintext.setText("Loading...");
-                                loginController.login(user.getObjectId());
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-
+                    getWelcomeAlertDialog(R.string.no_internet_connection).show();
                 }
-
             }
         });
 
 
         //Login if Authentication exists from last session
+        if(isNetworkAvailable()) {
+            if (loginController.getLayerClient().isAuthenticated()) {
+                isSynced = true;
+                setContentView(R.layout.loading_screen);
 
-        if (loginController.getLayerClient().isAuthenticated()) {
-            isSynced=true;
-            setContentView(R.layout.loading_screen);
-            TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-            loggingoutintext.setText("Loading...");
-            loginString=loginController.getLayerClient().getAuthenticatedUserId();
-            loginController.login(loginString);
+                participantProvider = new ParticipantProvider();
+                participantProvider.refresh();
+
+                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                loggingoutintext.setText("Loading...");
+                loginString = loginController.getLayerClient().getAuthenticatedUserId();
+                loginController.login(loginString);
+            }
         }
     }
 
 
 
-    public void onSyncProgress(LayerClient layerClient, int progress){
+    public void onSyncProgress(LayerClient layerClient, SyncType syncType, int progress){
     }
 
 
 
     //Called before syncing with the Layer servers
-    public void onBeforeSync(LayerClient layerClient) {
+    public void onBeforeSync(LayerClient layerClient, SyncType syncType) {
 
     }
 
     //Called after syncing with the Layer servers
-    public void onAfterSync(LayerClient layerClient) {
+    public void onAfterSync(LayerClient layerClient, SyncType syncType) {
         Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
         intent.putExtra("mUserId", loginString);
         finish();
@@ -236,17 +275,30 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     public void onUserAuthenticated(){
+        Log.d("onUserAuthenticated","onUserAuthenticated");
         if (isSynced){
             Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
             intent.putExtra("mUserId", loginString);
 
             //needed to avoid future calls to onUserAuthenticated when phone disconnects
-            loginController.connectionListener.setReceive(true);
+            LoginController.connectionListener.setReceive(true);
             finish();
             startActivity(intent);
+
 
         } else {
             loginController.getLayerClient().registerSyncListener(this);
         }
+    }
+
+
+    private AlertDialog getWelcomeAlertDialog(int stringAddress){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+        return builder.create();
     }
 }

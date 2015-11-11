@@ -10,37 +10,37 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.READ_LOGS" />
     <!-- GCM permission for your app (replace [com.myapp.newstandalone] with your package name) -->
 
+    <permission
+        android:name="com.layer.quick_start_android.LAYER_PUSH"
+        android:protectionLevel="signature" />
 
-    <permission android:name="com.layer.quick_start_android.LAYER_PUSH"
-        android:protectionLevel="signature"/>
-    <uses-permission android:name="com.layer.quick_start_android.LAYER_PUSH"/>
+    <uses-permission android:name="com.layer.quick_start_android.LAYER_PUSH" />
 
     <permission
         android:name="com.layer.quick_start_android.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.layer.quick_start_android.permission.C2D_MESSAGE" />
+
     <application
+        android:name=".RootsApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/CustomActionBarTheme"
-        android:name=".RootsApp">
-
-
-        <meta-data android:name="com.parse.push.gcm_sender_id"
+        android:theme="@style/CustomActionBarTheme" >
+        <meta-data
+            android:name="com.parse.push.gcm_sender_id"
             android:value="id:155377978502" />
 
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,56 +62,56 @@
         </activity>
 
 
-        <!--for layer-->
+        <!-- for layer -->
         <!-- Your custom "com.layer.sdk.PUSH" notification Receiver -->
-        <receiver android:name=".LayerPushReceiver" android:exported="false">
+        <receiver android:name=".LayerPushReceiver" >
             <intent-filter>
-                <action android:name="com.layer.sdk.PUSH"/>
-                <category android:name="com.layer.quick_start_android"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <category android:name="com.layer.quick_start_android"/>
+                <action android:name="com.layer.sdk.PUSH" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="com.layer.quick_start_android" />
             </intent-filter>
         </receiver>
 
         <!-- Layer's GCM Receiver and Service -->
-        <receiver android:name="com.layer.sdk.services.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter android:priority="950">
-               <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <category android:name="com.layer.quick_start_android"/>
+        <receiver
+            android:name="com.layer.sdk.services.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter android:priority="950" >
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.layer.quick_start_android" />
             </intent-filter>
         </receiver>
-        <service android:name="com.layer.sdk.services.GcmIntentService"/>
 
+        <service android:name="com.layer.sdk.services.GcmIntentService" />
 
-
-
-
-        <!--for parse-->
+        <!-- for parse -->
         <service android:name="com.parse.PushService" />
-        <receiver android:name=".AvailabilityBroadcastReceiver"
-            android:exported="false">
+
+        <receiver
+            android:name=".AvailabilityBroadcastReceiver"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
                 <action android:name="com.parse.push.intent.DELETE" />
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
         </receiver>
-
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="com.layer.quick_start_android" />
             </intent-filter>
         </receiver>
-
-
-
     </application>
 
 </manifest>
