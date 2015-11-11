@@ -86,6 +86,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_conversation);
 
+        if(!isNetworkAvailable()){
+            findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+        }
 
 
         context = this;
@@ -93,13 +96,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         accountType = mPrefs.getInt("accounttype",0);
 
 
-
+        Log.d("Conversation List Activity recreated", "Conversation List Activity recreated");
         //set layer Client and Authentication Listeners to ConversationListActivity
         loginController = new LoginController();
         LoginController.authenticationListener.assignConversationListActivity(this);
         myID=LoginController.layerClient.getAuthenticatedUserId();
 
-
+        availabilityHandler= new myHandler(this);
 
 
 
@@ -125,7 +128,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             Participant[] participants = MainActivity.participantProvider.getCustomParticipants();
             ArrayList<View> greyedOutCounselors = new ArrayList<View>();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            availabilityHandler= new myHandler(this);
+
 
             for (final Participant p : participants) {
 
@@ -227,31 +230,20 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
         PackageManager pm = this.getPackageManager();
         if(accountType==1) {
+                Log.d("MyID","MyID initial push notification receiver set "+myID);
+                 if (!MainActivity.participantProvider.getParticipant(myID).getIsAvailable()) {
+                    Log.d("Disabled", "Disabled");
+                    ComponentName receiver = new ComponentName(this, LayerPushReceiver.class);
 
-            if(!MainActivity.participantProvider.getParticipant(myID).getIsAvailable()) {
-                Log.d("Disabled","Disabled");
-                ComponentName receiver = new ComponentName(this, LayerPushReceiver.class);
+
+                    pm.setComponentEnabledSetting(receiver,
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+
+                }
 
 
-                pm.setComponentEnabledSetting(receiver,
-                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                        PackageManager.DONT_KILL_APP);
-
-            }
-
-            ComponentName receiverParseAvailability=new ComponentName(this, AvailabilityBroadcastReceiver.class);
-            pm.setComponentEnabledSetting(receiverParseAvailability,
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP);
             mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
-        }else {
-            ComponentName receiverParseAvailability=new ComponentName(this, AvailabilityBroadcastReceiver.class);
-            if (pm.getComponentEnabledSetting(receiverParseAvailability)==PackageManager.COMPONENT_ENABLED_STATE_DISABLED){
-                pm.setComponentEnabledSetting(receiverParseAvailability,
-                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                        PackageManager.DONT_KILL_APP);
-            }
-
         }
 
 
@@ -324,29 +316,51 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         @Override
         public void handleMessage (Message msg){
             ConversationListActivity conversationListActivity = convListActivityVars.get();
-            if (conversationListActivity.accountType == 0) {
-                String userID = (String) msg.obj;
-                ImageView v = (ImageView) conversationListActivity.findViewById(R.id.horizontal_scroll_view_counselors).findViewWithTag(userID);
-                Log.d("gray value", "gray value function must be called");
-                if (msg.what == 0) {
-                    conversationListActivity.fadeImage(v, false);
-                    participantProvider.getParticipant(userID).setAvailable(false);
-                    Log.d("called", "called false");
-                    if(viewMessagesActivityWeakReference!=null){
-                        ViewMessagesActivity viewMessagesActivity=viewMessagesActivityWeakReference.get();
-                        viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+            if(msg.what==2){
+                if(conversationListActivity!=null)
+                    conversationListActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+
+                if (viewMessagesActivityWeakReference != null) {
+                    ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
+                    TextView networkErrorWarning=(TextView)viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning);
+                    networkErrorWarning.setText("This counselor is offline. Don't expect an immediate response!");
+                    networkErrorWarning.setVisibility(View.GONE);
+                }
+            }else if (msg.what==3){
+                if(conversationListActivity!=null)
+                    conversationListActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+
+                if (viewMessagesActivityWeakReference != null) {
+                    ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
+                    TextView networkErrorWarning=(TextView)viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning);
+                    networkErrorWarning.setText("Network Error, please connect to the Internet!");
+                    networkErrorWarning.setVisibility(View.VISIBLE);
+                }
+            } else {
+                if (conversationListActivity.accountType == 0) {
+                    String userID = (String) msg.obj;
+                    ImageView v = (ImageView) conversationListActivity.findViewById(R.id.horizontal_scroll_view_counselors).findViewWithTag(userID);
+                    Log.d("gray value", "gray value function must be called");
+                    if (msg.what == 0) {
+                        conversationListActivity.fadeImage(v, false);
+                        participantProvider.getParticipant(userID).setAvailable(false);
+                        Log.d("called", "called false");
+                        if (viewMessagesActivityWeakReference != null) {
+                            ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
+                            viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+                        }
+
+                    } else {
+
+                        conversationListActivity.fadeImage(v, true);
+                        participantProvider.getParticipant(userID).setAvailable(true);
+
+                        if (viewMessagesActivityWeakReference != null) {
+                            ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
+                            viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+                        }
+                        Log.d("called", "called true");
                     }
-
-                } else {
-
-                    conversationListActivity.fadeImage(v, true);
-                    participantProvider.getParticipant(userID).setAvailable(true);
-
-                    if(viewMessagesActivityWeakReference!=null){
-                        ViewMessagesActivity viewMessagesActivity=viewMessagesActivityWeakReference.get();
-                        viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
-                    }
-                    Log.d("called", "called true");
                 }
             }
         }
@@ -358,6 +372,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         super.onResume();
         //to receive feedback about events that you have not initiated (when another person texts the authenticated user)
         LoginController.layerClient.registerEventListener(myConversationList);
+
+        if(LoginController.authenticationListener.conversationListActivity==null){
+            //set layer Client and Authentication Listeners to ConversationListActivity
+            loginController = new LoginController();
+            LoginController.authenticationListener.assignConversationListActivity(this);
+        }
     }
 
 
@@ -385,13 +405,19 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     //for logout
     public void onUserDeauthenticated() {
+        loginController.getLayerClient().unregisterAuthenticationListener(LoginController.authenticationListener);
+        loginController.getLayerClient().unregisterConnectionListener(LoginController.connectionListener);
+        finish();
         Intent logoutIntent = new Intent(this, MainActivity.class);
 
         startActivity(logoutIntent);
-        finish();
+
     }
 
-
+    private boolean isNetworkAvailable(){
+        RootsApp rootsAppInstance=(RootsApp)(getApplication());
+        return rootsAppInstance.isNetworkAvailable();
+    }
 
 
     //Options Menu Functions **********************************************
@@ -466,11 +492,15 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     // For when a left nav drawer item is clicked
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
         if (mOptions[position].equals("Logout")) {
-            setContentView(R.layout.loading_screen);
-            getSupportActionBar().hide();
-            TextView loggingoutintext=(TextView)findViewById(R.id.loginlogoutinformation);
-            loggingoutintext.setText("Logging Out...");
-            loginController.logout();
+            if(isNetworkAvailable()) {
+                setContentView(R.layout.loading_screen);
+                getSupportActionBar().hide();
+                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                loggingoutintext.setText("Logging Out...");
+                loginController.logout();
+            } else {
+                getWelcomeAlertDialog(R.string.no_internet_connection).show();
+            }
         } else if (mOptions[position].equals("Settings")) {
             //go to settings (right nav drawer)
             DrawerLayout dl = (DrawerLayout)findViewById(R.id.drawer_layout);

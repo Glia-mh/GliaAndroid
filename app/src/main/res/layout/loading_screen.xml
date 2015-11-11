@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:windowSoftInputMode="adjustNothing">
+    android:windowSoftInputMode="adjustNothing"
+    android:id="@+id/loading_screen_running">
 
     <ImageView
         android:layout_height="wrap_content"
