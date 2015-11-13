@@ -52,15 +52,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+        if (getSupportActionBar()!=null) getSupportActionBar().hide();
         mPrefs= getSharedPreferences("label", 0);
-
-
-
-
-
-
-
 
 
 
@@ -91,20 +84,20 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         TextView textViewCounselorLogin = (TextView) findViewById(R.id.counselorlogin);
 
         if (accountType == 0) {
-            Log.d("is counselor","is counslor login indicator null :"+findViewById(R.id.counselor_login_indicator) + " "+ findViewById(R.id.root_main_activity_layout));
+            //Log.d("is counselor","is counslor login indicator null :"+findViewById(R.id.counselor_login_indicator) + " "+ findViewById(R.id.root_main_activity_layout));
             //UI setup student login
-            findViewById(R.id.counselor_login_indicator).setVisibility(View.GONE);
-            findViewById(R.id.login_cr_logo).setVisibility(View.VISIBLE);
+            //findViewById(R.id.counselor_login_indicator).setVisibility(View.GONE);
+            //findViewById(R.id.login_cr_logo).setVisibility(View.VISIBLE);
 
             findViewById(R.id.counselor_login_edittext_username).setVisibility(View.GONE);
             findViewById(R.id.counselor_login_edittext_password).setVisibility(View.GONE);
             findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);
 
-            RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) findViewById(R.id.loginbutton).getLayoutParams();
-            buttonParams.addRule(RelativeLayout.BELOW, R.id.loginedittext);
-            findViewById(R.id.loginbutton).setLayoutParams(buttonParams);
+            //RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) findViewById(R.id.loginbutton).getLayoutParams();
+            //buttonParams.addRule(RelativeLayout.BELOW, R.id.loginedittext);
+            //findViewById(R.id.loginbutton).setLayoutParams(buttonParams);
 
-            textViewCounselorLogin.setText("Counselor Login");
+            textViewCounselorLogin.setText(R.string.c_login);
 
             //student to counselor switch
             textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
@@ -116,11 +109,11 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 }
             });
         } else {
-            Log.d("is counselor","is counslor login indicator null :"+findViewById(R.id.counselor_login_indicator) + " "+ findViewById(R.id.root_main_activity_layout));
+            //Log.d("is counselor","is counslor login indicator null :"+findViewById(R.id.counselor_login_indicator) + " "+ findViewById(R.id.root_main_activity_layout));
             //UI setup counselor login
             // set counselor login indicator to be visible and cr logo gone
-            findViewById(R.id.counselor_login_indicator).setVisibility(View.VISIBLE);
-            findViewById(R.id.login_cr_logo).setVisibility(View.GONE);
+            //findViewById(R.id.counselor_login_indicator).setVisibility(View.VISIBLE);
+            //findViewById(R.id.login_cr_logo).setVisibility(View.GONE);
 
             // set counselor login fields to visible and student's to gone
             findViewById(R.id.counselor_login_edittext_username).setVisibility(View.VISIBLE);
@@ -128,12 +121,12 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             findViewById(R.id.loginedittext).setVisibility(View.GONE);
 
             //set login button to be below @id+/counselor_login_edittext_password
-            RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) findViewById(R.id.loginbutton).getLayoutParams();
-            buttonParams.addRule(RelativeLayout.BELOW, R.id.counselor_login_edittext_password);
-            findViewById(R.id.loginbutton).setLayoutParams(buttonParams);
+            //RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) findViewById(R.id.loginbutton).getLayoutParams();
+            //buttonParams.addRule(RelativeLayout.BELOW, R.id.counselor_login_edittext_password);
+            //findViewById(R.id.loginbutton).setLayoutParams(buttonParams);
 
             // option of selecting student login.
-            textViewCounselorLogin.setText("Student Login");
+            textViewCounselorLogin.setText(R.string.s_login);
 
             textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
 

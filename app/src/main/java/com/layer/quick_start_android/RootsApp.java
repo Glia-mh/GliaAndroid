@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.layer.sdk.LayerClient;
 import com.parse.Parse;
@@ -12,7 +14,7 @@ import com.parse.ParseInstallation;
 /**
  * Created by adityaaggarwal on 11/2/15.
  */
-public class RootsApp extends Application {
+public class RootsApp extends MultiDexApplication {
     @Override
     public void onCreate() {
         //Parse setup
@@ -28,5 +30,11 @@ public class RootsApp extends Application {
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

@@ -368,7 +368,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     }
 
     public void onResume() {
-        System.gc();
         super.onResume();
         //to receive feedback about events that you have not initiated (when another person texts the authenticated user)
         LoginController.layerClient.registerEventListener(myConversationList);
