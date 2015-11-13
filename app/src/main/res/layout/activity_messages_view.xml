@@ -98,7 +98,7 @@
                     android:layout_height="80dp"
                     android:layout_width="80dp"
                     android:layout_margin="10dp"
-                    android:id="@+id/loadinglogo"
+                    android:id="@+id/phoneicon"
                     android:src="@drawable/phoneicon"
                     />
 

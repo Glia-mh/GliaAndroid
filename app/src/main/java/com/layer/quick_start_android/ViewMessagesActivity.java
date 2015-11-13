@@ -32,6 +32,10 @@ import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Metadata;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -51,6 +55,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private String counselorId=null;
     private String DRAWER_OPEN = "DrawerOpen";
     private boolean drawerOpen;
+    MixpanelAPI mixpanel;
+
 
     //Image Caching
     private LruCache<String, Bitmap> mMemoryCache;
@@ -113,6 +119,24 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         if (accountType==0) {
 
 
+            //Mixpanel analytics
+            String projectToken="ce89dc73831431de3a84eab1d58aa4ac";
+            mixpanel = MixpanelAPI.getInstance(this, projectToken);
+            ImageView phoneIcon=(ImageView)findViewById(R.id.phoneicon);
+            phoneIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        JSONObject props = new JSONObject();
+                        props.put("isStudent", true);
+                        mixpanel.track("Phone Button Clicked", props);
+                        getWelcomeAlertDialog(R.string.feature_not_available_warning).show();
+                    } catch (JSONException e) {
+                        Log.e("MYAPP", "Unable to add properties to JSONObject", e);
+                    }
+
+                }
+            });
 
 
 
@@ -279,6 +303,12 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        mixpanel.flush();
+        super.onDestroy();
     }
 
     @Override
