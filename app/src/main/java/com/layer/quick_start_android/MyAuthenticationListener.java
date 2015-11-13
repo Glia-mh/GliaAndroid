@@ -118,7 +118,7 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
 
         Log.d("Deauthenticated", "Deauthenticated");
         if(firstDeauthentication) {
-            conversationListActivity.onUserDeauthenticated();
+            if(conversationListActivity!=null)conversationListActivity.onUserDeauthenticated();
             firstDeauthentication=false;
         }
     }
