@@ -494,8 +494,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if(isNetworkAvailable()) {
                 setContentView(R.layout.loading_screen);
                 getSupportActionBar().hide();
-                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                loggingoutintext.setText("Logging Out...");
+                //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                //loggingoutintext.setText("Logging Out...");
                 loginController.logout();
             } else {
                 getWelcomeAlertDialog(R.string.no_internet_connection).show();
