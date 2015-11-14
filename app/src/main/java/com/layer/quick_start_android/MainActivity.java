@@ -147,7 +147,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             public void onClick(View v) {
                 EditText loginEditText = (EditText) findViewById(R.id.loginedittext);
                 loginString = loginEditText.getText().toString().trim();
-                loginEditText.setText("");
+                //loginEditText.setText("");
 
                 if(isNetworkAvailable()) {
                     if(loginController.getLayerClient()==null) {
