@@ -141,13 +141,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
         //Login Button
-        Button loginButton = (Button) findViewById(R.id.loginbutton);
+        final Button loginButton = (Button) findViewById(R.id.loginbutton);
         final MainActivity mainActivity=this;
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 EditText loginEditText = (EditText) findViewById(R.id.loginedittext);
                 loginString = loginEditText.getText().toString().trim();
-                loginEditText.setText("");
+                //loginEditText.setText("");
 
                 if(isNetworkAvailable()) {
                     if(loginController.getLayerClient()==null) {
@@ -157,11 +157,14 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                     participantProvider  = new ParticipantProvider();
                     participantProvider.refresh();
 
+                    //Show loading icon and make word login go away temporarily
+                    findViewById(R.id.progressbarlogin).setVisibility(View.VISIBLE);
+                    loginButton.setText("");
+
                     //login validation student
                     if (accountType == 0) {
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put("userID", loginString);
-                        setContentView(R.layout.loading_screen);
                         ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
                             @Override
                             public void done(String s, ParseException e) {
@@ -170,14 +173,16 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
                                     Log.d("callback","valid user id");
-                                    TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                                    loggingoutintext.setText("Loading...");
-                                    if(mPrefs.getString("firstTimeStudent", "1").equals("1")){
-                                        loggingoutintext.setText("First Login May Take Time. Loading...");
-                                    }
+                                    //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                                    //loggingoutintext.setText("Loading...");
+                                    //if(mPrefs.getString("firstTimeStudent", "1").equals("1")){
+                                    //    loggingoutintext.setText("First Login May Take Time. Loading...");
+                                    //}
                                     loginController.login(loginString);
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
+                                    findViewById(R.id.progressbarlogin).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                    loginButton.setText(R.string.action_sign_in); //make button say login again
                                     onResume();
                                 }
 
@@ -190,7 +195,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         String username = usernameEditText.getText().toString();
                         TextView pwEditText = (TextView) findViewById(R.id.counselor_login_edittext_password);
                         String password = pwEditText.getText().toString();
-                        setContentView(R.layout.loading_screen);
+
                         ParseUser.logInInBackground(username, password, new LogInCallback() {
                             public void done(ParseUser user, ParseException e) {
                                 if (user != null) {
@@ -198,18 +203,20 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                     loginString = user.getObjectId();
                                     Log.d("user.getObjectId", "user.getObjectId=" + loginString);
 
+                                    //setContentView(R.layout.loading_screen);
 
+                                    //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
 
-                                    TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-
-                                    loggingoutintext.setText("Loading...");
-                                    if(mPrefs.getString("firstTimeCounselor", "1").equals("1")){
-                                        loggingoutintext.setText("First Login May Take Time. Loading...");
-                                    }
+                                    //loggingoutintext.setText("Loading...");
+                                    //if(mPrefs.getString("firstTimeCounselor", "1").equals("1")){
+                                    //    loggingoutintext.setText("First Login May Take Time. Loading...");
+                                    //}
                                     loginController.login(user.getObjectId());
                                 } else {
 
                                     Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
+                                    findViewById(R.id.progressbarlogin).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                    loginButton.setText(R.string.action_sign_in); //make button say login again
                                     onResume();
                                 }
                             }
@@ -232,8 +239,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 participantProvider = new ParticipantProvider();
                 participantProvider.refresh();
 
-                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                loggingoutintext.setText("Loading...");
+                //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                //loggingoutintext.setText("Loading...");
                 loginString = loginController.getLayerClient().getAuthenticatedUserId();
                 loginController.login(loginString);
             }

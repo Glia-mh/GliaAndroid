@@ -20,7 +20,7 @@
         android:id="@+id/ll1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="1.25"
         android:gravity="center_vertical|center_horizontal">
 
         <!--<TextView
@@ -83,13 +83,28 @@
                         android:textColorHint="#ffffffff"
                         android:textColor="#ffffffff" />
 
-                    <Button android:id="@+id/loginbutton" style="?android:textAppearanceSmall"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp" android:text="@string/action_sign_in"
-                        android:textStyle="bold"
-                        android:textColor="#ffffffff"
-                        android:background="@color/roots_green_darker" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp">
 
+                        <Button android:id="@+id/loginbutton" style="?android:textAppearanceSmall"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:text="@string/action_sign_in"
+                            android:textStyle="bold"
+                            android:textColor="#ffffffff"
+                            android:background="@color/roots_green_darker" />
+
+                        <ProgressBar
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:id="@+id/progressbarlogin"
+                            android:indeterminate="true"
+                            android:visibility="invisible"/>
+
+                    </RelativeLayout>
                 </LinearLayout>
             </LinearLayout>
         <!--</ScrollView>-->
