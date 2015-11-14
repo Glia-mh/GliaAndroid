@@ -104,6 +104,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         availabilityHandler= new myHandler(this);
 
+        if (accountType==1) {
+            //Change action bar name to "Roots Counselor" cuz now the person's a counselor
+            //getActionBar().setTitle(R.string.app_name_roots_counselor);
+            getSupportActionBar().setTitle(R.string.app_name_roots_counselor);  // provide compatibility to all the versions
+
+        }
+
 
 
         // COUNSELOR BAR*************************************************************
@@ -494,8 +501,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if(isNetworkAvailable()) {
                 setContentView(R.layout.loading_screen);
                 getSupportActionBar().hide();
-                TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
-                loggingoutintext.setText("Logging Out...");
+                //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
+                //loggingoutintext.setText("Logging Out...");
                 loginController.logout();
             } else {
                 getWelcomeAlertDialog(R.string.no_internet_connection).show();
