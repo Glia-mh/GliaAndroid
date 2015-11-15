@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -158,7 +158,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                     participantProvider.refresh();
 
                     //Show loading icon and make word login go away temporarily
-                    findViewById(R.id.progressbarlogin).setVisibility(View.VISIBLE);
+                    findViewById(R.id.login_progress).setVisibility(View.VISIBLE);
                     loginButton.setText("");
 
                     //login validation student
@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                     loginController.login(loginString);
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
-                                    findViewById(R.id.progressbarlogin).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                    findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
                                     loginButton.setText(R.string.action_sign_in); //make button say login again
                                     onResume();
                                 }
@@ -215,7 +215,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                 } else {
 
                                     Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
-                                    findViewById(R.id.progressbarlogin).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                    findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
                                     loginButton.setText(R.string.action_sign_in); //make button say login again
                                     onResume();
                                 }
@@ -250,6 +250,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     public void onSyncProgress(LayerClient layerClient, SyncType syncType, int progress){
+        ProgressBar progressBar=(ProgressBar)findViewById(R.id.login_progress);
+        progressBar.setProgress((progress/2)+50);
     }
 
 
@@ -275,7 +277,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     public void onUserAuthenticated(){
-        Log.d("onUserAuthenticated","onUserAuthenticated");
+        Log.d("onUserAuthenticated", "onUserAuthenticated");
         if (isSynced){
             Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
             intent.putExtra("mUserId", loginString);

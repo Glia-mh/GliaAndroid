@@ -1,6 +1,7 @@
 package com.layer.quick_start_android;
 
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
@@ -30,6 +31,10 @@ public class MyConnectionListener implements LayerConnectionListener {
     public void onConnectionConnected(LayerClient client) {
         Log.d("ConnectionCheckConnect", "ConnectionCheckConnect");
         if(!(client.isAuthenticated())){
+            if(main_activity.findViewById(R.id.login_progress)!=null){
+                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(R.id.login_progress);
+                progressBar.setProgress(25);
+            }
             client.authenticate();
         } else if (!receive){
             main_activity.onUserAuthenticated();

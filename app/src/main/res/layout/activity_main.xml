@@ -45,17 +45,15 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical|center_horizontal">
-        <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:visibility="gone" />
-        <!--<ScrollView android:id="@+id/login_form" android:layout_width="match_parent"
-            android:layout_height="wrap_content">-->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical">
+
+
 
                 <LinearLayout android:id="@+id/email_login_form" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:orientation="vertical">
+                    <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="invisible"
 
+                        />
                     <EditText android:id="@+id/loginedittext" android:layout_width="match_parent"
                         android:layout_height="wrap_content" android:hint="@string/prompt_id"
                         android:imeActionLabel="@string/action_sign_in"
@@ -95,19 +93,10 @@
                             android:textColor="#ffffffff"
                             android:background="@color/roots_green_darker" />
 
-                        <ProgressBar
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
-                            android:id="@+id/progressbarlogin"
-                            android:indeterminate="true"
-                            android:visibility="invisible"/>
+
 
                     </RelativeLayout>
                 </LinearLayout>
-            </LinearLayout>
-        <!--</ScrollView>-->
     </LinearLayout>
 
     <LinearLayout
