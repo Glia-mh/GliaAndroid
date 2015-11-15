@@ -9,9 +9,7 @@
     <string name="drawer_close">Navigation drawer closed</string>
     <string-array name="left_drawer_options">
         <item>Logout</item>
-        <item>Settings</item>
         <item>About Roots</item>
-        <item>Get Involved</item>
     </string-array>
     <string-array name="left_drawer_options_counselor">
         <item>Logout</item>
@@ -21,7 +19,7 @@
         <!--settings for students?-->
     </string-array>
     <string-array name="right_drawer_options_counselor">
-        <item>I am available to talk.</item>
+        <item>Available</item>
     </string-array>
 
     <string name="c_login"><u>Log in as a Counselor</u></string>
