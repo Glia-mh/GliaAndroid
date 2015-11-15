@@ -50,6 +50,7 @@ public class MyConnectionListener implements LayerConnectionListener {
     @Override
     public void onConnectionDisconnected(LayerClient arg0) {
         // TODO Auto-generated method stub
+
     }
 
     @Override

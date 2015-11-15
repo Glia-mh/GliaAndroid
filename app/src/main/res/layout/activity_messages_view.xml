@@ -44,10 +44,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
 
-                <com.layer.atlas.AtlasTypingIndicator
-                    android:id="@+id/typingindicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+
+
 
                 <com.layer.atlas.AtlasParticipantPicker
                     android:id="@+id/participantpicker"
@@ -55,6 +53,11 @@
                     android:layout_height="match_parent"/>
 
             </FrameLayout>
+            <com.layer.atlas.AtlasTypingIndicator
+                android:id="@+id/typingindicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"/>
 
             <com.layer.atlas.AtlasMessageComposer
                 android:id="@+id/textinput"

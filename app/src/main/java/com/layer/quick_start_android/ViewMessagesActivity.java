@@ -12,11 +12,13 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewManager;
 import android.widget.FrameLayout;
@@ -41,7 +43,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Set;
 
 public class ViewMessagesActivity extends ActionBarActivity  {
 
@@ -73,7 +74,9 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private int accountType;
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         context=this;
 
         if(savedInstanceState!=null){
@@ -214,10 +217,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //to inform user if someone on the receiving end is typing
         typingIndicator = (AtlasTypingIndicator) findViewById(R.id.typingindicator);
-        typingIndicator.init(conversation, new AtlasTypingIndicator.Callback(){
-            public void onTypingUpdate(AtlasTypingIndicator indicator, Set<String> typingUserIds) {
-            }
-        });
+        typingIndicator.init(conversation, new AtlasTypingIndicator.DefaultTypingIndicatorCallback(ConversationListActivity.participantProvider));
+
 
 
 
@@ -303,11 +304,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
+
     }
 
     @Override
     protected void onDestroy() {
-        mixpanel.flush();
+        if(mixpanel!=null) {
+            mixpanel.flush();
+        }
         super.onDestroy();
     }
 
@@ -322,11 +326,13 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     protected void onResume() {
         super.onResume();
         LoginController.layerClient.registerEventListener(messagesList);
+        LoginController.layerClient.registerTypingIndicator(typingIndicator.clear());
     }
 
     protected void onPause(){
         super.onPause();
         LoginController.layerClient.unregisterEventListener(messagesList);
+        LoginController.layerClient.unregisterTypingIndicator(typingIndicator.clear());
     }
 
     private boolean isNetworkAvailable(){
@@ -481,6 +487,18 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
     }
 
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     public void addBitmapToCache(String key, Bitmap bitmap) {
         // Add to memory cache

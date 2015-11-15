@@ -19,8 +19,7 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
     String mUserId = "000000";
     MainActivity main_activity;
     ConversationListActivity conversationListActivity;
-    private boolean firstAuthentication=true;
-    private boolean firstDeauthentication=true;
+    public boolean firstAuthentication=true;
 
     //Main Activity Constructor
     public MyAuthenticationListener(MainActivity ma){
@@ -122,10 +121,10 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         // TODO Auto-generated method stub
 
         Log.d("Deauthenticated", "Deauthenticated");
-        if(firstDeauthentication) {
+            firstAuthentication=true;
             if(conversationListActivity!=null)conversationListActivity.onUserDeauthenticated();
-            firstDeauthentication=false;
-        }
+
+
     }
 
 

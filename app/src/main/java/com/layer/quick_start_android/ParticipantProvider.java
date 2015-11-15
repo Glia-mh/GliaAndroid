@@ -74,6 +74,59 @@ public class ParticipantProvider implements Atlas.ParticipantProvider{
 
     }
 
+    public void refresh(final String loginString, final LoginController loginController) {
+        Log.d("ParticipantProvider", "refresh called.");
+
+        //Connect to your user management service and sync the user's
+        // contact list, making sure you include the authenticated user.
+        // Then, store those users in the participant map
+
+        //Add the authenticated user
+        //--removed check if there is an effect on run
+        //eventually mdHash it and add to participants provider--or may not be needed because
+        // participantMap.put("",new Participant("You","107070","http://icons.iconarchive.com/icons/mazenl77/I-like-buttons-3a/512/Cute-Ball-Go-icon.png"));
+
+        final List<Participant> participants = new ArrayList<Participant>();
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<ArrayList<String>>() {
+            public void done(ArrayList<String> returned, ParseException e) {
+                if (e == null) {
+                    for (String obj : returned) {
+                        Log.d("MainActivity", "Returned string from cloud function is: " + obj);
+                        try {
+                            JSONObject j = new JSONObject(obj);
+                            participants.add(new Participant(j.getString("name"),
+                                    j.getString("objectId"), j.getString("photoURL"),
+                                    j.getString("bio"), j.getBoolean("isAvailable")));
+                            Log.d("MainActivity", "Successfully made JSON.");
+                            Log.d("ObjectId",j.getString("objectId")+"objectId of Counselor");
+                        } catch (JSONException exception) {
+                            exception.printStackTrace();
+                            Log.d("MainActivity", "Couldn't convert string to JSON.");
+                        }
+
+                    }
+
+                    //Populate counselors with counselors from parse
+                    for (Participant participant:participants) {
+                        participantMap.put(participant.getID(), participant);
+                        Log.d("ParticipantProvider", "Participant with id of " + participant.getID() + " added to map.");
+                    }
+                    loginController.login(loginString);
+                }
+
+
+            }
+        });
+
+
+
+
+
+
+    }
+
     public Map<String, Participant> getCustomParticipants(String filter, Map<String, Participant> result) {
         if (result == null) {
             result = new HashMap<String, Participant>();

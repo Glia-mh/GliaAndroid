@@ -17,10 +17,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Gravity;
@@ -31,11 +31,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,7 +98,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         Log.d("Conversation List Activity recreated", "Conversation List Activity recreated");
         //set layer Client and Authentication Listeners to ConversationListActivity
-        loginController = new LoginController();
+
         LoginController.authenticationListener.assignConversationListActivity(this);
         myID=LoginController.layerClient.getAuthenticatedUserId();
 
@@ -195,7 +195,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         //Setting options for Drawers
         if(accountType==0) {
             mOptions = getResources().getStringArray(R.array.left_drawer_options);
-            mOptionsRightDrawer = getResources().getStringArray(R.array.right_drawer_options);
+
         } else {
             mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
             mOptionsRightDrawer=getResources().getStringArray(R.array.right_drawer_options_counselor);
@@ -206,26 +206,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
 
-
-        //Left Drawer
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
-
-        // Set the adapter for the list view
-        mDrawerListLeft.setAdapter(new MyAdapter(this));
-
-        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-            @Override
-            public void onDrawerOpened(View drawer) {
-                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
-                if(drawerParams.gravity==Gravity.START)mDrawerLayout.closeDrawer(GravityCompat.END);
-            }
-
-        };
-
-        mDrawerLayout.setDrawerListener(leftDrawerListener);
-        mDrawerListLeft.setOnItemClickListener(this);
 
 
 
@@ -253,6 +233,28 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
         }
 
+
+        //Left Drawer
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
+
+        // Set the adapter for the list view
+        mDrawerListLeft.setAdapter(new MyAdapter(this));
+        if(accountType==0) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mDrawerListRight);
+        }
+
+        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+            @Override
+            public void onDrawerOpened(View drawer) {
+                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
+                if(drawerParams.gravity== Gravity.START)mDrawerLayout.closeDrawer(GravityCompat.END);
+            }
+
+        };
+
+        mDrawerLayout.setDrawerListener(leftDrawerListener);
+        mDrawerListLeft.setOnItemClickListener(this);
 
 
 
@@ -381,7 +383,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         if(LoginController.authenticationListener.conversationListActivity==null){
             //set layer Client and Authentication Listeners to ConversationListActivity
-            loginController = new LoginController();
             LoginController.authenticationListener.assignConversationListActivity(this);
         }
     }
@@ -395,25 +396,38 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     //enters or starts a conversation
     private void startMessagesActivity(Conversation c){
+
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
+
         if(c != null) {
             intent.putExtra("conversation-id", c.getId());
         }
+
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
     //enters or starts a conversation
     private void startNewMessagesActivity(String counselorID){
+
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
-        intent.putExtra("counselor-id",counselorID);
+
+        intent.putExtra("counselor-id", counselorID);
+
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
     }
 
     //for logout
     public void onUserDeauthenticated() {
-        loginController.getLayerClient().unregisterAuthenticationListener(LoginController.authenticationListener);
-        loginController.getLayerClient().unregisterConnectionListener(LoginController.connectionListener);
+        Log.d("Login", "Logging Out");
+
+        LoginController.layerClient.unregisterAuthenticationListener(LoginController.authenticationListener);
+        LoginController.layerClient.unregisterConnectionListener(LoginController.connectionListener);
+
         finish();
+
         Intent logoutIntent = new Intent(this, MainActivity.class);
 
         startActivity(logoutIntent);
@@ -450,15 +464,19 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     // Left drawer**********************************************************************
     class MyAdapter extends BaseAdapter {
         String[] options;
-        int[] images = new int[]{R.drawable.ic_logout,
-                R.drawable.ic_settings,
-                R.drawable.ic_launcher,
-                R.drawable.ic_get_involved};
+        int[] images;
         Context context;
 
         public MyAdapter(Context context) {
             this.context = context;
             options = mOptions;
+            if(accountType==0){
+                images=new int[]{R.drawable.ic_logout,
+                        R.drawable.ic_launcher};
+            } else {
+                images=new int[]{R.drawable.ic_logout,
+                        R.drawable.ic_settings};
+            }
         }
 
         @Override
@@ -503,6 +521,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                 getSupportActionBar().hide();
                 //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                 //loggingoutintext.setText("Logging Out...");
+                if (loginController==null)
+                    loginController=new LoginController();
                 loginController.logout();
             } else {
                 getWelcomeAlertDialog(R.string.no_internet_connection).show();
@@ -513,9 +533,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             dl.closeDrawer(GravityCompat.START);
             dl.openDrawer(GravityCompat.END);
         } else if (mOptions[position].equals("About Roots")) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
-            startActivity(browserIntent);
-        } else if (mOptions[position].equals("Get Involved")) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://teamroots.org/"));
             startActivity(browserIntent);
         }
@@ -536,12 +553,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     class CounselorRightDrawerAdapter extends BaseAdapter {
         String[] options;
         Context context;
-        CheckBox availableCheckBox;
+        Switch toggle;
 
         public CounselorRightDrawerAdapter(Context context) {
             this.context = context;
             options = mOptionsRightDrawer;
-            availableCheckBox = new CheckBox(context);
+            toggle = new Switch(context);
         }
 
         @Override
@@ -578,17 +595,19 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                         ViewGroup ivparent = (ViewGroup) iv.getParent();
                         int index = ivparent.indexOfChild(iv);
                         ivparent.removeView(iv);
-                        ivparent.addView(availableCheckBox, index);
+                        ivparent.addView(toggle, index);
                     }
+                    toggle.setTextOff("No");
+                    toggle.setTextOn("Yes");
                     try {
 
                         boolean isChecked = MainActivity.participantProvider.getParticipant(myID).getIsAvailable();
-                        availableCheckBox.setChecked(isChecked);
+                        toggle.setChecked(isChecked);
                     } catch (NullPointerException exc) {
                         Log.d("ConversationListAct","Uh oh, NullPointerException when trying to see if checked.");
                     }
 
-                    availableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             MainActivity.participantProvider.getParticipant(myID).setAvailable(isChecked);
