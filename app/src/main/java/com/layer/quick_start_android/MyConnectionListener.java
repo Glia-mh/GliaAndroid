@@ -37,6 +37,7 @@ public class MyConnectionListener implements LayerConnectionListener {
             }
             client.authenticate();
         } else if (!receive){
+            receive=false;
             main_activity.onUserAuthenticated();
             Log.d("ConnectionCheckConnect2","ConnectionCheckConnect2");
         }

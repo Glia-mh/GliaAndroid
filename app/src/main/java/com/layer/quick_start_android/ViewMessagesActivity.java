@@ -224,7 +224,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //used to create and send messages
         atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
-        atlasComposer.init(LoginController.layerClient, conversation);
+        atlasComposer.init(LoginController.layerClient, conversation, accountType);
         atlasComposer.setListener(new AtlasMessageComposer.Listener() {
             //if returns false means the message will not send and participants not entered
             //in new conversation

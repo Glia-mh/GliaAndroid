@@ -40,8 +40,13 @@ public class LoginController {
         //add log statement
         if (!(layerClient.isConnected())) {
             layerClient.connect();
+            Log.d("connect", "connect");
         } else if(!(layerClient.isAuthenticated())) {
             layerClient.authenticate();
+            Log.d("authenticate","authenticate");
+        } else {
+
+            authenticationListener.main_activity.onUserAuthenticated();
         }
 
     }
