@@ -32,6 +32,7 @@
     <string name="dialog_welcome_counselor">Welcome to Team Roots! Students will message you anonymously. You can tell students you are unavailable to talk to in settings.</string>
     <string name="ok">Ok</string>
     <string name="no_internet_connection">Please check your internet connection and try again.</string>
+    <string name="feature_not_available_warning">Feature not available in beta test.</string>
     <string name="title_activity_counselor_view_messages">CounselorViewMessagesActivity</string>
 
     <!-- Strings related to login -->
