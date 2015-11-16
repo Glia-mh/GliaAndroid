@@ -18,13 +18,13 @@ Roots' potential customers are residential housing at USC, charter high schools 
 <div style="display:inline">
 <img width="24%"  src="assets/screenshot.png"></img>
 <img width="24%" src="assets/screenshot1.png"></img>
-<img width="24%" height="450" src="assets/screenshot2.png"></img>
-<img width="24%" height="450" src="assets/screenshot3.png"></img>
-<img width="24%" height="450" src="assets/screenshot4.png"></img>
-<img width="24%" height="450" src="assets/screenshot5.png"></img>
-<img width="24%" height="450" src="assets/screenshot6.png"></img>
-<img  width="24%" height="450" src="assets/screenshot7.png"></img>
-<img  width="24%" height="450" src="assets/screenshot8.png"></img>
+<img width="24%"  src="assets/screenshot2.png"></img>
+<img width="24%"  src="assets/screenshot3.png"></img>
+<img width="24%"  src="assets/screenshot4.png"></img>
+<img width="24%"  src="assets/screenshot5.png"></img>
+<img width="24%"  src="assets/screenshot6.png"></img>
+<img  width="24%"  src="assets/screenshot7.png"></img>
+<img  width="24%" src="assets/screenshot8.png"></img>
 </div>
 
 
