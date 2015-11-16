@@ -1,4 +1,4 @@
-package com.layer.quick_start_android;
+package com.team.roots;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -75,25 +75,25 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
         super.onResume();
 
-        setContentView(R.layout.activity_main);
+        setContentView(com.layer.quick_start_android.R.layout.activity_main);
 
 
         //get accounttype
         accountType = mPrefs.getInt("accounttype", 0);
 
 
-        TextView textViewCounselorLogin = (TextView) findViewById(R.id.counselorlogin);
+        TextView textViewCounselorLogin = (TextView) findViewById(com.layer.quick_start_android.R.id.counselorlogin);
 
         if (accountType == 0) {
 
 
-            findViewById(R.id.counselor_login_edittext_username).setVisibility(View.GONE);
-            findViewById(R.id.counselor_login_edittext_password).setVisibility(View.GONE);
-            findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);
+            findViewById(com.layer.quick_start_android.R.id.counselor_login_edittext_username).setVisibility(View.GONE);
+            findViewById(com.layer.quick_start_android.R.id.counselor_login_edittext_password).setVisibility(View.GONE);
+            findViewById(com.layer.quick_start_android.R.id.loginedittext).setVisibility(View.VISIBLE);
 
 
 
-            textViewCounselorLogin.setText(R.string.c_login);
+            textViewCounselorLogin.setText(com.layer.quick_start_android.R.string.c_login);
 
             //student to counselor switch
             textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
@@ -108,14 +108,14 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
             // set counselor login fields to visible and student's to gone
-            findViewById(R.id.counselor_login_edittext_username).setVisibility(View.VISIBLE);
-            findViewById(R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);
-            findViewById(R.id.loginedittext).setVisibility(View.GONE);
+            findViewById(com.layer.quick_start_android.R.id.counselor_login_edittext_username).setVisibility(View.VISIBLE);
+            findViewById(com.layer.quick_start_android.R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);
+            findViewById(com.layer.quick_start_android.R.id.loginedittext).setVisibility(View.GONE);
 
 
 
             // option of selecting student login.
-            textViewCounselorLogin.setText(R.string.s_login);
+            textViewCounselorLogin.setText(com.layer.quick_start_android.R.string.s_login);
 
             textViewCounselorLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -130,10 +130,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
         //Login Button
-        final Button loginButton = (Button) findViewById(R.id.loginbutton);
+        final Button loginButton = (Button) findViewById(com.layer.quick_start_android.R.id.loginbutton);
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                EditText loginEditText = (EditText) findViewById(R.id.loginedittext);
+                EditText loginEditText = (EditText) findViewById(com.layer.quick_start_android.R.id.loginedittext);
                 loginString = loginEditText.getText().toString().trim();
                 //loginEditText.setText("");
 
@@ -143,7 +143,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
                     //Show loading icon and make word login go away temporarily
-                    findViewById(R.id.login_progress).setVisibility(View.VISIBLE);
+                    findViewById(com.layer.quick_start_android.R.id.login_progress).setVisibility(View.VISIBLE);
                     loginButton.setText("");
 
                     //login validation student
@@ -161,8 +161,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                     Log.d("callback", "valid user id");
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
-                                    findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
-                                    loginButton.setText(R.string.action_sign_in); //make button say login again
+                                    findViewById(com.layer.quick_start_android.R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                    loginButton.setText(com.layer.quick_start_android.R.string.action_sign_in); //make button say login again
                                     onResume();
                                 }
 
@@ -171,9 +171,9 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
                         //login validation counselor
                     } else {
-                        TextView usernameEditText = (TextView) findViewById(R.id.counselor_login_edittext_username);
+                        TextView usernameEditText = (TextView) findViewById(com.layer.quick_start_android.R.id.counselor_login_edittext_username);
                         String username = usernameEditText.getText().toString();
-                        TextView pwEditText = (TextView) findViewById(R.id.counselor_login_edittext_password);
+                        TextView pwEditText = (TextView) findViewById(com.layer.quick_start_android.R.id.counselor_login_edittext_password);
                         String password = pwEditText.getText().toString();
 
                         ParseUser.logInInBackground(username, password, new LogInCallback() {
@@ -188,8 +188,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                 } else {
 
                                     Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
-                                    findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
-                                    loginButton.setText(R.string.action_sign_in); //make button say login again
+                                    findViewById(com.layer.quick_start_android.R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                    loginButton.setText(com.layer.quick_start_android.R.string.action_sign_in); //make button say login again
                                     onResume();
                                 }
                             }
@@ -197,7 +197,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
                     }
                 } else {
-                    getWelcomeAlertDialog(R.string.no_internet_connection).show();
+                    getWelcomeAlertDialog(com.layer.quick_start_android.R.string.no_internet_connection).show();
                 }
             }
         });
@@ -207,7 +207,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         if(isNetworkAvailable()) {
             if (loginController.getLayerClient().isAuthenticated()) {
                 isSynced = true;
-                setContentView(R.layout.loading_screen);
+                setContentView(com.layer.quick_start_android.R.layout.loading_screen);
                 loginString = loginController.getLayerClient().getAuthenticatedUserId();
 
                 participantProvider = new ParticipantProvider();
@@ -223,7 +223,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     public void onSyncProgress(LayerClient layerClient, SyncType syncType, int progress){
-        ProgressBar progressBar=(ProgressBar)findViewById(R.id.login_progress);
+        ProgressBar progressBar=(ProgressBar)findViewById(com.layer.quick_start_android.R.id.login_progress);
         progressBar.setProgress((progress/2)+50);
     }
 
@@ -240,7 +240,6 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         intent.putExtra("mUserId", loginString);
         finish();
         startActivity(intent);
-        LoginController.connectionListener.setReceive(true);
         loginController.getLayerClient().unregisterSyncListener(this);
     }
 
@@ -257,7 +256,6 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             intent.putExtra("mUserId", loginString);
 
             //needed to avoid future calls to onUserAuthenticated when phone disconnects
-            LoginController.connectionListener.setReceive(true);
             finish();
             startActivity(intent);
 
@@ -271,7 +269,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     private AlertDialog getWelcomeAlertDialog(int stringAddress){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(stringAddress)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(com.layer.quick_start_android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                     }
                 });
