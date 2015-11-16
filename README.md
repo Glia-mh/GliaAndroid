@@ -38,4 +38,4 @@ Roots has used Layer to support its backend. If you have any technical questions
 
 <br>
 <br>
-© Copyright TeamRoots 2014-2015
+© Copyright [TeamRoots](http://www.teamroots.org) 2014-2015
