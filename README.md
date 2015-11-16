@@ -9,7 +9,7 @@ Note: Roots for Android is currently a **Preview Release**. This repository will
 ##<a name="overview"></a>Roots for Android: Preview Release Overview
 <br>
 Roots is an app students use to instant message counselors anonymously when they need help, and the non-anonymous counselors can provide help by continuing the conversation over the app. The app provides a way for people to seek help from people within their communities without identifying themselves. <br> <br>
-Roots' potential customers are residential housing at USC, charter high schools in Los Angeles and the Bay Area, and small business companies seeking a private, continuous, and anonymous feedback stream, starting with <a href="http://www.milestoneinternet.com/"> Milestone Internet Marketing</a>.
+Roots is made for peer counseling groups at high school and college campuses. <br> However, Roots' potential customers are residential housing at USC, charter high schools in Los Angeles and the Bay Area, and small business companies seeking a private, continuous, and anonymous feedback stream. 
 
 <br><br>
 
