@@ -16,15 +16,15 @@ Roots' potential customers are residential housing at USC, charter high schools 
 ##<a name="credits"></a>Screen Shots
 <br>
 <div style="display:inline">
-<img style="width:200px" src="assets/screenshot.png"></img>
-<img style="width:200px" src="assets/screenshot1.png"></img>
-<img style="width:200px" src="assets/screenshot2.png"></img>
-<img  style="width:200px" src="assets/screenshot3.png"></img>
-<img style="width:200px" src="assets/screenshot4.png"></img>
-<img style="width:200px" src="assets/screenshot5.png"></img>
-<img style="width:200px" src="assets/screenshot6.png"></img>
-<img style="width:200px" src="assets/screenshot7.png"></img>
-<img style="width:200px" src="assets/screenshot8.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot1.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot2.png"></img>
+<img  style="width:200px; height:450px; display:inline" src="assets/screenshot3.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot4.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot5.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot6.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot7.png"></img>
+<img style="width:200px; height:450px; display:inline" src="assets/screenshot8.png"></img>
 </div>
 
 
