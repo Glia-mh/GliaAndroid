@@ -1,4 +1,4 @@
-package com.layer.quick_start_android;
+package com.team.roots;
 /*
  * Copyright (C) 2012 The Android Open Source Project
  *

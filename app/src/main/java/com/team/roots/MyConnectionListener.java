@@ -1,4 +1,4 @@
-package com.layer.quick_start_android;
+package com.team.roots;
 
 import android.util.Log;
 import android.widget.ProgressBar;
@@ -31,13 +31,13 @@ public class MyConnectionListener implements LayerConnectionListener {
     public void onConnectionConnected(LayerClient client) {
         Log.d("ConnectionCheckConnect", "ConnectionCheckConnect");
         if(!(client.isAuthenticated())){
-            if(main_activity.findViewById(R.id.login_progress)!=null){
-                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(R.id.login_progress);
+            if(main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress)!=null){
+                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress);
                 progressBar.setProgress(25);
             }
             client.authenticate();
         } else if (!receive){
-            receive=false;
+            receive=true;
             main_activity.onUserAuthenticated();
             Log.d("ConnectionCheckConnect2","ConnectionCheckConnect2");
         }

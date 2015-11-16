@@ -1,4 +1,4 @@
-package com.layer.quick_start_android;
+package com.team.roots;
 
 import android.util.Log;
 
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ParticipantProvider implements Atlas.ParticipantProvider{
+public class ParticipantProvider implements Atlas.ParticipantProvider {
 
     private final Map<String, Participant> participantMap =
             new HashMap<String, Participant>();

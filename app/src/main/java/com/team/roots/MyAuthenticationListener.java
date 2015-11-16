@@ -1,4 +1,4 @@
-package com.layer.quick_start_android;
+package com.team.roots;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -38,8 +38,8 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         //Start the conversation view after a successful authentication
         if(main_activity != null && firstAuthentication) {
             firstAuthentication = false;
-            if(main_activity.findViewById(R.id.login_progress)!=null){
-                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(R.id.login_progress);
+            if(main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress)!=null){
+                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress);
                 progressBar.setProgress(50);
             }
             main_activity.onUserAuthenticated();

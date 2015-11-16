@@ -1,4 +1,4 @@
-package com.layer.quick_start_android;
+package com.team.roots;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -25,11 +25,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.layer.atlas.AtlasMessageComposer;
-import com.layer.atlas.AtlasMessagesList;
-import com.layer.atlas.AtlasParticipantPicker;
-import com.layer.atlas.AtlasTypingIndicator;
+import com.layer.atlas.*;
 import com.layer.atlas.DiskLruImageCache;
+import com.layer.atlas.AtlasMessageComposer;
+import com.layer.atlas.AtlasParticipantPicker;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -86,10 +85,10 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
-        setContentView(R.layout.activity_messages_view);
+        setContentView(com.layer.quick_start_android.R.layout.activity_messages_view);
 
         if(!isNetworkAvailable()){
-            TextView networkErrorWarning=(TextView)findViewById(R.id.counselor_unavailible_warning);
+            TextView networkErrorWarning=(TextView)findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning);
             networkErrorWarning.setText("Network Error, please connect to the Internet!");
             networkErrorWarning.setVisibility(View.VISIBLE);
         }
@@ -114,7 +113,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
-        FrameLayout bioInformationDrawer=(FrameLayout)findViewById(R.id.counselor_bio_drawer);
+        FrameLayout bioInformationDrawer=(FrameLayout)findViewById(com.layer.quick_start_android.R.id.counselor_bio_drawer);
         bioInformationDrawer.setVisibility(View.VISIBLE);
 
         ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
@@ -125,7 +124,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             //Mixpanel analytics
             String projectToken="ce89dc73831431de3a84eab1d58aa4ac";
             mixpanel = MixpanelAPI.getInstance(this, projectToken);
-            ImageView phoneIcon=(ImageView)findViewById(R.id.phoneicon);
+            ImageView phoneIcon=(ImageView)findViewById(com.layer.quick_start_android.R.id.phoneicon);
             phoneIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -133,7 +132,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         JSONObject props = new JSONObject();
                         props.put("isStudent", true);
                         mixpanel.track("Phone Button Clicked", props);
-                        getWelcomeAlertDialog(R.string.feature_not_available_warning).show();
+                        getWelcomeAlertDialog(com.layer.quick_start_android.R.string.feature_not_available_warning).show();
                     } catch (JSONException e) {
                         Log.e("MYAPP", "Unable to add properties to JSONObject", e);
                     }
@@ -143,7 +142,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-            ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
+            ImageView imageViewCounselor = (ImageView) findViewById(com.layer.quick_start_android.R.id.counselorbioimage);
             boolean fadeImage = false;
             Log.d("ViewMessagesAct", "ConversationListActivity.participantprovder.getPartticipant(counselorId)==" + ConversationListActivity.participantProvider.getParticipant(counselorId));
 
@@ -167,7 +166,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
             if(!ConversationListActivity.participantProvider.getParticipant(counselorId).getIsAvailable()) {
                 fadeImage=true;
-                findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
+                findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
             }
             if(getBitmapFromCache(counselorId.toLowerCase())==null) {
                 new LoadImage(imageViewCounselor, fadeImage).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
@@ -178,19 +177,19 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-            TextView counselorTitle = (TextView) findViewById(R.id.bioinformationtitle);
+            TextView counselorTitle = (TextView) findViewById(com.layer.quick_start_android.R.id.bioinformationtitle);
             counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getName());
 
-            TextView counselorInfo = (TextView) findViewById(R.id.bioinformation);
+            TextView counselorInfo = (TextView) findViewById(com.layer.quick_start_android.R.id.bioinformation);
             counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
         } else {
-            View bioNavDrawer = findViewById(R.id.counselor_bio_drawer);
+            View bioNavDrawer = findViewById(com.layer.quick_start_android.R.id.counselor_bio_drawer);
             ((ViewManager)bioNavDrawer.getParent()).removeView(bioNavDrawer);
         }
 
 
         //set message list
-        messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
+        messagesList = (AtlasMessagesList) findViewById(com.layer.quick_start_android.R.id.messageslist);
         messagesList.init(LoginController.layerClient, ConversationListActivity.participantProvider, accountType, this);
         messagesList.setConversation(conversation);
 
@@ -200,7 +199,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //automatically set to hidden
         //a view with dynamic filtering of a list that allows you to add participants
-        participantPicker = (AtlasParticipantPicker) findViewById(R.id.participantpicker);
+        participantPicker = (AtlasParticipantPicker) findViewById(com.layer.quick_start_android.R.id.participantpicker);
         String[] currentUser = {LoginController.layerClient.getAuthenticatedUserId()};
         participantPicker.init(currentUser, ConversationListActivity.participantProvider);
         //if(conversation != null)
@@ -216,14 +215,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
         //to inform user if someone on the receiving end is typing
-        typingIndicator = (AtlasTypingIndicator) findViewById(R.id.typingindicator);
+        typingIndicator = (AtlasTypingIndicator) findViewById(com.layer.quick_start_android.R.id.typingindicator);
         typingIndicator.init(conversation, new AtlasTypingIndicator.DefaultTypingIndicatorCallback(ConversationListActivity.participantProvider));
 
 
 
 
         //used to create and send messages
-        atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
+        atlasComposer = (AtlasMessageComposer) findViewById(com.layer.quick_start_android.R.id.textinput);
         atlasComposer.init(LoginController.layerClient, conversation, accountType);
         atlasComposer.setListener(new AtlasMessageComposer.Listener() {
             //if returns false means the message will not send and participants not entered
@@ -245,6 +244,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         student.put("name", "");
                         student.put("ID", LoginController.layerClient.getAuthenticatedUserId());
                         student.put("avatarString", getVanilliconLink());
+
                         //set MetaData to Conversations
 /*                        HashMap<String,HashMap<String, String>> metadataMap=new HashMap<String, HashMap<String, String>>();
                         HashMap<String, String> counselor=new HashMap<String, String>();
@@ -261,7 +261,13 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
                         //set metatdata
                         conversation.putMetadata(metadataConv, false);
-                        Log.d("getting Metadata", "MetaData:" + conversation.getMetadata().toString());
+                        String messageText=message.getOptions().getPushNotificationMessage();
+                        if(accountType==1) {
+                            message.getOptions().pushNotificationMessage((String) conversation.getMetadata().get("counselor.name") + "," + (String) conversation.getMetadata().get("counselor.avatarString") + "," + messageText);
+
+                        } else {
+                            message.getOptions().pushNotificationMessage((String) conversation.getMetadata().get("student.name") + "," + (String) conversation.getMetadata().get("student.avatarString") + "," + messageText);
+                        }
 
 
                         messagesList.setConversation(conversation);
@@ -275,7 +281,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         });
 
 
-        DrawerLayout dl = (DrawerLayout)findViewById(R.id.view_messages_drawer_layout);
+        DrawerLayout dl = (DrawerLayout)findViewById(com.layer.quick_start_android.R.id.view_messages_drawer_layout);
         // set bio drawer listener
         dl.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -296,7 +302,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
         if (accountType==0 && mPrefs.getBoolean("firstTimeStudentOnViewMessagesAct", true)) {
-            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(R.string.dialog_welcome_student_view_messages_act);
+            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(com.layer.quick_start_android.R.string.dialog_welcome_student_view_messages_act);
             welcomeAlertDialog.show();
             SharedPreferences.Editor mEditor = mPrefs.edit();
             mEditor.putBoolean("firstTimeStudentOnViewMessagesAct", false).apply();
@@ -494,7 +500,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                overridePendingTransition(com.layer.quick_start_android.R.anim.slide_in_left, com.layer.quick_start_android.R.anim.slide_out_right);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -516,7 +522,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(stringAddress)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(com.layer.quick_start_android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //do nothin' cuz we don't gotta
                     }
