@@ -3,34 +3,18 @@
 
 
 
-Note=" Roots for Android is currently a **Preview Release**. This repository will be updated substantially in the coming weeks.
+Note: Roots for Android is currently a **Preview Release**. This repository will be updated substantially in the coming weeks.
 <br> <br>
 
-##<a name="overview"></a>Roots for Android=" Preview Release Overview
+##<a name="overview"></a>Roots for Android: Preview Release Overview
 <br>
 Roots is an app students use to instant message counselors anonymously when they need help, and the non-anonymous counselors can provide help by continuing the conversation over the app. The app provides a way for people to seek help from people within their communities without identifying themselves. <br> <br>
-<<<<<<< HEAD
-Roots' potential customers are residential housing at USC, charter high schools in Los Angeles and the Bay Area, and small business companies seeking a private, continuous, and anonymous feedback stream, starting with <a href="http="//www.milestoneinternet.com/">Milestone Internet Marketing</a>.
-=======
-Roots' potential customers are residential housing at USC, charter high schools in Los Angeles and the Bay Area, and small business companies seeking a private, continuous, and anonymous feedback stream, starting with <a href="http://www.milestoneinternet.com/"> Milestone Internet Marketing</a>.
->>>>>>> 7f30992872e8f16259a807e180a71a32477a965a
+Roots is made for peer counseling groups at high school and college campuses. <br> However, Roots' potential customers are residential housing at USC, charter high schools in Los Angeles and the Bay Area, and small business companies seeking a private, continuous, and anonymous feedback stream. 
 
 <br><br>
 
 ##<a name="credits"></a>Screen Shots
 <br>
-<<<<<<< HEAD
-
-<img width="200" height="450" src="assets/screenshot.png"></img>
-<img width="200" height="450" src="assets/screenshot1.png"></img>
-<img width="200" height="450" src="assets/screenshot2.png"></img>
-<img  width="200" height="450" src="assets/screenshot3.png"></img>
-<img width="200" height="450" src="assets/screenshot4.png"></img>
-<img width="200" height="450" src="assets/screenshot5.png"></img>
-<img width="200" height="450" src="assets/screenshot6.png"></img>
-<img width="200" height="450" src="assets/screenshot7.png"></img>
-<img width="200" height="450" src="assets/screenshot8.png"></img>
-=======
 <div style="display:inline">
 <img width="24%"  src="assets/screenshot.png"></img>
 <img width="24%" src="assets/screenshot1.png"></img>
@@ -42,7 +26,6 @@ Roots' potential customers are residential housing at USC, charter high schools 
 <img  width="24%"  src="assets/screenshot7.png"></img>
 <img  width="24%" src="assets/screenshot8.png"></img>
 </div>
->>>>>>> 7f30992872e8f16259a807e180a71a32477a965a
 
 
 ##<a name="credits"></a>Credits
@@ -51,12 +34,8 @@ Roots' potential customers are residential housing at USC, charter high schools 
 * [Ryan Anderson](https://github.com/rkanderson)
 
 <br><br>
-Roots has used Layer to support its backend. If you have any technical questions or concerns about Layer, please feel free to reach out to [Layer Support](mailto="support@layer.com).
+Roots has used Layer to support its backend. If you have any technical questions or concerns about Layer, please feel free to reach out to [Layer Support](mailto:support@layer.com).
 
 <br>
 <br>
-<<<<<<< HEAD
 © Copyright [TeamRoots](http://www.teamroots.org) 2014-2015
-=======
-© Copyright TeamRoots 2014-2015
->>>>>>> 7f30992872e8f16259a807e180a71a32477a965a
