@@ -1,19 +1,24 @@
 package com.team.roots;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.quick_start_android.R;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerSyncListener;
@@ -23,6 +28,10 @@ import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     String loginString;
+    private String schoolObjectId;
     LoginController loginController;
     static public ParticipantProvider participantProvider;
 
@@ -128,6 +138,14 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             });
         }
 
+        //School Select Button
+        Button schoolSelect=(Button)findViewById(R.id.school_select);
+        schoolSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSchoolListDialog();
+            }
+        });
 
         //Login Button
         final Button loginButton = (Button) findViewById(com.layer.quick_start_android.R.id.loginbutton);
@@ -150,6 +168,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                     if (accountType == 0) {
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put("userID", loginString);
+                        params.put("schoolID",schoolObjectId);
                         ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
                             @Override
                             public void done(String s, ParseException e) {
@@ -157,10 +176,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
                                     participantProvider  = new ParticipantProvider();
-                                    participantProvider.refresh(loginString, loginController);
+                                    participantProvider.refresh(loginString, schoolObjectId, loginController);
                                     Log.d("callback", "valid user id");
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "Invalid ID.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
                                     findViewById(com.layer.quick_start_android.R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
                                     loginButton.setText(com.layer.quick_start_android.R.string.action_sign_in); //make button say login again
                                     onResume();
@@ -184,7 +203,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                                     Log.d("user.getObjectId", "user.getObjectId=" + loginString);
 
                                     participantProvider  = new ParticipantProvider();
-                                    participantProvider.refresh(loginString, loginController);
+                                    participantProvider.refresh(loginString, schoolObjectId, loginController);
                                 } else {
 
                                     Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
@@ -211,7 +230,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 loginString = loginController.getLayerClient().getAuthenticatedUserId();
 
                 participantProvider = new ParticipantProvider();
-                participantProvider.refresh(loginString, loginController);
+                participantProvider.refresh(loginString,schoolObjectId, loginController);
 
                 //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                 //loggingoutintext.setText("Loading...");
@@ -265,7 +284,126 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         }
     }
 
+    private void getSchoolListDialog(){
+        final AlertDialog.Builder schoolListDialog = new AlertDialog.Builder(this);
+        schoolListDialog.setIcon(R.drawable.ic_launcher);
+        final List<School> schools=new ArrayList<School>();
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        if (isNetworkAvailable()) {
+            ParseCloud.callFunctionInBackground("getSchools", params, new FunctionCallback<ArrayList<String>>() {
+                public void done(ArrayList<String> returned, ParseException e) {
+                    if (e == null) {
+                        for (String obj : returned) {
+                            Log.d("MainActivity", "Returned string from cloud function is: " + obj);
+                            try {
+                                JSONObject j = new JSONObject(obj);
+                                schools.add(new School(j.getString("objectId"),
+                                        j.getString("SchoolName")));
+                                Log.d("MainActivity", "Successfully made JSON.");
+                                Log.d("ObjectId", j.getString("objectId") + "objectId of School");
+                            } catch (JSONException exception) {
+                                exception.printStackTrace();
+                                Log.d("MainActivity", "Couldn't convert string to JSON.");
+                            }
 
+                        }
+                        final SchoolListAdapter schoolListAdapter = new SchoolListAdapter(getApplicationContext(), R.layout.schoollistrow, schools);
+            schoolListDialog.setNegativeButton(
+                    "cancel",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                        schoolListDialog.setAdapter(
+                                schoolListAdapter,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        School schoolSelected = schoolListAdapter.getItem(which);
+                                        Button schoolSelect = (Button) findViewById(R.id.school_select);
+                                        schoolSelect.setText(schoolSelected.getSchoolName());
+                                        schoolObjectId = schoolSelected.getObjectId();
+
+                                    }
+                                });
+                        schoolListDialog.show();
+
+                    }
+
+
+                }
+            });
+
+        } else {
+            getWelcomeAlertDialog(com.layer.quick_start_android.R.string.no_internet_connection).show();
+        }
+
+    }
+    public class SchoolListAdapter extends ArrayAdapter<School>{
+        public SchoolListAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        public SchoolListAdapter(Context context, int resource, List<School> items) {
+            super(context, resource, items);
+        }
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.schoollistrow, null);
+            }
+
+            School school = getItem(position);
+
+            if (school != null) {
+                TextView tt1 = (TextView) v.findViewById(R.id.school_name_text);
+
+                if (tt1 != null) {
+                    tt1.setText(school.getSchoolName());
+                }
+
+
+            }
+
+            return v;
+        }
+
+
+    }
+
+    public class School {
+        private String objectId;
+        private String schoolName;
+
+        School(String objectId, String schoolName){
+            this.objectId=objectId;
+            this.schoolName=schoolName;
+        }
+
+        public String getSchoolName(){
+            return schoolName;
+        }
+
+        public String getObjectId(){
+            return objectId;
+        }
+
+        public void setSchoolName(String schoolName){
+            this.schoolName=schoolName;
+        }
+
+        public void setObjectId(String objectId){
+            this.objectId=objectId;
+        }
+
+    }
     private AlertDialog getWelcomeAlertDialog(int stringAddress){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(stringAddress)
@@ -275,4 +413,6 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 });
         return builder.create();
     }
+
+
 }

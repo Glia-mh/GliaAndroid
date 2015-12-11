@@ -1,7 +1,11 @@
 // The following will return an array of JSON strings for all counselors.
 Parse.Cloud.define("getCounselors", function(request, response){
   var query = new Parse.Query("User");
-   
+  
+  var schoolID= new Parse.Object("SchoolIDs");
+  schoolID.id=request.params.schoolObjectId;
+  
+  query.equalTo("schoolID",schoolID);
   query.find({
     success: function(results){
       var objects = [];
@@ -15,7 +19,23 @@ Parse.Cloud.define("getCounselors", function(request, response){
     }
   });
 });
-   
+  
+// The following will return an array of JSON strings for all counselors.
+Parse.Cloud.define("getSchools", function(request, response){
+  var query = new Parse.Query("SchoolIDs");
+  query.find({
+    success: function(results){
+      var objects = [];
+      for (var i = 0; i < results.length; i++){
+        objects.push(JSON.stringify(results[i]));
+      }
+      response.success(objects);
+    },
+    error: function(){
+      response.error("Failed to retrieve counselors.");
+    }
+  });
+}); 
    
    
    
@@ -25,6 +45,9 @@ Parse.Cloud.define("getCounselors", function(request, response){
 Parse.Cloud.define("validateStudentID", function(request, response) {
   var query = new Parse.Query("General_Student_IDs");
   query.equalTo("userID", request.params.userID);
+  var schoolID= new Parse.Object("SchoolIDs");
+  schoolID.id=request.params.schoolID;
+  query.equalTo("schoolID", schoolID);
   query.find({
     success: function(results) {
     if (results.length == 0) {

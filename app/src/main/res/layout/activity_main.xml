@@ -80,6 +80,21 @@
                         android:layout_marginBottom="10dp"
                         android:textColorHint="#ffffffff"
                         android:textColor="#ffffffff" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp">
+
+                        <Button android:id="@+id/school_select" style="?android:textAppearanceSmall"
+                            android:layout_width="match_parent" android:layout_height="20dp"
+                            android:text="Select a School"
+                            android:textStyle="bold"
+                            android:textColor="#ffffffff"
+                            android:background="@color/roots_green_darker" />
+
+
+
+                    </RelativeLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"

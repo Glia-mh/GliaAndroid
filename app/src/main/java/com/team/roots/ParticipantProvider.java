@@ -74,7 +74,7 @@ public class ParticipantProvider implements Atlas.ParticipantProvider {
 
     }
 
-    public void refresh(final String loginString, final LoginController loginController) {
+    public void refresh(final String loginString, String schoolObjectId, final LoginController loginController) {
         Log.d("ParticipantProvider", "refresh called.");
 
         //Connect to your user management service and sync the user's
@@ -89,6 +89,7 @@ public class ParticipantProvider implements Atlas.ParticipantProvider {
         final List<Participant> participants = new ArrayList<Participant>();
 
         final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("schoolObjectId",schoolObjectId);
         ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<ArrayList<String>>() {
             public void done(ArrayList<String> returned, ParseException e) {
                 if (e == null) {
