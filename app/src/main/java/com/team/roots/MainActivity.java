@@ -257,6 +257,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     public void onAfterSync(LayerClient layerClient, SyncType syncType) {
         Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
         intent.putExtra("mUserId", loginString);
+        intent.putExtra("mSchoolId",schoolObjectId);
         finish();
         startActivity(intent);
         loginController.getLayerClient().unregisterSyncListener(this);
@@ -273,7 +274,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         if (isSynced){
             Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
             intent.putExtra("mUserId", loginString);
-
+            intent.putExtra("mSchoolId", schoolObjectId);
             //needed to avoid future calls to onUserAuthenticated when phone disconnects
             finish();
             startActivity(intent);

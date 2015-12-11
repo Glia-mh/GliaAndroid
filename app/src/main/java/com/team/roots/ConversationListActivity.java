@@ -400,6 +400,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         if(c != null) {
             intent.putExtra("conversation-id", c.getId());
+
         }
 
         startActivity(intent);
@@ -412,6 +413,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
 
         intent.putExtra("counselor-id", counselorID);
+        intent.putExtra("school-id",getIntent().getStringExtra("mSchoolId"));
 
         startActivity(intent);
         overridePendingTransition(com.layer.quick_start_android.R.anim.slide_in_right, com.layer.quick_start_android.R.anim.slide_out_left);
