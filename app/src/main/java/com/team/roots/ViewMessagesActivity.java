@@ -255,7 +255,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
                         metadataConv.put("counselor", counselor);
                         metadataConv.put("student", student);
-
+                        metadataConv.put("schoolID",getIntent().getStringExtra("school-id"));
 
                         conversation = LoginController.layerClient.newConversation(participants);
 
