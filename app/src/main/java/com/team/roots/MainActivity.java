@@ -198,12 +198,17 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         ParseUser.logInInBackground(username, password, new LogInCallback() {
                             public void done(ParseUser user, ParseException e) {
                                 if (user != null) {
-
-                                    loginString = user.getObjectId();
-                                    Log.d("user.getObjectId", "user.getObjectId=" + loginString);
-
-                                    participantProvider  = new ParticipantProvider();
-                                    participantProvider.refresh(loginString, schoolObjectId, loginController);
+                                    if(user.getParseObject("schoolID").getObjectId().equals(schoolObjectId)) {
+                                        loginString = user.getObjectId();
+                                        Log.d("user.getObjectId", "user.getObjectId=" + loginString);
+                                        participantProvider = new ParticipantProvider();
+                                        participantProvider.refresh(loginString, schoolObjectId, loginController);
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
+                                        findViewById(com.layer.quick_start_android.R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
+                                        loginButton.setText(com.layer.quick_start_android.R.string.action_sign_in); //make button say login again
+                                        onResume();
+                                    }
                                 } else {
 
                                     Toast.makeText(getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
@@ -228,7 +233,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 isSynced = true;
                 setContentView(com.layer.quick_start_android.R.layout.loading_screen);
                 loginString = loginController.getLayerClient().getAuthenticatedUserId();
-
+                schoolObjectId=mPrefs.getString("loginSchool", null);
                 participantProvider = new ParticipantProvider();
                 participantProvider.refresh(loginString,schoolObjectId, loginController);
 
@@ -255,6 +260,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
     //Called after syncing with the Layer servers
     public void onAfterSync(LayerClient layerClient, SyncType syncType) {
+        SharedPreferences.Editor mEditor = mPrefs.edit();
+        mEditor.putString("loginSchool", schoolObjectId).apply();
         Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
         intent.putExtra("mUserId", loginString);
         intent.putExtra("mSchoolId",schoolObjectId);

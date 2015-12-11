@@ -115,6 +115,7 @@ public class ParticipantProvider implements Atlas.ParticipantProvider {
                         Log.d("ParticipantProvider", "Participant with id of " + participant.getID() + " added to map.");
                     }
                     loginController.login(loginString);
+
                 }
 
 
@@ -127,6 +128,9 @@ public class ParticipantProvider implements Atlas.ParticipantProvider {
 
 
     }
+
+
+
 
     public Map<String, Participant> getCustomParticipants(String filter, Map<String, Participant> result) {
         if (result == null) {
