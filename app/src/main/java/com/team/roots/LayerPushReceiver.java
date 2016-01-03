@@ -60,8 +60,8 @@ public class LayerPushReceiver extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setShowWhen(true)
                 .setWhen(System.currentTimeMillis())
-                .setLights(context.getResources().getColor(com.layer.quick_start_android.R.color.tappable_blue), 100, 1900)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT).setSmallIcon(com.layer.quick_start_android.R.drawable.ic_launcher)
+                .setLights(context.getResources().getColor(R.color.tappable_blue), 100, 1900)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT).setSmallIcon(R.drawable.ic_launcher)
                 .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE);
 
         new LoadImage(mBuilder, context, conversationId).execute(tokens[1]);

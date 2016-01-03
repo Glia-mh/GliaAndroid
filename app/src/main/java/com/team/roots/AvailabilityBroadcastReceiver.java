@@ -54,17 +54,24 @@ public class AvailabilityBroadcastReceiver extends ParsePushBroadcastReceiver {
                 }
             } else if(action.equals(ConnectivityManager.CONNECTIVITY_ACTION)){
                 Message msg;
+                Message msg2=null;
                 Log.d("Network","in app network change detected");
                 ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo netInfo = cm.getActiveNetworkInfo();
-                //should check null because in air plan mode it will be null
+
+                //should check null because in airplane mode it will be null
                 if(netInfo != null && netInfo.isConnected()){
                     msg=Message.obtain(ConversationListActivity.availabilityHandler,2);
+                    msg2=Message.obtain(MainActivity.networkHandler);
                 } else {
                     msg=Message.obtain(ConversationListActivity.availabilityHandler,3);
+
                 }
                 if(ConversationListActivity.availabilityHandler!=null) {
                     msg.sendToTarget();
+                    if(msg2!=null) {
+                        msg2.sendToTarget();
+                    }
                 }
             }
         }

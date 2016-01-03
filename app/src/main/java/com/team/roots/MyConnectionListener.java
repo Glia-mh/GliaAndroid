@@ -3,6 +3,7 @@ package com.team.roots;
 import android.util.Log;
 import android.widget.ProgressBar;
 
+
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerConnectionListener;
@@ -31,9 +32,11 @@ public class MyConnectionListener implements LayerConnectionListener {
     public void onConnectionConnected(LayerClient client) {
         Log.d("ConnectionCheckConnect", "ConnectionCheckConnect");
         if(!(client.isAuthenticated())){
-            if(main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress)!=null){
-                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress);
+            try {
+                ProgressBar progressBar=(ProgressBar)main_activity.pager.getChildAt(main_activity.pager.getChildCount()-1).findViewById(R.id.login_progress);
                 progressBar.setProgress(25);
+            } catch (NullPointerException e) {
+                Log.d("null","progress bar not updated, not on Main Activity view");
             }
             client.authenticate();
         } else if (!receive){

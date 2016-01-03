@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.jakewharton.disklrucache.DiskLruCache;
-import com.layer.quick_start_android.BuildConfig;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

@@ -13,22 +13,23 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewManager;
-import android.widget.FrameLayout;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.layer.atlas.*;
-import com.layer.atlas.DiskLruImageCache;
 import com.layer.atlas.AtlasMessageComposer;
+import com.layer.atlas.AtlasMessagesList;
 import com.layer.atlas.AtlasParticipantPicker;
+import com.layer.atlas.AtlasTypingIndicator;
+import com.layer.atlas.DiskLruImageCache;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -53,10 +54,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private AtlasMessageComposer atlasComposer;
     private Conversation conversation;
     private String counselorId=null;
-    private String DRAWER_OPEN = "DrawerOpen";
-    private boolean drawerOpen;
     MixpanelAPI mixpanel;
-
+    private String schoolId=null;
 
     //Image Caching
     private LruCache<String, Bitmap> mMemoryCache;
@@ -78,17 +77,16 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         context=this;
 
-        if(savedInstanceState!=null){
-            drawerOpen=savedInstanceState.getBoolean(DRAWER_OPEN);
-        } else {
-            drawerOpen=true;
+        if(schoolId==null){
+            Log.d("school-id","school-id: "+getIntent().getStringExtra("school-id"));
+            schoolId=getIntent().getStringExtra("school-id");
         }
 
 
-        setContentView(com.layer.quick_start_android.R.layout.activity_messages_view);
+        setContentView(R.layout.activity_messages_view);
 
         if(!isNetworkAvailable()){
-            TextView networkErrorWarning=(TextView)findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning);
+            TextView networkErrorWarning=(TextView)findViewById(R.id.counselor_unavailible_warning);
             networkErrorWarning.setText("Network Error, please connect to the Internet!");
             networkErrorWarning.setVisibility(View.VISIBLE);
         }
@@ -113,8 +111,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
-        FrameLayout bioInformationDrawer=(FrameLayout)findViewById(com.layer.quick_start_android.R.id.counselor_bio_drawer);
-        bioInformationDrawer.setVisibility(View.VISIBLE);
+
 
         ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
         //Bio View
@@ -124,15 +121,15 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             //Mixpanel analytics
             String projectToken="ce89dc73831431de3a84eab1d58aa4ac";
             mixpanel = MixpanelAPI.getInstance(this, projectToken);
-            ImageView phoneIcon=(ImageView)findViewById(com.layer.quick_start_android.R.id.phoneicon);
-            phoneIcon.setOnClickListener(new View.OnClickListener() {
+            TextView call=(TextView)findViewById(R.id.call_text_view);
+            call.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
                         JSONObject props = new JSONObject();
                         props.put("isStudent", true);
                         mixpanel.track("Phone Button Clicked", props);
-                        getWelcomeAlertDialog(com.layer.quick_start_android.R.string.feature_not_available_warning).show();
+                        getWelcomeAlertDialog(R.string.feature_not_available_warning).show();
                     } catch (JSONException e) {
                         Log.e("MYAPP", "Unable to add properties to JSONObject", e);
                     }
@@ -142,7 +139,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-            ImageView imageViewCounselor = (ImageView) findViewById(com.layer.quick_start_android.R.id.counselorbioimage);
+            ImageView imageViewCounselor = (ImageView) findViewById(R.id.counselorbioimage);
             boolean fadeImage = false;
             Log.d("ViewMessagesAct", "ConversationListActivity.participantprovder.getPartticipant(counselorId)==" + ConversationListActivity.participantProvider.getParticipant(counselorId));
 
@@ -166,7 +163,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
             if(!ConversationListActivity.participantProvider.getParticipant(counselorId).getIsAvailable()) {
                 fadeImage=true;
-                findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
+                findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);  //Show warning if unavailable
             }
             if(getBitmapFromCache(counselorId.toLowerCase())==null) {
                 new LoadImage(imageViewCounselor, fadeImage).execute(ConversationListActivity.participantProvider.getParticipant(counselorId).getAvatarString());
@@ -177,19 +174,19 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-            TextView counselorTitle = (TextView) findViewById(com.layer.quick_start_android.R.id.bioinformationtitle);
+            TextView counselorTitle = (TextView) findViewById(R.id.bioinformationtitle);
             counselorTitle.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getName());
 
-            TextView counselorInfo = (TextView) findViewById(com.layer.quick_start_android.R.id.bioinformation);
+            TextView counselorInfo = (TextView) findViewById(R.id.bioinformation);
             counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
         } else {
-            View bioNavDrawer = findViewById(com.layer.quick_start_android.R.id.counselor_bio_drawer);
+            View bioNavDrawer = findViewById(R.id.counselorbiobar);
             ((ViewManager)bioNavDrawer.getParent()).removeView(bioNavDrawer);
         }
 
 
         //set message list
-        messagesList = (AtlasMessagesList) findViewById(com.layer.quick_start_android.R.id.messageslist);
+        messagesList = (AtlasMessagesList) findViewById(R.id.messageslist);
         messagesList.init(LoginController.layerClient, ConversationListActivity.participantProvider, accountType, this);
         messagesList.setConversation(conversation);
 
@@ -199,7 +196,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //automatically set to hidden
         //a view with dynamic filtering of a list that allows you to add participants
-        participantPicker = (AtlasParticipantPicker) findViewById(com.layer.quick_start_android.R.id.participantpicker);
+        participantPicker = (AtlasParticipantPicker) findViewById(R.id.participantpicker);
         String[] currentUser = {LoginController.layerClient.getAuthenticatedUserId()};
         participantPicker.init(currentUser, ConversationListActivity.participantProvider);
         //if(conversation != null)
@@ -215,15 +212,38 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
         //to inform user if someone on the receiving end is typing
-        typingIndicator = (AtlasTypingIndicator) findViewById(com.layer.quick_start_android.R.id.typingindicator);
+        typingIndicator = (AtlasTypingIndicator) findViewById(R.id.typingindicator);
         typingIndicator.init(conversation, new AtlasTypingIndicator.DefaultTypingIndicatorCallback(ConversationListActivity.participantProvider));
 
 
 
 
         //used to create and send messages
-        atlasComposer = (AtlasMessageComposer) findViewById(com.layer.quick_start_android.R.id.textinput);
+        atlasComposer = (AtlasMessageComposer) findViewById(R.id.textinput);
         atlasComposer.init(LoginController.layerClient, conversation, accountType);
+        EditText messageText=(EditText)atlasComposer.findViewById(com.layer.atlas.R.id.atlas_message_composer_text);
+        messageText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (messagesList.findViewById(com.layer.atlas.R.id.no_messages_description).getVisibility() != View.GONE) {
+                    TextView noMessagesDescription = (TextView) messagesList.findViewById(com.layer.atlas.R.id.no_messages_description);
+                    if (hasFocus) {
+
+
+                        Animation out = new AlphaAnimation(1.0f, 0.0f);
+                        out.setDuration(1000);
+
+                        noMessagesDescription.startAnimation(out);
+                        messagesList.findViewById(com.layer.atlas.R.id.no_messages_description).setVisibility(View.INVISIBLE);
+                    } else {
+                        Animation in = new AlphaAnimation(0.0f, 1.0f);
+                        in.setDuration(1000);
+                        noMessagesDescription.startAnimation(in);
+                        messagesList.findViewById(com.layer.atlas.R.id.no_messages_description).setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
         atlasComposer.setListener(new AtlasMessageComposer.Listener() {
             //if returns false means the message will not send and participants not entered
             //in new conversation
@@ -255,14 +275,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
                         metadataConv.put("counselor", counselor);
                         metadataConv.put("student", student);
-                        metadataConv.put("schoolID",getIntent().getStringExtra("school-id"));
+                        metadataConv.put("schoolID", schoolId);
 
                         conversation = LoginController.layerClient.newConversation(participants);
 
                         //set metatdata
                         conversation.putMetadata(metadataConv, false);
-                        String messageText=message.getOptions().getPushNotificationMessage();
-                        if(accountType==1) {
+                        String messageText = message.getOptions().getPushNotificationMessage();
+                        if (accountType == 1) {
                             message.getOptions().pushNotificationMessage((String) conversation.getMetadata().get("counselor.name") + "," + (String) conversation.getMetadata().get("counselor.avatarString") + "," + messageText);
 
                         } else {
@@ -281,33 +301,11 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         });
 
 
-        DrawerLayout dl = (DrawerLayout)findViewById(com.layer.quick_start_android.R.id.view_messages_drawer_layout);
-        // set bio drawer listener
-        dl.setDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View view, float v) { }
-            @Override
-            public void onDrawerOpened(View view) {
-                drawerOpen=true;
-            }
-            @Override
-            public void onDrawerClosed(View view) {
-                drawerOpen=false;
-            }
-            @Override
-            public void onDrawerStateChanged(int i) {}
-        });
 
 
 
 
-        if (accountType==0 && mPrefs.getBoolean("firstTimeStudentOnViewMessagesAct", true)) {
-            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(com.layer.quick_start_android.R.string.dialog_welcome_student_view_messages_act);
-            welcomeAlertDialog.show();
-            SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putBoolean("firstTimeStudentOnViewMessagesAct", false).apply();
-            dl.openDrawer(GravityCompat.END);
-        }
+
 
 
 
@@ -323,7 +321,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(DRAWER_OPEN, drawerOpen);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -500,7 +497,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
-                overridePendingTransition(com.layer.quick_start_android.R.anim.slide_in_left, com.layer.quick_start_android.R.anim.slide_out_right);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -522,7 +519,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(stringAddress)
-                .setPositiveButton(com.layer.quick_start_android.R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //do nothin' cuz we don't gotta
                     }

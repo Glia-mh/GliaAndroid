@@ -59,6 +59,7 @@ public class LoginController {
 
         //if (layerClient.isConnected())
           //  layerClient.disconnect();
+
             connectionListener.setReceive(false);
             layerClient.deauthenticate();
 
