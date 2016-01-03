@@ -1,5 +1,6 @@
 package com.team.roots;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,13 +36,16 @@ public class LoginFragment extends Fragment {
     int accountType;
     private boolean isUsernamePopulated;
     private boolean isPasswordPopulated;
+    private View theView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                               Bundle savedInstanceState) {
         if(savedInstanceState==null)
-            return inflater.inflate(R.layout.login_layout, container, false);
+            theView = inflater.inflate(R.layout.login_layout, container, false);
         else
-            return super.onCreateView(inflater, container, savedInstanceState);
+            theView =  super.onCreateView(inflater, container, savedInstanceState);
+
+        return theView;
     }
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -56,12 +62,16 @@ public class LoginFragment extends Fragment {
 
 
                 //sets login view based on account type
+                int idOfViewToFocusOn;
                 if (accountType == 0) {
 
 
                     getView().findViewById(R.id.counselor_login_edittext_username).setVisibility(View.GONE);
                     getView().findViewById(R.id.counselor_login_edittext_password).setVisibility(View.GONE);
                     getView().findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);
+
+                    getView().findViewById(R.id.loginedittext).requestFocus();
+                    idOfViewToFocusOn = R.id.loginedittext;
 
                 } else {
 
@@ -70,8 +80,13 @@ public class LoginFragment extends Fragment {
                     getView().findViewById(R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);
                     getView().findViewById(R.id.loginedittext).setVisibility(View.GONE);
 
+                    getView().findViewById(R.id.counselor_login_edittext_username).requestFocus();
+                    idOfViewToFocusOn = R.id.counselor_login_edittext_username;
 
-                }
+
+                } InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(((EditText) theView.findViewById(idOfViewToFocusOn)),InputMethodManager.SHOW_FORCED);
+                Log.d("LoginFrag","Keyboard enabled");
 
                 //UI population unspecific to accountType
                 final School school = new School(getActivity().getIntent().getStringExtra("schoolobjectid"),
