@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.layer.quick_start_android" >
+    tools:context="com.team.roots" >
     <item
         android:id="@+id/addconversation"
         android:title="Add"

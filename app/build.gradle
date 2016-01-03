@@ -8,7 +8,7 @@ android {
         exclude 'META-INF/services/com.fasterxml.jackson.core.JsonFactory'
     }
     defaultConfig {
-        applicationId "com.layer.quick_start_android"
+        applicationId "com.team.roots"
         minSdkVersion 14
         targetSdkVersion 23
         multiDexEnabled true

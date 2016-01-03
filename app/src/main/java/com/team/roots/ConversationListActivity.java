@@ -84,10 +84,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
-        setContentView(com.layer.quick_start_android.R.layout.activity_list_conversation);
+        setContentView(R.layout.activity_list_conversation);
 
         if(!isNetworkAvailable()){
-            findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+            findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
         }
 
 
@@ -96,7 +96,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         accountType = mPrefs.getInt("accounttype",0);
 
 
-        Log.d("Conversation List Activity recreated", "Conversation List Activity recreated");
+        Log.d("ConversationList", "Conversation List Activity recreated");
         //set layer Client and Authentication Listeners to ConversationListActivity
 
        // LoginController.authenticationListener.assignConversationListActivity(this);
@@ -107,14 +107,14 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         if (accountType==1) {
             //Change action bar name to "Roots Counselor" cuz now the person's a counselor
             //getActionBar().setTitle(R.string.app_name_roots_counselor);
-            getSupportActionBar().setTitle(com.layer.quick_start_android.R.string.app_name_roots_counselor);  // provide compatibility to all the versions
+            getSupportActionBar().setTitle(R.string.app_name_roots_counselor);  // provide compatibility to all the versions
 
         }
 
 
 
         // COUNSELOR BAR*************************************************************
-        LinearLayout counselorBar = (LinearLayout)findViewById(com.layer.quick_start_android.R.id.counselorbar);
+        LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
         if(accountType==0) {
 
 
@@ -139,9 +139,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
             for (final Participant p : participants) {
 
-                View item = inflater.inflate(com.layer.quick_start_android.R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
-                TextView text = (TextView) item.findViewById(com.layer.quick_start_android.R.id.counselorbartext);
-                ImageView image = (ImageView) item.findViewById(com.layer.quick_start_android.R.id.counselorbarimage);
+                View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
+                TextView text = (TextView) item.findViewById(R.id.counselorbartext);
+                ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
                 text.setText(p.getFirstName());   // set up text
 
 
@@ -194,11 +194,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         //Setting options for Drawers
         if(accountType==0) {
-            mOptions = getResources().getStringArray(com.layer.quick_start_android.R.array.left_drawer_options);
+            mOptions = getResources().getStringArray(R.array.left_drawer_options);
 
         } else {
-            mOptions= getResources().getStringArray(com.layer.quick_start_android.R.array.left_drawer_options_counselor);
-            mOptionsRightDrawer=getResources().getStringArray(com.layer.quick_start_android.R.array.right_drawer_options_counselor);
+            mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
+            mOptionsRightDrawer=getResources().getStringArray(R.array.right_drawer_options_counselor);
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -213,8 +213,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
         //right drawer
-        mDrawerLayout = (DrawerLayout) findViewById(com.layer.quick_start_android.R.id.drawer_layout);
-        mDrawerListRight = (ListView) findViewById(com.layer.quick_start_android.R.id.right_drawer);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
         PackageManager pm = this.getPackageManager();
         if(accountType==1) {
                 Log.d("MyID", "MyID initial push notification receiver set " + myID);
@@ -235,8 +235,8 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
         //Left Drawer
-        mDrawerLayout = (DrawerLayout) findViewById(com.layer.quick_start_android.R.id.drawer_layout);
-        mDrawerListLeft = (ListView) findViewById(com.layer.quick_start_android.R.id.left_drawer);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
         mDrawerListLeft.setAdapter(new MyAdapter(this));
@@ -244,7 +244,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mDrawerListRight);
         }
 
-        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, com.layer.quick_start_android.R.string.drawer_open, com.layer.quick_start_android.R.string.drawer_close) {
+        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawer) {
                 DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
@@ -265,7 +265,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         participantProvider=MainActivity.participantProvider;
 
         //initialize Conversation List
-        myConversationList = (AtlasConversationsList) findViewById(com.layer.quick_start_android.R.id.conversationlist);
+        myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
 
 
         myConversationList.init(LoginController.layerClient, participantProvider, accountType, context);
@@ -279,18 +279,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
 
-        // Show the welcome dialog if first time on
-        if (accountType==0 && mPrefs.getString("firstTimeStudent", "1").equals("1")) {
-            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(com.layer.quick_start_android.R.string.dialog_welcome_student);
-            welcomeAlertDialog.show();
-            SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("firstTimeStudent", "0").apply();
-        } else if (accountType==1 && mPrefs.getString("firstTimeCounselor", "1").equals("1")) {
-            AlertDialog welcomeAlertDialog = getWelcomeAlertDialog(com.layer.quick_start_android.R.string.dialog_welcome_counselor);
-            welcomeAlertDialog.show();
-            SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("firstTimeCounselor", "0").apply();
-        }
 
         leftDrawerListener.syncState();
 
@@ -326,29 +314,29 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         public void handleMessage (Message msg){
             ConversationListActivity conversationListActivity = convListActivityVars.get();
             if(msg.what==2){
-                if(conversationListActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning)!=null)
-                    conversationListActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+                if(conversationListActivity.findViewById(R.id.counselor_unavailible_warning)!=null)
+                    conversationListActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
 
                 if (viewMessagesActivityWeakReference != null) {
                     ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
-                    TextView networkErrorWarning=(TextView)viewMessagesActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning);
+                    TextView networkErrorWarning=(TextView)viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning);
                     networkErrorWarning.setText("This counselor is offline. Don't expect an immediate response!");
                     networkErrorWarning.setVisibility(View.GONE);
                 }
             }else if (msg.what==3){
                 if(conversationListActivity!=null)
-                    conversationListActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+                    conversationListActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
 
                 if (viewMessagesActivityWeakReference != null) {
                     ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
-                    TextView networkErrorWarning=(TextView)viewMessagesActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning);
+                    TextView networkErrorWarning=(TextView)viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning);
                     networkErrorWarning.setText("Network Error, please connect to the Internet!");
                     networkErrorWarning.setVisibility(View.VISIBLE);
                 }
             } else {
                 if (conversationListActivity.accountType == 0) {
                     String userID = (String) msg.obj;
-                    ImageView v = (ImageView) conversationListActivity.findViewById(com.layer.quick_start_android.R.id.horizontal_scroll_view_counselors).findViewWithTag(userID);
+                    ImageView v = (ImageView) conversationListActivity.findViewById(R.id.horizontal_scroll_view_counselors).findViewWithTag(userID);
                     Log.d("gray value", "gray value function must be called");
                     if (msg.what == 0) {
                         conversationListActivity.fadeImage(v, false);
@@ -356,7 +344,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                         Log.d("called", "called false");
                         if (viewMessagesActivityWeakReference != null) {
                             ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
-                            viewMessagesActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+                            viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
                         }
 
                     } else {
@@ -366,7 +354,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
                         if (viewMessagesActivityWeakReference != null) {
                             ViewMessagesActivity viewMessagesActivity = viewMessagesActivityWeakReference.get();
-                            viewMessagesActivity.findViewById(com.layer.quick_start_android.R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+                            viewMessagesActivity.findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
                         }
                         Log.d("called", "called true");
                     }
@@ -404,7 +392,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         }
 
         startActivity(intent);
-        overridePendingTransition(com.layer.quick_start_android.R.anim.slide_in_right, com.layer.quick_start_android.R.anim.slide_out_left);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
     //enters or starts a conversation
@@ -413,17 +401,17 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         Intent intent = new Intent(ConversationListActivity.this, ViewMessagesActivity.class);
 
         intent.putExtra("counselor-id", counselorID);
-        intent.putExtra("school-id",getIntent().getStringExtra("mSchoolId"));
-
+        intent.putExtra("school-id",mPrefs.getString("loginSchoolObjectId", null));
+        Log.d("school-id", "school-id: " + mPrefs.getString("loginSchoolObjectId", null));
         startActivity(intent);
-        overridePendingTransition(com.layer.quick_start_android.R.anim.slide_in_right, com.layer.quick_start_android.R.anim.slide_out_left);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
     }
 
     //for logout
     public void onUserDeauthenticated() {
         Log.d("Login", "Logging Out");
-
+        mPrefs.edit().clear().apply();
         LoginController.layerClient.unregisterAuthenticationListener(LoginController.authenticationListener);
         LoginController.layerClient.unregisterConnectionListener(LoginController.connectionListener);
 
@@ -445,7 +433,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(com.layer.quick_start_android.R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -472,11 +460,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             this.context = context;
             options = mOptions;
             if(accountType==0){
-                images=new int[]{com.layer.quick_start_android.R.drawable.ic_logout,
-                        com.layer.quick_start_android.R.drawable.ic_launcher};
+                images=new int[]{R.drawable.ic_logout,
+                        R.drawable.ic_launcher};
             } else {
-                images=new int[]{com.layer.quick_start_android.R.drawable.ic_logout,
-                        com.layer.quick_start_android.R.drawable.ic_settings};
+                images=new int[]{R.drawable.ic_logout,
+                        R.drawable.ic_settings};
             }
         }
 
@@ -500,13 +488,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             View row;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                row = inflater.inflate(com.layer.quick_start_android.R.layout.custom_nav_drawer_row, parent, false);
+                row = inflater.inflate(R.layout.custom_nav_drawer_row, parent, false);
             } else {
                 row = convertView;
             }
-            TextView titleTextView = (TextView) row.findViewById(com.layer.quick_start_android.R.id.textView);
+            TextView titleTextView = (TextView) row.findViewById(R.id.textView);
             ImageView titleImageView = (ImageView) row
-                    .findViewById(com.layer.quick_start_android.R.id.imageView);
+                    .findViewById(R.id.imageView);
             titleTextView.setText(options[position]);
             titleImageView.setImageResource(images[position]);
             return row; ///
@@ -518,7 +506,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
         if (mOptions[position].equals("Logout")) {
             if(isNetworkAvailable()) {
-                setContentView(com.layer.quick_start_android.R.layout.loading_screen);
+                setContentView(R.layout.loading_screen);
                 getSupportActionBar().hide();
                 //TextView loggingoutintext = (TextView) findViewById(R.id.loginlogoutinformation);
                 //loggingoutintext.setText("Logging Out...");
@@ -526,11 +514,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     loginController=new LoginController();
                 loginController.logout();
             } else {
-                getWelcomeAlertDialog(com.layer.quick_start_android.R.string.no_internet_connection).show();
+                getWelcomeAlertDialog(R.string.no_internet_connection).show();
             }
         } else if (mOptions[position].equals("Settings")) {
             //go to settings (right nav drawer)
-            DrawerLayout dl = (DrawerLayout)findViewById(com.layer.quick_start_android.R.id.drawer_layout);
+            DrawerLayout dl = (DrawerLayout)findViewById(R.id.drawer_layout);
             dl.closeDrawer(GravityCompat.START);
             dl.openDrawer(GravityCompat.END);
         } else if (mOptions[position].equals("About Roots")) {
@@ -582,14 +570,14 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             View row = null;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                row = inflater.inflate(com.layer.quick_start_android.R.layout.custom_nav_drawer_row, parent, false);
-                TextView tv = (TextView)row.findViewById(com.layer.quick_start_android.R.id.textView);
+                row = inflater.inflate(R.layout.custom_nav_drawer_row, parent, false);
+                TextView tv = (TextView)row.findViewById(R.id.textView);
                 tv.setText(options[position]);
                 //Replace image view with another view based on option
                 if(position==0) {
 
                 //First option for counselor: enable/disable isAvailable. Checkbox
-                    ImageView iv = (ImageView)row.findViewById(com.layer.quick_start_android.R.id.imageView);
+                    ImageView iv = (ImageView)row.findViewById(R.id.imageView);
                     if (iv!=null) {
                         Log.d("imageView","the Image View is "+iv.toString());
 
@@ -834,7 +822,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private  AlertDialog getWelcomeAlertDialog(int stringAddress){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(stringAddress)
-                .setPositiveButton(com.layer.quick_start_android.R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                     }
                 });

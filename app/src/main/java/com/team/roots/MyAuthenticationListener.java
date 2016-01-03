@@ -38,12 +38,16 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         //Start the conversation view after a successful authentication
         if(main_activity != null && firstAuthentication) {
             firstAuthentication = false;
-            if(main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress)!=null){
-                ProgressBar progressBar=(ProgressBar)main_activity.findViewById(com.layer.quick_start_android.R.id.login_progress);
+            try {
+                ProgressBar progressBar = (ProgressBar) main_activity.pager.getChildAt(main_activity.pager.getChildCount() - 1).findViewById(R.id.login_progress);
                 progressBar.setProgress(50);
+            } catch (NullPointerException e) {
+                Log.d("null","progress bar not updated, not on Main Activity view");
             }
             main_activity.onUserAuthenticated();
-        }
+            }
+
+
     }
 
 

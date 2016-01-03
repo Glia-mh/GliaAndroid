@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="6">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:id="@+id/school_name_text"
+            android:text="Test Text"
+            android:textSize="16sp"
+            android:textColor="#ffffff"
+            android:padding="5dp"
+
+            android:layout_gravity="center_vertical"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
         android:gravity="center"
-        android:id="@+id/school_name_text"
-        android:text="Test Text"
-        android:textSize="14sp"
-        android:textColor="#555"
-        android:padding="5dp"
-        />
+        >
+        <ImageView
+            android:layout_width="14sp"
+            android:layout_height="14sp"
+            android:visibility="gone"
+            android:id="@+id/schoolcheck"
+            android:src="@mipmap/ic_check"/>
+    </LinearLayout>
 </LinearLayout>
