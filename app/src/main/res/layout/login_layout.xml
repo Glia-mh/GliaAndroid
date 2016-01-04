@@ -6,14 +6,14 @@
 
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+     android:layout_width="match_parent"
     android:layout_height="match_parent" android:gravity="center_vertical|center_horizontal"
     android:orientation="vertical" android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin" tools:context=".LoginActivity"
+    android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/roots_green"
-    android:descendantFocusability="beforeDescendants"
+    android:descendantFocusability="afterDescendants"
     android:focusableInTouchMode="true">
 
     <LinearLayout
@@ -57,7 +57,7 @@
             <EditText android:id="@+id/loginedittext" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_id"
                 android:imeActionLabel="@string/action_sign_in"
-                android:imeOptions="actionUnspecified"
+                android:imeOptions="actionNone"
                 android:maxLines="1" android:singleLine="true"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
@@ -80,7 +80,7 @@
                 android:textSize="30sp"
                 android:textColorHint="#ffffffff"
                 android:textColor="#ffffffff"
-               android:cursorVisible="false"/>
+               android:cursorVisible="true"/>
 
             <EditText android:id="@+id/counselor_login_edittext_password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
@@ -94,7 +94,7 @@
                 android:textSize="30sp"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
-                android:cursorVisible="false"
+                android:cursorVisible="true"
                 />
 
 
