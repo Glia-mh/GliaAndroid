@@ -116,6 +116,11 @@ public class LoginFragment extends Fragment {
                                                   int before, int count) {
                             if (s.length() > 0) {
                                 final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
+
+                                //enable button
+                                loginButton.setEnabled(true);
+
+                                //change color
                                 ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
                                 int colorId = buttonColor.getColor();
                                 Log.d("reached here","reached here"+colorId);
@@ -214,6 +219,7 @@ public class LoginFragment extends Fragment {
                                     int colorId = buttonColor.getColor();
                                     Log.d("populated","color Id: " + colorId);
                                     if(colorId== -7082078) {
+                                        ///----
                                         setOnClickListenerCounselor();
                                     }
                                 }
@@ -289,6 +295,10 @@ public class LoginFragment extends Fragment {
     }
     private void nullifyListener() {
         Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
+
+        //disable button
+        loginButton.setEnabled(false);
+
         loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_lighter));
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override

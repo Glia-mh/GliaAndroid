@@ -109,7 +109,8 @@
             android:text="@string/action_sign_in"
             android:textStyle="bold"
             android:textColor="#ffffffff"
-            android:background="@color/roots_green_lighter" />
+            android:background="@color/roots_green_lighter"
+            android:enabled="false"/>
 
 
 
