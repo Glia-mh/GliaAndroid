@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            style="?android:textAppearanceLarge"
+            style="?android:textAppearanceMedium"
             android:textColor="#ffffffff"
             android:text="@string/get_started_description"/>
 
