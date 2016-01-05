@@ -13,7 +13,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/roots_green"
-    android:descendantFocusability="afterDescendants"
+    android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
     <LinearLayout
@@ -33,7 +33,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:id="@+id/logindescription"
-            style="?android:textAppearanceLarge"
+            style="?android:textAppearanceMedium"
             android:textColor="#ffffffff"
             android:text="Text Replace"/>
 
@@ -56,8 +56,7 @@
                 />
             <EditText android:id="@+id/loginedittext" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_id"
-                android:imeActionLabel="@string/action_sign_in"
-                android:imeOptions="actionNone"
+                android:imeOptions="actionGo"
                 android:maxLines="1" android:singleLine="true"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
@@ -69,9 +68,8 @@
                 android:cursorVisible="false"/>
 
            <EditText  android:id="@+id/counselor_login_edittext_username" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:hint="@string/prompt_username"
-                android:imeActionLabel="@string/action_sign_in"
-                android:imeOptions="actionUnspecified" android:inputType="text"
+                android:layout_height="wrap_content" android:hint="@string/prompt_email"
+                android:imeOptions="actionNext" android:inputType="text"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
                 android:maxLines="1" android:singleLine="true"
@@ -84,8 +82,7 @@
 
             <EditText android:id="@+id/counselor_login_edittext_password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
-                android:imeActionLabel="@string/action_sign_in"
-                android:imeOptions="actionUnspecified" android:inputType="textPassword"
+                android:imeOptions="actionGo" android:inputType="textPassword"
                 android:maxLines="1" android:singleLine="true"
                 android:layout_marginBottom="10dp"
                 android:textColorHint="#ffffffff"
@@ -109,8 +106,7 @@
             android:text="@string/action_sign_in"
             android:textStyle="bold"
             android:textColor="#ffffffff"
-            android:background="@color/roots_green_lighter"
-            android:enabled="false"/>
+            android:background="@color/roots_green_lighter" />
 
 
 

@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -62,16 +61,14 @@ public class LoginFragment extends Fragment {
 
 
                 //sets login view based on account type
-                int idOfViewToFocusOn;
-                if (accountType == 0) {
 
+                if (accountType == 0) {
+                    int idOfViewToFocusOn;
 
                     getView().findViewById(R.id.counselor_login_edittext_username).setVisibility(View.GONE);
                     getView().findViewById(R.id.counselor_login_edittext_password).setVisibility(View.GONE);
                     getView().findViewById(R.id.loginedittext).setVisibility(View.VISIBLE);
 
-                    getView().findViewById(R.id.loginedittext).requestFocus();
-                    idOfViewToFocusOn = R.id.loginedittext;
 
                 } else {
 
@@ -80,13 +77,11 @@ public class LoginFragment extends Fragment {
                     getView().findViewById(R.id.counselor_login_edittext_password).setVisibility(View.VISIBLE);
                     getView().findViewById(R.id.loginedittext).setVisibility(View.GONE);
 
-                    getView().findViewById(R.id.counselor_login_edittext_username).requestFocus();
-                    idOfViewToFocusOn = R.id.counselor_login_edittext_username;
 
 
-                } InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(((EditText) theView.findViewById(idOfViewToFocusOn)),InputMethodManager.SHOW_FORCED);
-                Log.d("LoginFrag","Keyboard enabled");
+                }
+
+
 
                 //UI population unspecific to accountType
                 final School school = new School(getActivity().getIntent().getStringExtra("schoolobjectid"),
@@ -117,8 +112,6 @@ public class LoginFragment extends Fragment {
                             if (s.length() > 0) {
                                 final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
-                                //enable button
-                                loginButton.setEnabled(true);
 
                                 //change color
                                 ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
@@ -279,6 +272,11 @@ public class LoginFragment extends Fragment {
                 back.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        InputMethodManager inputManager = (InputMethodManager)
+                                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
                         MainActivity ma = (MainActivity) getActivity();
                         ma.pager.setCurrentItem(ma.pager.getCurrentItem() - 1, true);
                     }
@@ -296,8 +294,6 @@ public class LoginFragment extends Fragment {
     private void nullifyListener() {
         Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
-        //disable button
-        loginButton.setEnabled(false);
 
         loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_lighter));
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -326,7 +322,11 @@ public class LoginFragment extends Fragment {
                         TextView pwEditText = (TextView) getView().findViewById(R.id.counselor_login_edittext_password);
                         if (user != null) {
                             if (user.getParseObject("schoolID").getObjectId().equals(school.getObjectId())) {
+                                InputMethodManager inputManager = (InputMethodManager)
+                                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
+                                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                                        InputMethodManager.HIDE_NOT_ALWAYS);
                                 MainActivity ma = (MainActivity) getActivity();
                                 loginString = user.getObjectId();
 
