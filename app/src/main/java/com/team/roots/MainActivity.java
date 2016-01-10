@@ -41,7 +41,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
     //global application memory
-    SharedPreferences mPrefs;
+    public static SharedPreferences mPrefs;
+
+    public static final String PREFS_KNOWN = "prefs known";
+    public static final String SCHOOL_NAME = "school";
+    public static final String SCHOOL_OBJECT_ID = "school obj id";
+    public static final String ACCOUNT_TYPE_NUMBER = "account type number";
+
 
     //same thing as is authenticated
     boolean isSynced=false;
@@ -63,27 +69,11 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         super.onCreate(savedInstanceState);
         Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
 
-    }
-
-
-
-
-
-
-
-
-
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
         // Layer Setup
         loginController = new LoginController();
 
         if(isNetworkAvailable())
-                loginController.setLayerClient(getApplicationContext(), this);
+            loginController.setLayerClient(getApplicationContext(), this);
 
         //Content View
         setContentView(R.layout.activity_main);
@@ -112,6 +102,24 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                 populateSchoolList();
             }
         }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
 
     }
 
