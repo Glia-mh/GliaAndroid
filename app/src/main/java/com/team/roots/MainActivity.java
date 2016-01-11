@@ -83,6 +83,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
         pager = (NonSwipeableViewPager) findViewById(R.id.login_container);
+        pager.setScrollDurationFactor(2.0); //Modify transition speed!
         pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
 
         networkHandler=new networkHandler(this);
