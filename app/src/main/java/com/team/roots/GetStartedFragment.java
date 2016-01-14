@@ -15,30 +15,33 @@ public class GetStartedFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.get_started, container, false);
+        View getStartedView=inflater.inflate(R.layout.get_started, container, false);
         // Inflate the layout for this fragment
+        Button get_started=(Button)getStartedView.findViewById(R.id.getstarted);
+        get_started.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (isNetworkAvailable()) {
+                    MainActivity ma = (MainActivity) getActivity();
+                    ma.pager.setCurrentItem(ma.pager.getCurrentItem() + 1, true);
+
+
+                } else {
+                    MainActivity ma = (MainActivity) getActivity();
+                    ma.getWelcomeAlertDialog(R.string.no_internet_connection).show();
+
+                }
+            }
+        });
+        return getStartedView;
     }
 
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-            Button get_started = (Button) getView().findViewById(R.id.getstarted);
-            get_started.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
 
-                    if (isNetworkAvailable()) {
-                        MainActivity ma = (MainActivity) getActivity();
-                        ma.pager.setCurrentItem(ma.pager.getCurrentItem() + 1, true);
-
-
-                    } else {
-                        MainActivity ma = (MainActivity) getActivity();
-                        ma.getWelcomeAlertDialog(R.string.no_internet_connection).show();
-                    }
-                }
-            });
     }
 
 
