@@ -53,7 +53,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class ConversationListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class ConversationListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, AtlasConversationsList.IMyEventListener {
     LoginController loginController;
     static public ParticipantProvider participantProvider;
     private AtlasConversationsList myConversationList;
@@ -281,6 +281,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
         leftDrawerListener.syncState();
+
+        AtlasConversationsList atlasConversationsList =
+                (AtlasConversationsList)findViewById(R.id.conversationlist);
+        atlasConversationsList.setMyIEventListener(this);
+
 
 
     }
@@ -827,5 +832,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
                     }
                 });
         return builder.create();
+    }
+
+    public void onConversationDeleted(){
+        Log.d("ConvListAct", "onConversationDeleted");
+        onResume();
     }
 }
