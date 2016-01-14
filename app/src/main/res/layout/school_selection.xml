@@ -31,11 +31,22 @@
 
     </LinearLayout>
 
+    <!--Visibility for loading sign will be set to gone after school list loads-->
+    <ProgressBar
+        android:id="@+id/loading_sign_for_schools"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:indeterminate="true"
+        android:layout_weight="2.5"
+        android:visibility="visible"/>
+
+    <!--Will be set to VISIBLE after schools load-->
     <ListView
         android:layout_height="0dp"
         android:id="@+id/list_view_schools"
         android:layout_width="match_parent"
-        android:layout_weight="2.5"/>
+        android:layout_weight="2.5"
+        android:visibility="gone"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
