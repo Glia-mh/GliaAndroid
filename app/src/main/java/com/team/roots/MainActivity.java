@@ -86,6 +86,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         loginController.setLayerClient(getApplicationContext(), this);
 
 
+<<<<<<< HEAD
                     //Login if Authentication exists from last session
                     if (isNetworkAvailable()) {
 
@@ -98,6 +99,11 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                         } else {
                             createfirstAuthUI();
                         }
+=======
+        pager = (NonSwipeableViewPager) findViewById(R.id.login_container);
+        pager.setScrollDurationFactor(2.0); //Modify transition speed!
+        pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+>>>>>>> a123a187eef1f26b32ac616f76b3d5324303a3df
 
                     } else {
                         createfirstAuthUI();
