@@ -34,15 +34,21 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
                 return super.onCreateView(inflater, container, savedInstanceState);
 
     }
-    public void onViewCreated(View v, Bundle savedInstanceState) {
-        super.onViewCreated(v, savedInstanceState);
-        if(savedInstanceState==null){
-            MainActivity ma=(MainActivity)getActivity();
-            if(ma.getSchools()!=null){
-                populateSchoolListUI();
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisible()) {
+            if (isVisibleToUser) {
+                MainActivity ma=(MainActivity)getActivity();
+                if(ma.getSchools()!=null){
+                    populateSchoolListUI();
+                }
+
             }
         }
     }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
