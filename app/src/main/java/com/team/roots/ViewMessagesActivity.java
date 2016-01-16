@@ -35,6 +35,7 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Metadata;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.wunderlist.slidinglayer.SlidingLayer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -301,7 +302,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         });
 
 
+        SlidingLayer slidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 
+        //slidingLayer.setShadowDrawable(R.drawable.sidebar_shadow);
+        //slidingLayer.setShadowSizeRes(R.dimen.shadow_size);
+        slidingLayer.setOffsetDistanceRes(R.dimen.vert_drawer_offset_distance);
+        //slidingLayer.setPreviewOffsetDistanceRes(R.dimen.vert_drawer_preview_offset_distance);
+        slidingLayer.setStickTo(SlidingLayer.STICK_TO_TOP);
+        slidingLayer.setChangeStateOnTap(true);
 
 
 
