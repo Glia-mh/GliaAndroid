@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -149,8 +150,11 @@ public class LoginFragment extends Fragment {
 
                                                             MainActivity ma = (MainActivity) getActivity();
                                                             MainActivity.participantProvider = new ParticipantProvider();
+                                                            ProgressBar progressBar= (ProgressBar)getView().findViewById(R.id.login_progress);
+                                                            progressBar.setProgress(20);
                                                             MainActivity.participantProvider.refresh(loginString, params.get("schoolID"), ma.getLoginController());
                                                             Log.d("callback", "valid user id");
+
                                                         } else {
                                                             Toast.makeText(getActivity().getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
                                                             getView().findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
@@ -322,6 +326,8 @@ public class LoginFragment extends Fragment {
                         TextView pwEditText = (TextView) getView().findViewById(R.id.counselor_login_edittext_password);
                         if (user != null) {
                             if (user.getParseObject("schoolID").getObjectId().equals(school.getObjectId())) {
+                                ProgressBar progressBar= (ProgressBar)getView().findViewById(R.id.login_progress);
+                                progressBar.setProgress(20);
                                 InputMethodManager inputManager = (InputMethodManager)
                                         getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 

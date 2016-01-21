@@ -63,47 +63,51 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(savedInstanceState==null) {
-            mPrefs = getSharedPreferences("label", 0);
-        }
+
+
         super.onCreate(savedInstanceState);
-        Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
+        if(savedInstanceState==null) {
+            if (getSupportActionBar() != null) getSupportActionBar().hide();
+            //splash screen
+            setContentView(R.layout.loading_screen);
 
-        // Layer Setup
-        loginController = new LoginController();
+            //Sets up services
 
-        if(isNetworkAvailable())
-            loginController.setLayerClient(getApplicationContext(), this);
+            //General Setup
+            mPrefs = getSharedPreferences("label", 0);
 
-        //Content View
-        setContentView(R.layout.activity_main);
+            //Parse Setup
+            Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
 
+                    // Layer Setup
+                    loginController = new LoginController();
 
-        if (getSupportActionBar()!=null) getSupportActionBar().hide();
-
-
-        pager = (NonSwipeableViewPager) findViewById(R.id.login_container);
-        pager.setScrollDurationFactor(2.0); //Modify transition speed!
-        pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
-
-        networkHandler=new networkHandler(this);
+                    if (isNetworkAvailable())
+                        loginController.setLayerClient(getApplicationContext(), this);
 
 
-        //Login if Authentication exists from last session
-        if(isNetworkAvailable()) {
 
-            if (loginController.getLayerClient().isAuthenticated()) {
-                isSynced = true;
-                setContentView(R.layout.loading_screen);
-                loginString = loginController.getLayerClient().getAuthenticatedUserId();
-                schoolObjectId=mPrefs.getString("loginSchoolObjectId", null);
-                participantProvider = new ParticipantProvider();
-                participantProvider.refresh(loginString,schoolObjectId, loginController);
-            } else {
-                populateSchoolList();
-            }
+                    //Login if Authentication exists from last session
+                    if (isNetworkAvailable()) {
+
+                        if (loginController.getLayerClient().isAuthenticated()) {
+                            isSynced = true;
+                            loginString = loginController.getLayerClient().getAuthenticatedUserId();
+                            schoolObjectId = mPrefs.getString("loginSchoolObjectId", null);
+                            participantProvider = new ParticipantProvider();
+                            participantProvider.refresh(loginString, schoolObjectId, loginController);
+                        } else {
+                            createfirstAuthUI();
+                        }
+
+
+                    } else {
+                        createfirstAuthUI();
+                    }
+
+
+
         }
-
 
     }
 
@@ -114,7 +118,16 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
 
+    public void createfirstAuthUI(){
+        //view for non-existent pre-authentication
+        setContentView(R.layout.activity_main);
 
+        pager = (NonSwipeableViewPager) findViewById(R.id.login_container);
+        pager.setScrollDurationFactor(2.0);
+        pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+        populateSchoolList();
+        networkHandler = new networkHandler(this);
+    }
 
 
     @Override
@@ -171,7 +184,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     public void onSyncProgress(LayerClient layerClient, SyncType syncType, int progress){
         try {
             ProgressBar progressBar=(ProgressBar)pager.getChildAt(pager.getChildCount() - 1).findViewById(R.id.login_progress);
-            progressBar.setProgress((progress/2)+50);
+            progressBar.setProgress((int)((progress*0.4)+60));
         } catch (NullPointerException e) {
             Log.d("null","progress bar not updated, not on Main Activity view");
         }
@@ -195,9 +208,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
         //activity switch
         Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
-
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         finish();
         startActivity(intent);
+
         loginController.getLayerClient().unregisterSyncListener(this);
     }
     static class networkHandler extends Handler {
@@ -258,11 +272,14 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     public void onUserAuthenticated(){
         Log.d("onUserAuthenticated", "onUserAuthenticated");
         if (isSynced){
-            Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
+            Intent intent = new Intent(this, ConversationListActivity.class);
+
             finish();
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         } else {
             loginController.getLayerClient().registerSyncListener(this);
+
         }
     }
 

@@ -40,7 +40,7 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
             firstAuthentication = false;
             try {
                 ProgressBar progressBar = (ProgressBar) main_activity.pager.getChildAt(main_activity.pager.getChildCount() - 1).findViewById(R.id.login_progress);
-                progressBar.setProgress(50);
+                progressBar.setProgress(60);
             } catch (NullPointerException e) {
                 Log.d("null","progress bar not updated, not on Main Activity view");
             }
