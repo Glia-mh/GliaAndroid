@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -72,11 +73,21 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
       //  }
     }
     public void populateSchoolListUI(){
+
+        //At this point, all the schools are known and can be accessed using MainActivity
         MainActivity ma = (MainActivity) getActivity();
+
+        //Turn off loading sign
+        ProgressBar pb = (ProgressBar)getActivity().findViewById(R.id.loading_sign_for_schools);
+        pb.setVisibility(View.GONE);
+
 
         SchoolListAdapter schoolListAdapter = new SchoolListAdapter(getActivity(), R.id.list_view_schools, ma.getSchools());
         Log.d("school list", "school list view" + ma.getSchools().toString() + "size" + ma.getSchools().size());
         final ListView schoolListView = (ListView) getView().findViewById(R.id.list_view_schools);
+
+        //enable the school list
+        schoolListView.setVisibility(View.VISIBLE);
 
         schoolListView.setAdapter(schoolListAdapter);
         schoolListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

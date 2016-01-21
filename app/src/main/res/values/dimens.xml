@@ -5,4 +5,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_horizontal_margin_triple">48dp</dimen>
     <dimen name="activity_vertical_margin_triple">48dp</dimen>
+    <dimen name="vert_drawer_offset_distance">80dp</dimen>
+    <dimen name="vert_drawer_preview_offset_distance">90dp</dimen>
 </resources>

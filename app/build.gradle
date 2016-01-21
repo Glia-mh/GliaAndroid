@@ -50,5 +50,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.3'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.wunderlist:sliding-layer:1.2.5'
 
 }
