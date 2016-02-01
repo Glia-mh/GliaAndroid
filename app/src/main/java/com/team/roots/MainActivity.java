@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
@@ -283,7 +284,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         }
     }
 
-
+    //Layer fails auth because it makes a mistake
+    public void authFailLayer(){
+        Toast.makeText(this, "Our servers messed up! :( Try again.", Toast.LENGTH_SHORT).show();
+        MyPagerAdapter myPagerAdapter=(MyPagerAdapter)pager.getAdapter();
+        LoginFragment loginFragment=(LoginFragment)myPagerAdapter.getItem(3);
+        loginFragment.resetWithOutContentClear();
+    }
     //Network Check
     public boolean isNetworkAvailable() {
         RootsApp rootsAppInstance=(RootsApp)(getApplication());

@@ -35,7 +35,7 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Metadata;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
-import com.wunderlist.slidinglayer.SlidingLayer;
+import com.wunderlist.slidinglayer.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -171,6 +171,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             } else {
                 RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorId.toLowerCase()));
                 imageViewCounselor.setImageDrawable(roundImage);
+
             }
 
 
@@ -306,12 +307,10 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         //slidingLayer.setShadowDrawable(R.drawable.sidebar_shadow);
         //slidingLayer.setShadowSizeRes(R.dimen.shadow_size);
-        slidingLayer.setOffsetDistanceRes(R.dimen.vert_drawer_offset_distance);
-        //slidingLayer.setPreviewOffsetDistanceRes(R.dimen.vert_drawer_preview_offset_distance);
+
         slidingLayer.setStickTo(SlidingLayer.STICK_TO_TOP);
         slidingLayer.setChangeStateOnTap(true);
-
-
+        slidingLayer.openLayer(true);
 
 
 
@@ -431,14 +430,23 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         //set image view to bitmap
         protected void onPostExecute(Bitmap image ) {
 
-            if(image != null){
-                    //Log.d("caching","caching");
-                    String upperCaseData;
-                    if(accountType==0) {
+            if(image != null) {
+                //Log.d("caching","caching");
+                String upperCaseData;
+                if (conversation != null){
+                    if (accountType == 0) {
                         upperCaseData = (String) conversation.getMetadata().get("counselor.ID");
-                    }else {
+                    } else {
                         upperCaseData = (String) conversation.getMetadata().get("student.ID");
                     }
+                } else {
+                    if(accountType == 0) {
+                        upperCaseData = counselorId;
+                    } else {
+                        upperCaseData = LoginController.layerClient.getAuthenticatedUserId();
+                    }
+                }
+
                     addBitmapToCache(upperCaseData.toLowerCase(),image);
                     RoundImage roundImage=new RoundImage(image);
                     imageView.setImageDrawable(roundImage);

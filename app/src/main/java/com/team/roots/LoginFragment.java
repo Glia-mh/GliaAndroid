@@ -289,7 +289,15 @@ public class LoginFragment extends Fragment {
         }
     }
 
-
+    public void resetWithOutContentClear(){
+        if(getView()!=null) {
+            ProgressBar progressBar=(ProgressBar)getView().findViewById(R.id.login_progress);
+            progressBar.setProgress(0);
+            getView().findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
+            Button loginButton=(Button)getView().findViewById(R.id.loginbutton);
+            loginButton.setText(R.string.action_sign_in);
+        }
+    }
     //Network Check
     public boolean isNetworkAvailable(){
         RootsApp rootsAppInstance=(RootsApp)(getActivity().getApplication());

@@ -69,7 +69,7 @@ public class AvailabilityBroadcastReceiver extends ParsePushBroadcastReceiver {
                 }
                 if(ConversationListActivity.availabilityHandler!=null) {
                     msg.sendToTarget();
-                    if(msg2!=null) {
+                    if(msg2!=null && MainActivity.networkHandler!=null) {
                         msg2.sendToTarget();
                     }
                 }
