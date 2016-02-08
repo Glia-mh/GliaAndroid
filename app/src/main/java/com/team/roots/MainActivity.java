@@ -69,6 +69,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         super.onCreate(savedInstanceState);
         if(savedInstanceState==null) {
             if (getSupportActionBar() != null) getSupportActionBar().hide();
+
             //splash screen
             setContentView(R.layout.loading_screen);
 
@@ -98,6 +99,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                             participantProvider = new ParticipantProvider();
                             participantProvider.refresh(loginString, schoolObjectId, loginController);
                         } else {
+
                             createfirstAuthUI();
                         }
 

@@ -108,6 +108,7 @@ public class LayerPushReceiver extends BroadcastReceiver {
         protected void onPostExecute(Bitmap image ) {
 
             builder.setLargeIcon(image);
+            
             Intent resultIntent = new Intent(context, ViewMessagesActivity.class);
             resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             resultIntent.putExtra("conversation-id", conversationId);
