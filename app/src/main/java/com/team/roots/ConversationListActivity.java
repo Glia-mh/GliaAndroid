@@ -838,4 +838,34 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         Log.d("ConvListAct", "onConversationDeleted");
         onResume();
     }
+
+    @Override
+    public void callUponTheHolyParseServerToChangeStudentReportedStatus(String isReported, Conversation conv) {
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("userID", conv.getMetadata().get("student.ID"));
+        if(isReported.equals(AtlasConversationsList.TRUE)){
+            ParseCloud.callFunctionInBackground("reportStudent", params, new FunctionCallback<Float>() {
+                public void done(Float ratings, ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(context, "User successfully reported.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "User not successfully reported.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            ParseCloud.callFunctionInBackground("pardonStudent", params, new FunctionCallback<Float>() {
+                public void done(Float ratings, ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(context, "User successfully pardoned.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "User not successfully pardoned.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+
+    }
 }
