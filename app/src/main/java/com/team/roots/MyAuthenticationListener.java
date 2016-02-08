@@ -96,14 +96,16 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
                  */
 
                     System.out.println(eit);
-                    Log.d("Answering authentication challenge","Answering Authentication Challenge"+eit);
+                    Log.d("Authentication ","Answering Authentication Challenge"+eit);
                     layerClient.answerAuthenticationChallenge(eit);
 
                     //Authentication Error Occurs
                     // :(
                 } catch (Exception e) {
                     e.printStackTrace();
+
                     Log.d("Did not Work", "Did not Work");
+                    main_activity.authFailLayer();
                 }
                 return null;
             }
@@ -117,6 +119,7 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         // TODO Auto-generated method stub
         System.out.println("There was an error authenticating");
         Log.d("Did not Work", "Did not Work");
+        main_activity.authFailLayer();
     }
 
     //only used for Conversation Activity

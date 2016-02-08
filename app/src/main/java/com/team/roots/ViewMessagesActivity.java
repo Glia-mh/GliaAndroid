@@ -3,6 +3,7 @@ package com.team.roots;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,7 +19,6 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.EditText;
@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 public class ViewMessagesActivity extends ActionBarActivity  {
 
 
@@ -75,6 +74,15 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        if(!LoginController.layerClient.isAuthenticated()){
+            Log.d("notification", "not authenticated so end activity");
+            Intent intent=new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+            return;
+        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         context=this;
 
@@ -171,6 +179,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             } else {
                 RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorId.toLowerCase()));
                 imageViewCounselor.setImageDrawable(roundImage);
+
             }
 
 
@@ -180,9 +189,18 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
             TextView counselorInfo = (TextView) findViewById(R.id.bioinformation);
             counselorInfo.setText(ConversationListActivity.participantProvider.getParticipant(counselorId).getBio());
+
+            SlidingLayer slidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
+
+            //slidingLayer.setShadowDrawable(R.drawable.sidebar_shadow);
+            //slidingLayer.setShadowSizeRes(R.dimen.shadow_size);
+
+            slidingLayer.setStickTo(SlidingLayer.STICK_TO_TOP);
+            slidingLayer.setChangeStateOnTap(true);
+            slidingLayer.openLayer(true);
         } else {
-            View bioNavDrawer = findViewById(R.id.counselorbiobar);
-            ((ViewManager)bioNavDrawer.getParent()).removeView(bioNavDrawer);
+            View bioNavDrawer = findViewById(R.id.slidingLayer1);
+            bioNavDrawer.setVisibility(View.GONE);
         }
 
 
@@ -226,6 +244,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         messageText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+
                 if (messagesList.findViewById(com.layer.atlas.R.id.no_messages_description).getVisibility() != View.GONE) {
                     TextView noMessagesDescription = (TextView) messagesList.findViewById(com.layer.atlas.R.id.no_messages_description);
                     if (hasFocus) {
@@ -245,6 +264,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 }
             }
         });
+
         atlasComposer.setListener(new AtlasMessageComposer.Listener() {
             //if returns false means the message will not send and participants not entered
             //in new conversation
@@ -300,16 +320,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 return true;
             }
         });
-
-
-        SlidingLayer slidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
-
-        //slidingLayer.setShadowDrawable(R.drawable.sidebar_shadow);
-        //slidingLayer.setShadowSizeRes(R.dimen.shadow_size);
-        slidingLayer.setOffsetDistanceRes(R.dimen.vert_drawer_offset_distance);
-        //slidingLayer.setPreviewOffsetDistanceRes(R.dimen.vert_drawer_preview_offset_distance);
-        slidingLayer.setStickTo(SlidingLayer.STICK_TO_TOP);
-        slidingLayer.setChangeStateOnTap(true);
 
 
 
@@ -431,14 +441,23 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         //set image view to bitmap
         protected void onPostExecute(Bitmap image ) {
 
-            if(image != null){
-                    //Log.d("caching","caching");
-                    String upperCaseData;
-                    if(accountType==0) {
+            if(image != null) {
+                //Log.d("caching","caching");
+                String upperCaseData;
+                if (conversation != null){
+                    if (accountType == 0) {
                         upperCaseData = (String) conversation.getMetadata().get("counselor.ID");
-                    }else {
+                    } else {
                         upperCaseData = (String) conversation.getMetadata().get("student.ID");
                     }
+                } else {
+                    if(accountType == 0) {
+                        upperCaseData = counselorId;
+                    } else {
+                        upperCaseData = LoginController.layerClient.getAuthenticatedUserId();
+                    }
+                }
+
                     addBitmapToCache(upperCaseData.toLowerCase(),image);
                     RoundImage roundImage=new RoundImage(image);
                     imageView.setImageDrawable(roundImage);

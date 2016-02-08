@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
@@ -68,6 +69,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         super.onCreate(savedInstanceState);
         if(savedInstanceState==null) {
             if (getSupportActionBar() != null) getSupportActionBar().hide();
+
             //splash screen
             setContentView(R.layout.loading_screen);
 
@@ -97,6 +99,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                             participantProvider = new ParticipantProvider();
                             participantProvider.refresh(loginString, schoolObjectId, loginController);
                         } else {
+
                             createfirstAuthUI();
                         }
 
@@ -283,7 +286,13 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         }
     }
 
-
+    //Layer fails auth because it makes a mistake
+    public void authFailLayer(){
+        Toast.makeText(this, "Our servers messed up! :( Try again.", Toast.LENGTH_SHORT).show();
+        MyPagerAdapter myPagerAdapter=(MyPagerAdapter)pager.getAdapter();
+        LoginFragment loginFragment=(LoginFragment)myPagerAdapter.getItem(3);
+        loginFragment.resetWithOutContentClear();
+    }
     //Network Check
     public boolean isNetworkAvailable() {
         RootsApp rootsAppInstance=(RootsApp)(getApplication());
