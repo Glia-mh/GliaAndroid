@@ -18,7 +18,6 @@ import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerSyncListener;
 import com.parse.FunctionCallback;
-import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 
@@ -78,8 +77,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
             //General Setup
             mPrefs = getSharedPreferences("label", 0);
 
-            //Parse Setup
-            Parse.initialize(this, "pya3k6c4LXzZMy6PwMH80kJx4HD2xF6duLSSdYUl", "BOOijRRSKlKh5ogT2IaacnnK2eHJZqt8L30VPIcc");
+
 
                     // Layer Setup
                     loginController = new LoginController();
