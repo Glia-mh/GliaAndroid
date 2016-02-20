@@ -17,6 +17,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -24,6 +25,7 @@ import android.view.animation.Animation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
@@ -35,6 +37,12 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Metadata;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.wunderlist.slidinglayer.SlidingLayer;
 
 import org.json.JSONException;
@@ -44,6 +52,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+
 public class ViewMessagesActivity extends ActionBarActivity  {
 
 
@@ -63,8 +74,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private boolean mDiskCacheStarting = true;
     private final Object mDiskCacheLock = new Object();
     private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-
-
+    private boolean isReported=false;
+    private boolean isLoaded=false;
 
     //account type 1 is counselor
     //account type 0 is student
@@ -518,16 +529,64 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     }
 
 
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        if(accountType==1) {
+            getMenuInflater().inflate(R.menu.messages, menu);
+            if (isLoaded) {
+                if (isReported)
+                    menu.findItem(R.id.action_report).setIcon(R.drawable.ic_undo_white_24dp);
+                else
+                    menu.findItem(R.id.action_report).setIcon(R.drawable.ic_report_problem_white_24dp);
+
+            } else {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("General_Student_IDs");
+                query.whereEqualTo("userID", conversation.getMetadata().get("student.ID"));
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    public void done(List<ParseObject> student, ParseException e) {
+                        if (e == null) {
+                            if (student.get(0).getBoolean("isReported")) {
+                                menu.findItem(R.id.action_report).setIcon(R.drawable.ic_undo_white_24dp);
+                                isReported = true;
+                            } else {
+                                menu.findItem(R.id.action_report).setIcon(R.drawable.ic_report_problem_white_24dp);
+                                isReported = false;
+                            }
+                            isLoaded = true;
+                        } else {
+
+                            Log.e("report", "Error: " + e.getMessage());
+                        }
+                    }
+                });
+
+            }
+        } else {
+            getMenuInflater().inflate(R.menu.main, menu);
+        }
+        return true;
+    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
+            case R.id.action_report:
+                if(isReported) {
+                    getWarningAlertDialog(R.string.undo_warning, R.string.undo).show();
+                } else {
+                    getWarningAlertDialog(R.string.report_warning, R.string.report).show();
+                }
+                return true;
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void addBitmapToCache(String key, Bitmap bitmap) {
@@ -553,6 +612,47 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 });
         // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    private  AlertDialog getWarningAlertDialog(int stringAddress, int acceptStringAddress){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(acceptStringAddress, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        changeReportStudentStatus(conversation);
+                    }
+                }).setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    public void changeReportStudentStatus(Conversation conv) {
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("userID", conv.getMetadata().get("student.ID"));
+        ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<Boolean>() {
+            public void done(Boolean studentReportValue, ParseException e) {
+                if (e == null) {
+                    if (studentReportValue) {
+                        Toast.makeText(context, "User reported.", Toast.LENGTH_SHORT).show();
+                        isReported=true;
+                        invalidateOptionsMenu();
+
+                    } else {
+                        isReported=false;
+                        Toast.makeText(context, "Report Undone.", Toast.LENGTH_SHORT).show();
+                        invalidateOptionsMenu();
+                    }
+                } else {
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 }

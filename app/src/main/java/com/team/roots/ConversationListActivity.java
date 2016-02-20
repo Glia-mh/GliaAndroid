@@ -82,7 +82,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     @Override
     public void onCreate(Bundle savedInstanceState){
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_conversation);
 

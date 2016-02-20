@@ -36,7 +36,7 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         System.out.println("Authentication successful");
         Log.d("I reached here", "I reached here " + firstAuthentication);
         //Start the conversation view after a successful authentication
-        if(main_activity != null && firstAuthentication) {
+        if(main_activity != null && firstAuthentication && !MyConnectionListener.getReceive()) {
             firstAuthentication = false;
             try {
                 ProgressBar progressBar = (ProgressBar) main_activity.pager.getChildAt(main_activity.pager.getChildCount() - 1).findViewById(R.id.login_progress);

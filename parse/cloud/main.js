@@ -68,7 +68,7 @@ Parse.Cloud.define("validateStudentID", function(request, response) {
   
   Parse.Cloud.define("changeStudentReportValue", function(request, response) {
   var query = new Parse.Query("General_Student_IDs");
-  query.equalTo("General_Student_IDs", request.params.id);
+  query.equalTo("userID", request.params.userID);
   query.find({
     success: function(results) {
 	  results[0].set("isReported",!results[0].get("isReported"));
