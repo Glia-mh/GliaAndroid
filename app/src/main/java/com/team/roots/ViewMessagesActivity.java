@@ -129,6 +129,11 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         if(counselorId==null){
             counselorId=(String)conversation.getMetadata().get("counselor.ID");
         }
+        if(accountType==0) {
+            getSupportActionBar().setTitle(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
+        } else {
+            getSupportActionBar().setTitle((String)conversation.getMetadata().get("student.name"));
+        }
 
 
 

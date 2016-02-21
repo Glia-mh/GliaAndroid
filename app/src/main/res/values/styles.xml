@@ -22,6 +22,8 @@
     <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="android:background"  tools:ignore="NewApi">@color/roots_green</item>
         <item name="background">@color/roots_green</item>
+        <item name="android:textColor"  tools:ignore="NewApi">@color/white</item>
+        <item name="textColor">@color/white</item>
     </style>
 
     <style name="CustomActionBarTheme" parent="@style/Theme.AppCompat.Light">
@@ -40,15 +42,17 @@
         <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
         <item name="android:autoCompleteTextViewStyle">@style/RobotoAutoCompleteTextViewStyle</item>
         <item name="android:editTextStyle">@style/RobotoEditTextStyle</item>
+        <item name="android:textColor"  tools:ignore="NewApi">@color/white</item>
+        <item name="textColor">@color/white</item>
     </style>
     <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:typeface">sans</item>
     </style>
     <style name="RobotoAutoCompleteTextViewStyle" parent="android:Widget.AutoCompleteTextView">
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:typeface">sans</item>
     </style>
     <style name="RobotoEditTextStyle" parent="android:Widget.EditText">
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:typeface">sans</item>
     </style>
     <color name="accent">#ffffff</color>
 

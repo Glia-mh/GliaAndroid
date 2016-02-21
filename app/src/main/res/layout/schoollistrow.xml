@@ -13,7 +13,7 @@
             android:id="@+id/school_name_text"
             android:text="Test Text"
             android:textSize="16sp"
-            android:textColor="#ffffff"
+            android:textColor="#000000"
             android:padding="5dp"
 
             android:layout_gravity="center_vertical"
@@ -30,6 +30,7 @@
             android:layout_height="14sp"
             android:visibility="gone"
             android:id="@+id/schoolcheck"
+            android:tint="@color/roots_green"
             android:src="@mipmap/ic_check"/>
     </LinearLayout>
 </LinearLayout>
