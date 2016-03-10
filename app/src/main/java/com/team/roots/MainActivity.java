@@ -208,7 +208,14 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         mPrefs.edit().putInt("accounttype", getIntent().getIntExtra("accountTypeNumber", 0)).apply();
 
         //activity switch
-        Intent intent = new Intent(getApplicationContext(), ConversationListActivity.class);
+
+        Intent intent;
+        if(mPrefs.getInt("accounttype",0)==2){
+            intent=new Intent(getApplicationContext(), ReportedIDListActivity.class);
+        } else {
+            intent= new Intent(getApplicationContext(), ConversationListActivity.class);
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         finish();
         startActivity(intent);
@@ -273,14 +280,17 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
     public void onUserAuthenticated(){
         Log.d("onUserAuthenticated", "onUserAuthenticated");
         if (isSynced){
-            Intent intent = new Intent(this, ConversationListActivity.class);
-
+            Intent intent;
+            if(mPrefs.getInt("accounttype",0)==2){
+                intent=new Intent(this, ReportedIDListActivity.class);
+            } else {
+                intent= new Intent(this, ConversationListActivity.class);
+            }
             finish();
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         } else {
             loginController.getLayerClient().registerSyncListener(this);
-
         }
     }
 

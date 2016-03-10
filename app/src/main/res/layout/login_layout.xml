@@ -12,7 +12,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/roots_green"
+    android:background="@color/white"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
@@ -26,7 +26,7 @@
         <ImageView
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:src="@drawable/roots_in_circ"/>
+            android:src="@drawable/ic_launcher"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -34,7 +34,7 @@
             android:gravity="center"
             android:id="@+id/logindescription"
             style="?android:textAppearanceMedium"
-            android:textColor="#ffffffff"
+            android:textColor="#000000"
             android:text="Text Replace"/>
 
     </LinearLayout>
@@ -62,8 +62,8 @@
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
                 android:inputType="phone"
                 android:textSize="30sp"
-                android:textColorHint="#ffffffff"
-                android:textColor="#ffffffff"
+                android:textColorHint="@color/roots_gray"
+                android:textColor="@color/roots_green"
                 android:gravity="center"
                 android:cursorVisible="false"/>
 
@@ -75,8 +75,8 @@
                 android:maxLines="1" android:singleLine="true"
                 android:layout_marginBottom="10dp"
                 android:textSize="30sp"
-                android:textColorHint="#ffffffff"
-                android:textColor="#ffffffff"
+                android:textColorHint="@color/roots_gray"
+                android:textColor="@color/roots_green"
                android:gravity="center"
                android:cursorVisible="true"/>
 
@@ -85,8 +85,8 @@
                 android:imeOptions="actionGo" android:inputType="textPassword"
                 android:maxLines="1" android:singleLine="true"
                 android:layout_marginBottom="10dp"
-                android:textColorHint="#ffffffff"
-                android:textColor="#ffffffff"
+                android:textColorHint="@color/roots_gray"
+                android:textColor="@color/roots_green"
                 android:textSize="30sp"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
@@ -104,9 +104,8 @@
         <Button android:id="@+id/loginbutton" style="?android:textAppearanceSmall"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/action_sign_in"
-            android:textStyle="bold"
             android:textColor="#ffffffff"
-            android:background="@color/roots_green_lighter" />
+            android:background="@color/roots_green_unselected" />
 
 
 
@@ -117,7 +116,7 @@
         android:text="@string/back"
         android:id="@+id/back_school_login"
         android:layout_marginTop="20dp"
-        android:textColor="#ffffffff" />
+        android:textColor="@color/roots_gray" />
 </LinearLayout>
 
 

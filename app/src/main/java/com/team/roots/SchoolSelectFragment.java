@@ -99,7 +99,7 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
 
                 } else {
                     Button next = (Button) getView().findViewById(R.id.schoolselectionnext);
-                    next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                    next.setBackgroundColor(getResources().getColor(R.color.roots_green));
                     next.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -121,7 +121,7 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
         });
         if(currentSchool!=null){
             Button next = (Button) getView().findViewById(R.id.schoolselectionnext);
-            next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+            next.setBackgroundColor(getResources().getColor(R.color.roots_green));
             next.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

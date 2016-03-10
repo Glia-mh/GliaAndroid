@@ -11,7 +11,7 @@ public class MyConnectionListener implements LayerConnectionListener {
     private MainActivity main_activity;
 
     //if connection disconnected while in account, want to modify on connection connected callback
-    private boolean receive=false;
+    private static boolean receive=false;
 
 
     private ConversationListActivity conversationListActivity;
@@ -23,11 +23,12 @@ public class MyConnectionListener implements LayerConnectionListener {
     }
 
 
-
     public MyConnectionListener(ConversationListActivity cla){
         conversationListActivity=cla;
     }
-
+    public static boolean getReceive(){
+        return receive;
+    }
     @Override
     public void onConnectionConnected(LayerClient client) {
         Log.d("ConnectionCheckConnect", "ConnectionCheckConnect");

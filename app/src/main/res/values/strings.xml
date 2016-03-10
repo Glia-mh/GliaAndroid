@@ -3,6 +3,8 @@
 
     <string name="app_name">Roots</string>
     <string name="app_name_roots_counselor">Roots Counselor</string>
+    <string name="conversations">Conversations</string>
+    <string name="reportedids">Reported Users</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="drawer_open">Navigation drawer opened</string>
@@ -29,7 +31,12 @@
     <string name="dialog_welcome_student">Welcome to Team Roots! Tap a counselor\'s picture to start a conversation.</string>
     <string name="dialog_welcome_student_view_messages_act">Displayed is this counselor\'s bio. You can swipe to the right to hide it.</string>
     <string name="dialog_welcome_counselor">Welcome to Team Roots! Students will message you anonymously. You can tell students you are unavailable to talk to in settings.</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
+    <string name="report">REPORT</string>
+    <string name="undo">UNDO</string>
+    <string name="cancel">CANCEL</string>
+    <string name="report_warning"> Are you sure you want to report this student?</string>
+    <string name="undo_warning"> Are you sure you want to undo your report?</string>
     <string name="no_internet_connection">Please check your internet connection and try again.</string>
     <string name="feature_not_available_warning">Feature not available in beta test.</string>
     <string name="title_activity_counselor_view_messages">CounselorViewMessagesActivity</string>

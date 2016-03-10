@@ -118,9 +118,9 @@ public class LoginFragment extends Fragment {
                                 ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
                                 int colorId = buttonColor.getColor();
                                 Log.d("reached here","reached here"+colorId);
-                                if (colorId == -7082078) {
+                                if (colorId == -3214661) {
                                     Log.d("reached here 2","reached here 2");
-                                    loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                                    loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green));
                                     loginButton.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
 
@@ -143,7 +143,7 @@ public class LoginFragment extends Fragment {
                                                 final HashMap<String, String> params = new HashMap<String, String>();
                                                 params.put("userID", loginString);
                                                 params.put("schoolID", school.getObjectId());
-                                                ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                                                ParseCloud.callFunctionInBackground("validateStudentID", params,new FunctionCallback<String>() {
                                                     @Override
                                                     public void done(String s, ParseException e) {
                                                         if (s.equals("valid")) {
@@ -215,7 +215,7 @@ public class LoginFragment extends Fragment {
                                     ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
                                     int colorId = buttonColor.getColor();
                                     Log.d("populated","color Id: " + colorId);
-                                    if(colorId== -7082078) {
+                                    if(colorId== -3214661) {
                                         ///----
                                         setOnClickListenerCounselor();
                                     }
@@ -249,7 +249,7 @@ public class LoginFragment extends Fragment {
                                     Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
                                     ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
                                     int colorId = buttonColor.getColor();
-                                    if(colorId== -7082078) {
+                                    if(colorId== -3214661) {
                                         setOnClickListenerCounselor();
                                     }
                                 }
@@ -307,7 +307,7 @@ public class LoginFragment extends Fragment {
         Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
 
-        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_lighter));
+        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_unselected));
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -318,7 +318,7 @@ public class LoginFragment extends Fragment {
     private void setOnClickListenerCounselor() {
 
         final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green));
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -346,6 +346,9 @@ public class LoginFragment extends Fragment {
 
                                 Log.d("user.getObjectId", "user.getObjectId=" + loginString);
                                 MainActivity.participantProvider = new ParticipantProvider();
+                                if(user.get("counselorType").equals("0")){
+                                    getActivity().getIntent().putExtra("accountTypeNumber", 2);
+                                }
                                 MainActivity.participantProvider.refresh(loginString, school.getObjectId(), ma.getLoginController());
                             } else {
                                 Toast.makeText(getActivity().getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();

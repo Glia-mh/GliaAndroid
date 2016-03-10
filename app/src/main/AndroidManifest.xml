@@ -56,6 +56,11 @@
             android:windowSoftInputMode="stateHidden"
             android:label="@string/app_name" >
         </activity>
+        <activity android:name="com.team.roots.ReportedIDListActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/app_name">
+
+        </activity>
         <activity
             android:name="com.team.roots.ViewMessagesActivity"
             android:label="@string/app_name"

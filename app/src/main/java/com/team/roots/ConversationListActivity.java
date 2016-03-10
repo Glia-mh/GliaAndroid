@@ -82,10 +82,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     @Override
     public void onCreate(Bundle savedInstanceState){
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_conversation);
-
+        findViewById(R.id.listreported).setVisibility(View.GONE);
         if(!isNetworkAvailable()){
             findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
         }
@@ -104,12 +103,9 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
         availabilityHandler= new myHandler(this);
 
-        if (accountType==1) {
-            //Change action bar name to "Roots Counselor" cuz now the person's a counselor
-            //getActionBar().setTitle(R.string.app_name_roots_counselor);
-            getSupportActionBar().setTitle(R.string.app_name_roots_counselor);  // provide compatibility to all the versions
 
-        }
+            getSupportActionBar().setTitle(R.string.conversations);  // provide compatibility to all the versions
+
 
 
 

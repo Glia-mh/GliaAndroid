@@ -58,6 +58,10 @@
                     android:id="@+id/conversationlist"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
+                <com.layer.atlas.ReportedIDList
+                    android:id="@+id/listreported"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
             </FrameLayout>
         </LinearLayout>
     </FrameLayout>

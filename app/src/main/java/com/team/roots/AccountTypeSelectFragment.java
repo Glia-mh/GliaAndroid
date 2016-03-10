@@ -57,7 +57,7 @@ public class AccountTypeSelectFragment extends Fragment {
                     accountTypeListView.getChildAt(currentAccountType.getPositioninList()).findViewById(R.id.schoolcheck).setVisibility(View.GONE);
                 } else {
                     Button next = (Button) getView().findViewById(R.id.accounttypeselectionnext);
-                    next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                    next.setBackgroundColor(getResources().getColor(R.color.roots_green));
                     next.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -84,7 +84,7 @@ public class AccountTypeSelectFragment extends Fragment {
         if(savedInstanceState==null){
                 if(currentAccountType!=null){
                     Button next = (Button) getView().findViewById(R.id.accounttypeselectionnext);
-                    next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                    next.setBackgroundColor(getResources().getColor(R.color.roots_green));
                     next.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

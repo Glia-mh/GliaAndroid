@@ -17,6 +17,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -24,6 +25,7 @@ import android.view.animation.Animation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
@@ -34,7 +36,14 @@ import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Metadata;
+import com.layer.sdk.query.Predicate;
+import com.layer.sdk.query.Query;
+import com.layer.sdk.query.SortDescriptor;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.wunderlist.slidinglayer.SlidingLayer;
 
 import org.json.JSONException;
@@ -44,6 +53,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+
 public class ViewMessagesActivity extends ActionBarActivity  {
 
 
@@ -63,8 +75,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private boolean mDiskCacheStarting = true;
     private final Object mDiskCacheLock = new Object();
     private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-
-
 
     //account type 1 is counselor
     //account type 0 is student
@@ -87,7 +97,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         context=this;
 
         if(schoolId==null){
-            Log.d("school-id","school-id: "+getIntent().getStringExtra("school-id"));
+            Log.d("school-id", "school-id: " + getIntent().getStringExtra("school-id"));
             schoolId=getIntent().getStringExtra("school-id");
         }
 
@@ -118,11 +128,28 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         if(counselorId==null){
             counselorId=(String)conversation.getMetadata().get("counselor.ID");
         }
+        if(accountType==0) {
+            getSupportActionBar().setTitle(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
+        } else {
+            getSupportActionBar().setTitle((String)conversation.getMetadata().get("student.name"));
+        }
+
+
 
 
 
 
         ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
+
+        if(accountType==1) {
+            if (conversation.getMetadata().get("isReported").equals("true")) {
+                TextView reportWarning = (TextView) findViewById(R.id.counselor_unavailible_warning);
+                reportWarning.setText("Warning: This user has been reported.");
+                reportWarning.setVisibility(View.VISIBLE);
+            }
+        }
+
+
         //Bio View
         if (accountType==0) {
 
@@ -297,7 +324,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         metadataConv.put("counselor", counselor);
                         metadataConv.put("student", student);
                         metadataConv.put("schoolID", schoolId);
-
+                        metadataConv.put("isReported", "false");
                         conversation = LoginController.layerClient.newConversation(participants);
 
                         //set metatdata
@@ -518,16 +545,46 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     }
 
 
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        if(accountType==1) {
+            getMenuInflater().inflate(R.menu.messages, menu);
+
+                if(conversation.getMetadata().get("isReported").equals("true")){
+                    menu.findItem(R.id.action_report).setIcon(R.drawable.ic_undo_white_24dp);
+                } else {
+                    menu.findItem(R.id.action_report).setIcon(R.drawable.ic_report_problem_white_24dp);
+                }
+
+
+
+
+        } else {
+            getMenuInflater().inflate(R.menu.main, menu);
+        }
+        return true;
+    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
+            case R.id.action_report:
+                if(conversation.getMetadata().get("isReported").equals("true")) {
+                    getWarningAlertDialog(R.string.undo_warning, R.string.undo).show();
+                } else {
+                    getWarningAlertDialog(R.string.report_warning, R.string.report).show();
+                }
+                return true;
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void addBitmapToCache(String key, Bitmap bitmap) {
@@ -553,6 +610,67 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 });
         // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    private  AlertDialog getWarningAlertDialog(int stringAddress, int acceptStringAddress){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(acceptStringAddress, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        changeReportStudentStatus(conversation);
+                    }
+                }).setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    public void changeReportStudentStatus(Conversation conv) {
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("userID", conv.getMetadata().get("student.ID"));
+        ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<ParseObject>() {
+            public void done(ParseObject reportedStudent, ParseException e) {
+                if (e == null) {
+                    if (reportedStudent.getBoolean("isReported")) {
+                        Toast.makeText(context, "User reported.", Toast.LENGTH_SHORT).show();
+
+
+
+                        Query query = Query.builder(Conversation.class)
+                                .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, reportedStudent.getString("userID")))
+                                .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+                                .build();
+                        List<Conversation> results = LoginController.layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+                        for(Conversation result:results){
+                            result.putMetadataAtKeyPath("isReported", "true");
+                        }
+
+                        invalidateOptionsMenu();
+                    } else {
+                        Toast.makeText(context, "Report Undone.", Toast.LENGTH_SHORT).show();
+
+
+                        Query query = Query.builder(Conversation.class)
+                                .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, reportedStudent.getString("userID")))
+                                .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+                                .build();
+                        List<Conversation> results = LoginController.layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+                        for(Conversation result:results){
+                            result.putMetadataAtKeyPath("isReported", "false");
+                        }
+
+                        invalidateOptionsMenu();
+                    }
+                } else {
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 }
