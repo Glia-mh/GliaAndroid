@@ -73,7 +73,7 @@ Parse.Cloud.define("validateStudentID", function(request, response) {
     success: function(results) {
 	  results[0].set("isReported",!results[0].get("isReported"));
       results[0].save();
-      response.success(results[0].get("isReported"));
+      response.success(results[0]);
     },
     error: function() {
       response.error("Failed to change student report info.");

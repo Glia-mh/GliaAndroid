@@ -143,7 +143,7 @@ public class LoginFragment extends Fragment {
                                                 final HashMap<String, String> params = new HashMap<String, String>();
                                                 params.put("userID", loginString);
                                                 params.put("schoolID", school.getObjectId());
-                                                ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                                                ParseCloud.callFunctionInBackground("validateStudentID", params,new FunctionCallback<String>() {
                                                     @Override
                                                     public void done(String s, ParseException e) {
                                                         if (s.equals("valid")) {
@@ -346,6 +346,9 @@ public class LoginFragment extends Fragment {
 
                                 Log.d("user.getObjectId", "user.getObjectId=" + loginString);
                                 MainActivity.participantProvider = new ParticipantProvider();
+                                if(user.get("counselorType").equals("0")){
+                                    getActivity().getIntent().putExtra("accountTypeNumber", 2);
+                                }
                                 MainActivity.participantProvider.refresh(loginString, school.getObjectId(), ma.getLoginController());
                             } else {
                                 Toast.makeText(getActivity().getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();

@@ -36,13 +36,14 @@ import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Metadata;
+import com.layer.sdk.query.Predicate;
+import com.layer.sdk.query.Query;
+import com.layer.sdk.query.SortDescriptor;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
-import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.wunderlist.slidinglayer.SlidingLayer;
 
 import org.json.JSONException;
@@ -74,8 +75,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private boolean mDiskCacheStarting = true;
     private final Object mDiskCacheLock = new Object();
     private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-    private boolean isReported=false;
-    private boolean isLoaded=false;
 
     //account type 1 is counselor
     //account type 0 is student
@@ -98,7 +97,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         context=this;
 
         if(schoolId==null){
-            Log.d("school-id","school-id: "+getIntent().getStringExtra("school-id"));
+            Log.d("school-id", "school-id: " + getIntent().getStringExtra("school-id"));
             schoolId=getIntent().getStringExtra("school-id");
         }
 
@@ -138,7 +137,19 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
+
+
         ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
+
+        if(accountType==1) {
+            if (conversation.getMetadata().get("isReported").equals("true")) {
+                TextView reportWarning = (TextView) findViewById(R.id.counselor_unavailible_warning);
+                reportWarning.setText("Warning: This user has been reported.");
+                reportWarning.setVisibility(View.VISIBLE);
+            }
+        }
+
+
         //Bio View
         if (accountType==0) {
 
@@ -313,7 +324,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         metadataConv.put("counselor", counselor);
                         metadataConv.put("student", student);
                         metadataConv.put("schoolID", schoolId);
-
+                        metadataConv.put("isReported", "false");
                         conversation = LoginController.layerClient.newConversation(participants);
 
                         //set metatdata
@@ -538,34 +549,16 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         // Inflate the menu; this adds items to the action bar if it is present.
         if(accountType==1) {
             getMenuInflater().inflate(R.menu.messages, menu);
-            if (isLoaded) {
-                if (isReported)
+
+                if(conversation.getMetadata().get("isReported").equals("true")){
                     menu.findItem(R.id.action_report).setIcon(R.drawable.ic_undo_white_24dp);
-                else
+                } else {
                     menu.findItem(R.id.action_report).setIcon(R.drawable.ic_report_problem_white_24dp);
+                }
 
-            } else {
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("General_Student_IDs");
-                query.whereEqualTo("userID", conversation.getMetadata().get("student.ID"));
-                query.findInBackground(new FindCallback<ParseObject>() {
-                    public void done(List<ParseObject> student, ParseException e) {
-                        if (e == null) {
-                            if (student.get(0).getBoolean("isReported")) {
-                                menu.findItem(R.id.action_report).setIcon(R.drawable.ic_undo_white_24dp);
-                                isReported = true;
-                            } else {
-                                menu.findItem(R.id.action_report).setIcon(R.drawable.ic_report_problem_white_24dp);
-                                isReported = false;
-                            }
-                            isLoaded = true;
-                        } else {
 
-                            Log.e("report", "Error: " + e.getMessage());
-                        }
-                    }
-                });
 
-            }
+
         } else {
             getMenuInflater().inflate(R.menu.main, menu);
         }
@@ -577,7 +570,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case R.id.action_report:
-                if(isReported) {
+                if(conversation.getMetadata().get("isReported").equals("true")) {
                     getWarningAlertDialog(R.string.undo_warning, R.string.undo).show();
                 } else {
                     getWarningAlertDialog(R.string.report_warning, R.string.report).show();
@@ -640,17 +633,37 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         final HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("userID", conv.getMetadata().get("student.ID"));
-        ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<Boolean>() {
-            public void done(Boolean studentReportValue, ParseException e) {
+        ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<ParseObject>() {
+            public void done(ParseObject reportedStudent, ParseException e) {
                 if (e == null) {
-                    if (studentReportValue) {
+                    if (reportedStudent.getBoolean("isReported")) {
                         Toast.makeText(context, "User reported.", Toast.LENGTH_SHORT).show();
-                        isReported=true;
-                        invalidateOptionsMenu();
 
+
+
+                        Query query = Query.builder(Conversation.class)
+                                .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, reportedStudent.getString("userID")))
+                                .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+                                .build();
+                        List<Conversation> results = LoginController.layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+                        for(Conversation result:results){
+                            result.putMetadataAtKeyPath("isReported", "true");
+                        }
+
+                        invalidateOptionsMenu();
                     } else {
-                        isReported=false;
                         Toast.makeText(context, "Report Undone.", Toast.LENGTH_SHORT).show();
+
+
+                        Query query = Query.builder(Conversation.class)
+                                .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, reportedStudent.getString("userID")))
+                                .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+                                .build();
+                        List<Conversation> results = LoginController.layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+                        for(Conversation result:results){
+                            result.putMetadataAtKeyPath("isReported", "false");
+                        }
+
                         invalidateOptionsMenu();
                     }
                 } else {

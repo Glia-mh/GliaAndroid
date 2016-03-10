@@ -84,7 +84,7 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_conversation);
-
+        findViewById(R.id.listreported).setVisibility(View.GONE);
         if(!isNetworkAvailable()){
             findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
         }

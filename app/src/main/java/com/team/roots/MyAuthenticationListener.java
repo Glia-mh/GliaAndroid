@@ -19,6 +19,7 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
     String mUserId = "000000";
     MainActivity main_activity;
     ConversationListActivity conversationListActivity;
+    ReportedIDListActivity reportedIDListActivity;
     public boolean firstAuthentication=true;
 
     //Main Activity Constructor
@@ -30,6 +31,9 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         conversationListActivity=cla;
     }
 
+    public void assignReportedIDListActivity(ReportedIDListActivity rila){
+        reportedIDListActivity=rila;
+    }
     //only used for main activity
     @Override
     public void onAuthenticated(LayerClient client, String arg1) {
@@ -113,7 +117,6 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
 
     }
 
-
     @Override
     public void onAuthenticationError(LayerClient layerClient, LayerException e) {
         // TODO Auto-generated method stub
@@ -130,9 +133,11 @@ public class MyAuthenticationListener implements LayerAuthenticationListener {
         Log.d("Deauthenticated", "Deauthenticated");
             firstAuthentication=true;
             if(conversationListActivity!=null)conversationListActivity.onUserDeauthenticated();
-
+            else if(reportedIDListActivity!=null)reportedIDListActivity.onUserDeauthenticated();
 
     }
+
+
 
 
 }
