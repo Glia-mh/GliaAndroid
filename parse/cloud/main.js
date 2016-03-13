@@ -36,6 +36,27 @@ Parse.Cloud.define("getSchools", function(request, response){
     }
   });
 }); 
+
+// The following will return an array of JSON strings for all counselors.
+Parse.Cloud.define("getReportedStudentIDs", function(request, response){
+  var query = new Parse.Query("General_Student_IDs");
+  query.equalTo("isReported", true);
+  var schoolID= new Parse.Object("SchoolIDs");
+  schoolID.id=request.params.schoolID;
+  query.equalTo("schoolID", schoolID);
+  query.find({
+    success: function(results){
+      var objects = [];
+      for (var i = 0; i < results.length; i++){
+        objects.push(JSON.stringify(results[i]));
+      }
+      response.success(objects);
+    },
+    error: function(){
+      response.error("Failed to retrieve reported student IDs.");
+    }
+  });
+}); 
    
    
    

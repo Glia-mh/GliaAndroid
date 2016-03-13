@@ -14,6 +14,8 @@ import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.layer.atlas.Participant;
+import com.layer.atlas.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerSyncListener;
@@ -95,7 +97,7 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                             loginString = loginController.getLayerClient().getAuthenticatedUserId();
                             schoolObjectId = mPrefs.getString("loginSchoolObjectId", null);
                             participantProvider = new ParticipantProvider();
-                            participantProvider.refresh(loginString, schoolObjectId, loginController);
+                            refresh(loginString, schoolObjectId, loginController);
                         } else {
 
                             createfirstAuthUI();
@@ -114,7 +116,50 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
 
 
 
+    public  void refresh(final String loginString, String schoolObjectId, final LoginController loginController) {
+        Log.d("ParticipantProvider", "refresh called.");
 
+        //Connect to your user management service and sync the user's
+        // contact list, making sure you include the authenticated user.
+        // Then, store those users in the participant map
+
+        //Add the authenticated user
+        //--removed check if there is an effect on run
+        //eventually mdHash it and add to participants provider--or may not be needed because
+        // participantMap.put("",new Participant("You","107070","http://icons.iconarchive.com/icons/mazenl77/I-like-buttons-3a/512/Cute-Ball-Go-icon.png"));
+
+        final List<Participant> participants = new ArrayList<Participant>();
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("schoolObjectId", schoolObjectId);
+        ParseCloud.callFunctionInBackground("getCounselors", params, new FunctionCallback<ArrayList<String>>() {
+            public void done(ArrayList<String> returned, ParseException e) {
+                if (e == null) {
+                    for (String obj : returned) {
+                        Log.d("MainActivity", "Returned string from cloud function is: " + obj);
+                        try {
+                            JSONObject j = new JSONObject(obj);
+                            participants.add(new Participant(j.getString("name"),
+                                    j.getString("objectId"), j.getString("photoURL"),
+                                    j.getString("bio"), j.getBoolean("isAvailable"), Integer.parseInt(j.getString("counselorType"))));
+                            Log.d("MainActivity", "Successfully made JSON.");
+                            Log.d("ObjectId", j.getString("objectId") + "objectId of Counselor");
+                        } catch (JSONException exception) {
+                            exception.printStackTrace();
+                            Log.d("MainActivity", "Couldn't convert string to JSON.");
+                        }
+
+                    }
+                    participantProvider.refresh(participants);
+
+                    loginController.login(loginString);
+
+                }
+
+
+            }
+        });
+    }
 
 
 
@@ -206,15 +251,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         mEditor.putString("loginSchoolObjectId", schoolObjectId).apply();
         Log.d("accounttype", "account type: " + getIntent().getIntExtra("accountTypeNumber", 0));
         mPrefs.edit().putInt("accounttype", getIntent().getIntExtra("accountTypeNumber", 0)).apply();
-
         //activity switch
 
         Intent intent;
-        if(mPrefs.getInt("accounttype",0)==2){
-            intent=new Intent(getApplicationContext(), ReportedIDListActivity.class);
-        } else {
-            intent= new Intent(getApplicationContext(), ConversationListActivity.class);
-        }
+        intent= new Intent(getApplicationContext(), ConversationListActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         finish();
@@ -281,11 +321,11 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         Log.d("onUserAuthenticated", "onUserAuthenticated");
         if (isSynced){
             Intent intent;
-            if(mPrefs.getInt("accounttype",0)==2){
-                intent=new Intent(this, ReportedIDListActivity.class);
-            } else {
-                intent= new Intent(this, ConversationListActivity.class);
-            }
+//            if(mPrefs.getInt("accounttype",0)==2){
+//                intent=new Intent(this, ReportedIDListActivity.class);
+//            } else {
+            intent= new Intent(this, ConversationListActivity.class);
+            //}
             finish();
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

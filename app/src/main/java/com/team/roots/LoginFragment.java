@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.atlas.ParticipantProvider;
 import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseCloud;
@@ -152,7 +153,7 @@ public class LoginFragment extends Fragment {
                                                             MainActivity.participantProvider = new ParticipantProvider();
                                                             ProgressBar progressBar= (ProgressBar)getView().findViewById(R.id.login_progress);
                                                             progressBar.setProgress(20);
-                                                            MainActivity.participantProvider.refresh(loginString, params.get("schoolID"), ma.getLoginController());
+                                                            ma.refresh(loginString, params.get("schoolID"), ma.getLoginController());
                                                             Log.d("callback", "valid user id");
 
                                                         } else {
@@ -349,7 +350,7 @@ public class LoginFragment extends Fragment {
                                 if(user.get("counselorType").equals("0")){
                                     getActivity().getIntent().putExtra("accountTypeNumber", 2);
                                 }
-                                MainActivity.participantProvider.refresh(loginString, school.getObjectId(), ma.getLoginController());
+                                ma.refresh(loginString, school.getObjectId(), ma.getLoginController());
                             } else {
                                 Toast.makeText(getActivity().getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
                                 getView().findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again
