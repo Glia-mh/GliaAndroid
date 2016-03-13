@@ -51,16 +51,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.team.roots.ConversationListActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/app_name" >
-        </activity>
+
         <activity android:name="com.team.roots.ReportedIDListActivity"
             android:windowSoftInputMode="stateHidden"
             android:label="@string/app_name">
 
         </activity>
+
+        <activity
+            android:name="com.team.roots.ConversationListActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/app_name" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.team.roots.ReportedIDListActivity" />
+        </activity>
+
         <activity
             android:name="com.team.roots.ViewMessagesActivity"
             android:label="@string/app_name"

@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -71,6 +72,8 @@ public class ReportedIDListActivity extends ActionBarActivity implements Adapter
 
 
 
+        LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
+        counselorBar.setVisibility(View.GONE);
 
 
 
@@ -98,17 +101,21 @@ public class ReportedIDListActivity extends ActionBarActivity implements Adapter
 
 
 
+
         //Left Drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
 
+        // Set the adapter for the list view
+        mDrawerListLeft.setAdapter(new MyAdapter(this));
 
 
         leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawer) {
-                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
-                if(drawerParams.gravity== Gravity.START)mDrawerLayout.closeDrawer(GravityCompat.END);
+                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
+                if (drawerParams.gravity == Gravity.START)
+                    mDrawerLayout.closeDrawer(GravityCompat.END);
             }
 
         };
@@ -127,13 +134,17 @@ public class ReportedIDListActivity extends ActionBarActivity implements Adapter
         //initialize Conversation List
         reportedIDList = (ReportedIDList) findViewById(R.id.listreported);
 
-
-        reportedIDList.init(LoginController.layerClient,  context);
+        final String schoolObjectId=mPrefs.getString("loginSchoolObjectId", null);
+        reportedIDList.init(LoginController.layerClient,  context, schoolObjectId);
 
 
         reportedIDList.setClickListener(new ReportedIDList.UserClickListener() {
             public void onItemClick(String user) {
-
+                Intent intent=new Intent(getApplicationContext(), ConversationListActivity.class);
+                intent.putExtra("reportedUserID", user);
+                intent.putExtra("schoolObjectID", schoolObjectId);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });
 
