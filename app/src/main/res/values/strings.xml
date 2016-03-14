@@ -26,7 +26,7 @@
 
     <string name="c_login"><u>Log in as a Counselor</u></string>
     <string name="s_login"><u>Log in as a Student</u></string>
-    <string name="get_started_description">Talk to counselors that you know, anonymously.</string>
+    <string name="get_started_description">Talk to counselors you know, anonymously.</string>
     <string name="school_choice_description">What school do you go to?</string>
     <string name="dialog_welcome_student">Welcome to Team Roots! Tap a counselor\'s picture to start a conversation.</string>
     <string name="dialog_welcome_student_view_messages_act">Displayed is this counselor\'s bio. You can swipe to the right to hide it.</string>

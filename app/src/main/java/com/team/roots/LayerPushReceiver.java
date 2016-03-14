@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import java.net.URL;
 
 
 public class LayerPushReceiver extends BroadcastReceiver {
+    private SharedPreferences mPrefs;
 
 
     @Override
@@ -51,22 +53,47 @@ public class LayerPushReceiver extends BroadcastReceiver {
         else
             tokens=null;
 
+        mPrefs = context.getSharedPreferences("label", 0);
+        int accountType = mPrefs.getInt("accounttype", 0);
+
         // Build the notification
+        if(tokens!=null)
+        if(tokens[2].equals(" Conversation Reported") && accountType==2){
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                    .setContentTitle(tokens[0]+", "+tokens[1])
+                    .setContentText(tokens[2])
+                    .setAutoCancel(true)
+                    .setShowWhen(true)
+                    .setWhen(System.currentTimeMillis())
+                    .setLights(context.getResources().getColor(R.color.tappable_blue), 100, 1900)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT).setSmallIcon(R.drawable.ic_launcher)
+                    .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE);
+            Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_report_problem_black_24dp);
+            mBuilder.setLargeIcon(largeIcon);
 
+            Intent resultIntent = new Intent(context, ViewMessagesActivity.class);
+            resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            resultIntent.putExtra("conversation-id", conversationId);
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            mBuilder.setContentIntent(resultPendingIntent);
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
-                .setContentTitle(tokens[0])
-                .setContentText(tokens[2])
-                .setAutoCancel(true)
-                .setShowWhen(true)
-                .setWhen(System.currentTimeMillis())
-                .setLights(context.getResources().getColor(R.color.tappable_blue), 100, 1900)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT).setSmallIcon(R.drawable.ic_launcher)
-                .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE);
+            // Show the notification
+            NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotifyMgr.notify(1, mBuilder.build());
+        } else if(!tokens[2].equals(" Conversation Reported")) {
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                    .setContentTitle(tokens[0])
+                    .setContentText(tokens[2])
+                    .setAutoCancel(true)
+                    .setShowWhen(true)
+                    .setWhen(System.currentTimeMillis())
+                    .setLights(context.getResources().getColor(R.color.tappable_blue), 100, 1900)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT).setSmallIcon(R.drawable.ic_launcher)
+                    .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE);
 
-        new LoadImage(mBuilder, context, conversationId).execute(tokens[1]);
+            new LoadImage(mBuilder, context, conversationId).execute(tokens[1]);
 
-
+        }
 
 
 

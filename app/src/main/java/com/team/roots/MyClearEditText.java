@@ -2,7 +2,6 @@ package com.team.roots;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.widget.EditText;
 
 /**
@@ -22,13 +21,13 @@ public class MyClearEditText extends EditText {
     }
 
 
-    @Override
-    public boolean onKeyPreIme(int keyCode, KeyEvent event)
+  //  @Override
+   /* public boolean onKeyPreIme(int keyCode, KeyEvent event)
     {
     if(keyCode == KeyEvent.KEYCODE_BACK)
     {
         clearFocus();
     }
     return super.onKeyPreIme(keyCode, event);
-}
+}*/
 }

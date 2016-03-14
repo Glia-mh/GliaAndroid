@@ -6,6 +6,7 @@
 
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:atlas="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -45,7 +46,8 @@
                 <com.layer.atlas.AtlasMessagesList
                     android:id="@+id/messageslist"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent" atlas:myBubbleColor="@color/roots_green"
+                    atlas:myTextColor="@color/white"/>
 
 
                 <com.layer.atlas.AtlasParticipantPicker
