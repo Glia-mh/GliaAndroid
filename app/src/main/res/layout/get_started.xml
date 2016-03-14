@@ -13,23 +13,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1.75"
+        android:orientation="vertical"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="25dp">
+
+
+        <ImageView
+            android:layout_width="132dp"
+            android:layout_height="159dp"
+            android:src="@drawable/rootslogo"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            style="@style/lightdescriptionFont"
+            android:id="@+id/mini_desc"
+            android:text="@string/get_started_description"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
+            android:layout_weight="0.61" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1.25"
         android:orientation="vertical"
         android:gravity="center_vertical|center_horizontal">
 
-
-        <ImageView
-            android:layout_width="91dp"
-            android:layout_height="149dp"
-            android:src="@drawable/rootslogo"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            style="?android:textAppearanceMedium"
-            android:textColor="@color/roots_gray"
-            android:text="@string/get_started_description"/>
 
     </LinearLayout>
 
@@ -39,13 +53,9 @@
         android:layout_marginTop="16dp">
 
 
-        <Button android:id="@+id/getstarted" style="?android:textAppearanceSmall"
+        <Button android:id="@+id/getstarted" style="@style/navButton"
             android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="@string/get_started"
-            android:textStyle="bold"
-
-            android:textColor="@color/white"
-            android:background="@color/roots_green" />
+            android:text="@string/get_started" />
 
 
 

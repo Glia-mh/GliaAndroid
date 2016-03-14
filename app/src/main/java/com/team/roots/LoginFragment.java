@@ -2,7 +2,8 @@ package com.team.roots;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -45,7 +46,9 @@ public class LoginFragment extends Fragment {
             theView = inflater.inflate(R.layout.login_layout, container, false);
         else
             theView =  super.onCreateView(inflater, container, savedInstanceState);
-
+        Button loginButton=(Button)theView.findViewById(R.id.loginbutton);
+        Drawable nextShape=loginButton.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
         return theView;
     }
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -115,13 +118,11 @@ public class LoginFragment extends Fragment {
                                 final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
 
-                                //change color
-                                ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
-                                int colorId = buttonColor.getColor();
-                                Log.d("reached here","reached here"+colorId);
-                                if (colorId == -3214661) {
-                                    Log.d("reached here 2","reached here 2");
-                                    loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green));
+
+//                                if (colorId == -3214661) {
+                                    Log.d("reached here 2", "reached here 2");
+                                    Drawable nextShape=loginButton.getBackground();
+                                    nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
                                     loginButton.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
 
@@ -174,7 +175,7 @@ public class LoginFragment extends Fragment {
                                             }
                                         }
                                     });
-                                }
+//                                }
                             } else {
                                 nullifyListener();
                             }
@@ -212,14 +213,8 @@ public class LoginFragment extends Fragment {
                                 isPasswordPopulated = true;
                                 Log.d("populated","password: "+isPasswordPopulated+" and username: "+isUsernamePopulated);
                                 if (isUsernamePopulated) {
-                                    Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-                                    ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
-                                    int colorId = buttonColor.getColor();
-                                    Log.d("populated","color Id: " + colorId);
-                                    if(colorId== -3214661) {
                                         ///----
                                         setOnClickListenerCounselor();
-                                    }
                                 }
                             } else {
                                 nullifyListener();
@@ -247,12 +242,7 @@ public class LoginFragment extends Fragment {
                                 isUsernamePopulated = true;
                                 Log.d("populated","password: "+isPasswordPopulated+" and username: "+isUsernamePopulated);
                                 if (isPasswordPopulated) {
-                                    Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-                                    ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
-                                    int colorId = buttonColor.getColor();
-                                    if(colorId== -3214661) {
                                         setOnClickListenerCounselor();
-                                    }
                                 }
 
                             } else {
@@ -308,7 +298,8 @@ public class LoginFragment extends Fragment {
         Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
 
-        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_unselected));
+        Drawable nextShape=loginButton.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -319,7 +310,8 @@ public class LoginFragment extends Fragment {
     private void setOnClickListenerCounselor() {
 
         final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green));
+        Drawable nextShape=loginButton.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

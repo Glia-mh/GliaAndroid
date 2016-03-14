@@ -26,8 +26,8 @@
         android:gravity="center"
         >
         <ImageView
-            android:layout_width="14sp"
-            android:layout_height="14sp"
+            android:layout_width="18sp"
+            android:layout_height="18sp"
             android:visibility="gone"
             android:id="@+id/schoolcheck"
             android:tint="@color/roots_green"

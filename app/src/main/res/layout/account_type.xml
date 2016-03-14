@@ -25,8 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            style="?android:textAppearanceMedium"
-            android:textColor="#000000"
+            style="@style/descriptionFont"
             android:text="@string/student_or_counselor"/>
 
     </LinearLayout>
@@ -43,11 +42,10 @@
         android:layout_marginTop="16dp">
 
 
-        <Button android:id="@+id/accounttypeselectionnext" style="?android:textAppearanceSmall"
+        <Button android:id="@+id/accounttypeselectionnext"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/next"
-            android:textColor="#ffffffff"
-            android:background="@color/roots_green_unselected" />
+            style="@style/navButton" />
 
 
 
@@ -60,6 +58,6 @@
         android:text="@string/back"
         android:id="@+id/backaccounttype"
         android:layout_marginTop="20dp"
-        android:textColor="@color/roots_gray" />
+        style="@style/lightdescriptionFont"/>
 
 </LinearLayout>

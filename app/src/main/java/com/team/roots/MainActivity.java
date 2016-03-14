@@ -168,6 +168,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         //view for non-existent pre-authentication
         setContentView(R.layout.activity_main);
 
+
+
         pager = (NonSwipeableViewPager) findViewById(R.id.login_container);
         pager.setScrollDurationFactor(2.0);
         pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
