@@ -134,8 +134,13 @@ public class ReportedIDListActivity extends ActionBarActivity implements Adapter
         //initialize Conversation List
         reportedIDList = (ReportedIDList) findViewById(R.id.listreported);
 
+<<<<<<< Updated upstream
         final String schoolObjectId=mPrefs.getString("loginSchoolObjectId", null);
         reportedIDList.init(LoginController.layerClient,  context, schoolObjectId);
+=======
+
+        reportedIDList.init(LoginController.layerClient,  context, "");
+>>>>>>> Stashed changes
 
 
         reportedIDList.setClickListener(new ReportedIDList.UserClickListener() {
