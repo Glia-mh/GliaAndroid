@@ -449,9 +449,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if(accountType==0){
                 images=new int[]{R.drawable.ic_logout,
                         R.drawable.ic_launcher};
-            } else {
+            } else if(accountType==1) {
                 images=new int[]{R.drawable.ic_logout,
                         R.drawable.ic_settings};
+            } else if(accountType==2){
+                images=new int[]{R.drawable.ic_logout,
+                        R.drawable.ic_launcher};
             }
         }
 
