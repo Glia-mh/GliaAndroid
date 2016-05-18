@@ -6,11 +6,14 @@ package com.team.roots;
 public class School {
     private String objectId;
     private String schoolName;
+    private String email;
     private int positioninList;
 
-    School(String objectId, String schoolName) {
+
+    School(String objectId, String schoolName, String email) {
         this.objectId = objectId;
         this.schoolName = schoolName;
+        this.email=email;
     }
 
     public String getSchoolName() {
@@ -37,6 +40,7 @@ public class School {
         return positioninList;
     }
 
+    public String getEmail(){return email;}
     @Override
     public boolean equals(Object schoolObject){
         if(schoolObject instanceof School) {

@@ -205,9 +205,8 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
                             try {
                                 JSONObject j = new JSONObject(obj);
                                 schoolsLocal.add(new School(j.getString("objectId"),
-                                        j.getString("SchoolName")));
-                                Log.d("MainActivity", "Successfully made JSON.");
-                                Log.d("ObjectId", j.getString("objectId") + "objectId of School");
+                                        j.getString("SchoolName"), j.getString("SchoolEmails")));
+
                             } catch (JSONException exception) {
                                 exception.printStackTrace();
                                 Log.d("MainActivity", "Couldn't convert string to JSON.");
@@ -251,6 +250,10 @@ public class MainActivity extends ActionBarActivity implements LayerSyncListener
         //permanent application memory population
         SharedPreferences.Editor mEditor = mPrefs.edit();
         mEditor.putString("loginSchoolObjectId", schoolObjectId).apply();
+        if(getIntent().getIntExtra("accountTypeNumber", 0)==1) //ensure only counselors have the email
+            mEditor.putString("schoolemail", getIntent().getStringExtra("schoolemail")).apply();
+        else
+            mEditor.putString("schoolemail", null);
         Log.d("accounttype", "account type: " + getIntent().getIntExtra("accountTypeNumber", 0));
         mPrefs.edit().putInt("accounttype", getIntent().getIntExtra("accountTypeNumber", 0)).apply();
         //activity switch

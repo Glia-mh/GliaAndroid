@@ -90,7 +90,7 @@ public class LoginFragment extends Fragment {
 
                 //UI population unspecific to accountType
                 final School school = new School(getActivity().getIntent().getStringExtra("schoolobjectid"),
-                        getActivity().getIntent().getStringExtra("schoolname"));
+                        getActivity().getIntent().getStringExtra("schoolname"), getActivity().getIntent().getStringExtra("schoolemail"));
 
 
 
@@ -125,8 +125,8 @@ public class LoginFragment extends Fragment {
                                     nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
                                     loginButton.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
-
-
+                                            Log.d("reached here Aditya", "reached here Aditya");
+                                            Log.d("school email Aditya","school email Aditya debug: "+ getActivity().getIntent().getStringExtra("schoolemail"));
                                             if (isNetworkAvailable()) {
 
                                                 //global application memory
@@ -316,8 +316,9 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //UI population unspecific to accountType
+                Log.d("school email Aditya","school email Aditya debug: "+ getActivity().getIntent().getStringExtra("schoolemail"));
                 final School school = new School(getActivity().getIntent().getStringExtra("schoolobjectid"),
-                        getActivity().getIntent().getStringExtra("schoolname"));
+                        getActivity().getIntent().getStringExtra("schoolname"), getActivity().getIntent().getStringExtra("schoolemail"));
                 EditText usernameEditText=(EditText)getView().findViewById(R.id.counselor_login_edittext_username);
                 final EditText passwordEditText=(EditText)getView().findViewById(R.id.counselor_login_edittext_password);
                 getView().findViewById(R.id.login_progress).setVisibility(View.VISIBLE);
