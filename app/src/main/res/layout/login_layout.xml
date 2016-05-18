@@ -12,7 +12,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/roots_green"
+    android:background="@color/white"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
@@ -26,16 +26,15 @@
         <ImageView
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:src="@drawable/roots_in_circ"/>
+            android:src="@drawable/ic_launcherweb"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:id="@+id/logindescription"
-            style="?android:textAppearanceMedium"
-            android:textColor="#ffffffff"
-            android:text="Text Replace"/>
+            style="@style/descriptionFont"
+            android:text="Text Replace" />
 
     </LinearLayout>
 
@@ -61,38 +60,46 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
                 android:inputType="phone"
-                android:textSize="30sp"
-                android:textColorHint="#ffffffff"
-                android:textColor="#ffffffff"
+                android:textSize="26sp"
+                android:textColorHint="@color/roots_gray"
+                android:textColor="@color/roots_green"
                 android:gravity="center"
-                android:cursorVisible="false"/>
+                android:cursorVisible="false"
+                android:selectAllOnFocus="false" />
 
            <com.team.roots.MyClearEditText  android:id="@+id/counselor_login_edittext_username" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_email"
-                android:imeOptions="actionNext" android:inputType="text"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
+                android:imeOptions="actionNext"
+               android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
-                android:maxLines="1" android:singleLine="true"
+                 android:singleLine="true"
                 android:layout_marginBottom="10dp"
-                android:textSize="30sp"
-                android:textColorHint="#ffffffff"
-                android:textColor="#ffffffff"
-               android:gravity="center"
-               android:cursorVisible="true"/>
+                android:textColorHint="@color/roots_gray"
+                android:textColor="@color/roots_green"
+               android:gravity="left"
+               android:cursorVisible="true"
+
+               android:clickable="true"
+               android:textIsSelectable="false"
+               android:textCursorDrawable="@null"
+               android:enabled="true"
+               android:focusable="true"
+               android:inputType="textEmailAddress" />
 
             <com.team.roots.MyClearEditText android:id="@+id/counselor_login_edittext_password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
-                android:imeOptions="actionGo" android:inputType="textPassword"
-                android:maxLines="1" android:singleLine="true"
+                android:imeOptions="actionGo" android:inputType="textVisiblePassword"
+                 android:singleLine="true"
                 android:layout_marginBottom="10dp"
-                android:textColorHint="#ffffffff"
-                android:textColor="#ffffffff"
-                android:textSize="30sp"
+                android:textColorHint="@color/roots_gray"
+                android:textColor="@color/roots_green"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin_triple"
                 android:layout_marginRight="@dimen/activity_horizontal_margin_triple"
-                android:gravity="center"
-                android:cursorVisible="true"
-                />
+                android:gravity="left"
+                android:focusable="true"
+                android:textCursorDrawable="@null"
+                android:clickable="true"
+                android:enabled="true" />
 
 
         </LinearLayout>
@@ -101,12 +108,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button android:id="@+id/loginbutton" style="?android:textAppearanceSmall"
+        <Button android:id="@+id/loginbutton"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/action_sign_in"
-            android:textStyle="bold"
-            android:textColor="#ffffffff"
-            android:background="@color/roots_green_lighter" />
+            style="@style/navButton"/>
 
 
 
@@ -116,8 +121,8 @@
         android:layout_height="wrap_content"
         android:text="@string/back"
         android:id="@+id/back_school_login"
-        android:layout_marginTop="20dp"
-        android:textColor="#ffffffff" />
+        style="@style/lightdescriptionFont"
+        android:layout_marginTop="20dp" />
 </LinearLayout>
 
 

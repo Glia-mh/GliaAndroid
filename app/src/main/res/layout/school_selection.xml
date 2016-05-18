@@ -5,7 +5,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin" tools:context=".LoginActivity"
-    android:background="@color/roots_green"
+    android:background="@color/white"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
     <LinearLayout
@@ -19,14 +19,13 @@
         <ImageView
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:src="@drawable/roots_in_circ"/>
+            android:src="@drawable/ic_launcherweb"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            style="?android:textAppearanceMedium"
-            android:textColor="#ffffffff"
+            style="@style/descriptionFont"
             android:text="@string/school_choice_description"/>
 
     </LinearLayout>
@@ -37,7 +36,7 @@
         android:layout_width="20dp"
         android:layout_height="0dp"
         android:indeterminate="true"
-        android:layout_weight="2.5"
+        android:layout_weight="2"
         android:visibility="visible"/>
 
     <!--Will be set to VISIBLE after schools load-->
@@ -45,38 +44,35 @@
         android:layout_height="0dp"
         android:id="@+id/list_view_schools"
         android:layout_width="match_parent"
-        android:layout_weight="2.5"
-        android:visibility="gone"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/no_school"
-        android:id="@+id/counselorlogin"
-        android:layout_marginTop="20dp"
-        android:textColor="#ffffffff" />
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
+        android:layout_weight="2"
+        android:visibility="gone"
+        android:paddingBottom="20dp"/>
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/no_school"-->
+        <!--android:id="@+id/counselorlogin"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:textColor="#ffffffff" />-->
 
 
-        <Button android:id="@+id/schoolselectionnext" style="?android:textAppearanceSmall"
+
+        <Button android:id="@+id/schoolselectionnext" style="@style/navButton"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/next"
-            android:textStyle="bold"
-            android:textColor="#ffffffff"
-            android:background="@color/roots_green_lighter" />
+            android:layout_marginTop="20dp"
+             />
 
 
 
-    </RelativeLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/back"
         android:id="@+id/back_school_selection"
-        android:layout_marginTop="20dp"
-        android:textColor="#ffffffff" />
+        style="@style/lightdescriptionFont"
+        android:layout_marginTop="20dp"/>
 
 
 

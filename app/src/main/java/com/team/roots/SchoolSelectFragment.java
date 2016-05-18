@@ -1,6 +1,8 @@
 package com.team.roots;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,18 +24,25 @@ import java.util.List;
 public class SchoolSelectFragment extends android.support.v4.app.Fragment {
 
     private School currentSchool;
+    private List<SchoolSelector> schools=new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
+            View convertView;
             if(savedInstanceState==null) {
                 Log.d("recreating","recreating view");
 
-                return inflater.inflate(R.layout.school_selection, container, false);
+                convertView =inflater.inflate(R.layout.school_selection, container, false);
 
             }else
-                return super.onCreateView(inflater, container, savedInstanceState);
+                convertView= super.onCreateView(inflater, container, savedInstanceState);
+        if(currentSchool==null){
+            Button next = (Button) convertView.findViewById(R.id.schoolselectionnext);
+            Drawable nextShape=next.getBackground();
+            nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
+        }
+        return convertView;
 
     }
 
@@ -80,9 +90,13 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
         //Turn off loading sign
         ProgressBar pb = (ProgressBar)getActivity().findViewById(R.id.loading_sign_for_schools);
         pb.setVisibility(View.GONE);
+        if(schools.size()==0) {
+            for (School school : ma.getSchools()) {
+                schools.add(new SchoolSelector(school, false));
+            }
+        }
 
-
-        SchoolListAdapter schoolListAdapter = new SchoolListAdapter(getActivity(), R.id.list_view_schools, ma.getSchools());
+        final SchoolListAdapter schoolListAdapter = new SchoolListAdapter(getActivity(), R.id.list_view_schools, schools);
         Log.d("school list", "school list view" + ma.getSchools().toString() + "size" + ma.getSchools().size());
         final ListView schoolListView = (ListView) getView().findViewById(R.id.list_view_schools);
 
@@ -94,12 +108,17 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MainActivity ma = (MainActivity) getActivity();
-                if (currentSchool != null) {
-                    schoolListView.getChildAt(currentSchool.getPositioninList()).findViewById(R.id.schoolcheck).setVisibility(View.GONE);
+                    if(currentSchool!=null) {
+                        schools.get(ma.getSchools().indexOf(currentSchool)).setSelected(false);
+                    }
+                    currentSchool=ma.getSchools().get(position);
+                    schools.get(position).setSelected(true);
 
-                } else {
+                //next button
                     Button next = (Button) getView().findViewById(R.id.schoolselectionnext);
-                    next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                    Drawable nextShape = next.getBackground();
+                    nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
+
                     next.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -108,20 +127,17 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
                             getActivity().getIntent().putExtra("schoolobjectid", currentSchool.getObjectId());
                             MainActivity ma = (MainActivity) getActivity();
                             ma.pager.setCurrentItem(ma.pager.getCurrentItem() + 1, true);
+
                         }
                     });
+                    schoolListAdapter.notifyDataSetChanged();
                 }
-                schoolListView.getChildAt(position).findViewById(R.id.schoolcheck).setVisibility(View.VISIBLE);
-
-                currentSchool = ma.getSchools().get(position);
-                currentSchool.setPositioninList(position);
-
-
-            }
         });
         if(currentSchool!=null){
             Button next = (Button) getView().findViewById(R.id.schoolselectionnext);
-            next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+            Drawable nextShape=next.getBackground();
+
+            nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
             next.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -135,9 +151,27 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
         }
     }
 
-                    public class SchoolListAdapter extends ArrayAdapter<School> {
+                    private class SchoolSelector {
+                        private School school;
+                        private boolean selected;
+                        SchoolSelector(School school, boolean selected) {
+                            this.school=school;
+                            this.selected=selected;
+                        }
+                        public boolean getSelected() {
+                            return selected;
+                        }
+                        public void setSelected(boolean selected){
+                            this.selected=selected;
+                        }
+                        public School getSchool(){
+                            return school;
+                        }
+                    }
 
-                        public SchoolListAdapter(Context context, int resource, List<School> items) {
+                    public class SchoolListAdapter extends ArrayAdapter<SchoolSelector> {
+
+                        public SchoolListAdapter(Context context, int resource, List<SchoolSelector> items) {
                             super(context, resource, items);
                         }
 
@@ -152,7 +186,7 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
                                 v = vi.inflate(R.layout.schoollistrow, null);
                             }
 
-                            School school = getItem(position);
+                            School school = getItem(position).getSchool();
 
                             if (school != null) {
                                 TextView tt1 = (TextView) v.findViewById(R.id.school_name_text);
@@ -163,10 +197,10 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
 
 
                             }
-                            if(currentSchool!=null) {
-                                if (currentSchool.equals(school)) {
+                            if(getItem(position).getSelected()) {
                                     v.findViewById(R.id.schoolcheck).setVisibility(View.VISIBLE);
-                                }
+                            } else {
+                                    v.findViewById(R.id.schoolcheck).setVisibility(View.GONE);
                             }
 
                             return v;

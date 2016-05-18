@@ -2,7 +2,8 @@ package com.team.roots;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -18,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.atlas.ParticipantProvider;
 import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseCloud;
@@ -44,7 +46,9 @@ public class LoginFragment extends Fragment {
             theView = inflater.inflate(R.layout.login_layout, container, false);
         else
             theView =  super.onCreateView(inflater, container, savedInstanceState);
-
+        Button loginButton=(Button)theView.findViewById(R.id.loginbutton);
+        Drawable nextShape=loginButton.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
         return theView;
     }
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -114,13 +118,11 @@ public class LoginFragment extends Fragment {
                                 final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
 
-                                //change color
-                                ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
-                                int colorId = buttonColor.getColor();
-                                Log.d("reached here","reached here"+colorId);
-                                if (colorId == -7082078) {
-                                    Log.d("reached here 2","reached here 2");
-                                    loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+
+//                                if (colorId == -3214661) {
+                                    Log.d("reached here 2", "reached here 2");
+                                    Drawable nextShape=loginButton.getBackground();
+                                    nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
                                     loginButton.setOnClickListener(new View.OnClickListener() {
                                         public void onClick(View v) {
 
@@ -143,7 +145,7 @@ public class LoginFragment extends Fragment {
                                                 final HashMap<String, String> params = new HashMap<String, String>();
                                                 params.put("userID", loginString);
                                                 params.put("schoolID", school.getObjectId());
-                                                ParseCloud.callFunctionInBackground("validateStudentID", params, new FunctionCallback<String>() {
+                                                ParseCloud.callFunctionInBackground("validateStudentID", params,new FunctionCallback<String>() {
                                                     @Override
                                                     public void done(String s, ParseException e) {
                                                         if (s.equals("valid")) {
@@ -152,7 +154,7 @@ public class LoginFragment extends Fragment {
                                                             MainActivity.participantProvider = new ParticipantProvider();
                                                             ProgressBar progressBar= (ProgressBar)getView().findViewById(R.id.login_progress);
                                                             progressBar.setProgress(20);
-                                                            MainActivity.participantProvider.refresh(loginString, params.get("schoolID"), ma.getLoginController());
+                                                            ma.refresh(loginString, params.get("schoolID"), ma.getLoginController());
                                                             Log.d("callback", "valid user id");
 
                                                         } else {
@@ -173,7 +175,7 @@ public class LoginFragment extends Fragment {
                                             }
                                         }
                                     });
-                                }
+//                                }
                             } else {
                                 nullifyListener();
                             }
@@ -211,14 +213,8 @@ public class LoginFragment extends Fragment {
                                 isPasswordPopulated = true;
                                 Log.d("populated","password: "+isPasswordPopulated+" and username: "+isUsernamePopulated);
                                 if (isUsernamePopulated) {
-                                    Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-                                    ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
-                                    int colorId = buttonColor.getColor();
-                                    Log.d("populated","color Id: " + colorId);
-                                    if(colorId== -7082078) {
                                         ///----
                                         setOnClickListenerCounselor();
-                                    }
                                 }
                             } else {
                                 nullifyListener();
@@ -246,12 +242,7 @@ public class LoginFragment extends Fragment {
                                 isUsernamePopulated = true;
                                 Log.d("populated","password: "+isPasswordPopulated+" and username: "+isUsernamePopulated);
                                 if (isPasswordPopulated) {
-                                    Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-                                    ColorDrawable buttonColor = (ColorDrawable) loginButton.getBackground();
-                                    int colorId = buttonColor.getColor();
-                                    if(colorId== -7082078) {
                                         setOnClickListenerCounselor();
-                                    }
                                 }
 
                             } else {
@@ -307,7 +298,8 @@ public class LoginFragment extends Fragment {
         Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
 
 
-        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_lighter));
+        Drawable nextShape=loginButton.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -318,7 +310,8 @@ public class LoginFragment extends Fragment {
     private void setOnClickListenerCounselor() {
 
         final Button loginButton = (Button) getView().findViewById(R.id.loginbutton);
-        loginButton.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+        Drawable nextShape=loginButton.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -346,7 +339,10 @@ public class LoginFragment extends Fragment {
 
                                 Log.d("user.getObjectId", "user.getObjectId=" + loginString);
                                 MainActivity.participantProvider = new ParticipantProvider();
-                                MainActivity.participantProvider.refresh(loginString, school.getObjectId(), ma.getLoginController());
+                                if(user.get("counselorType").equals("0")){
+                                    getActivity().getIntent().putExtra("accountTypeNumber", 2);
+                                }
+                                ma.refresh(loginString, school.getObjectId(), ma.getLoginController());
                             } else {
                                 Toast.makeText(getActivity().getApplicationContext(), "Invalid Login.", Toast.LENGTH_SHORT).show();
                                 getView().findViewById(R.id.login_progress).setVisibility(View.INVISIBLE); //make loading circle invisible again

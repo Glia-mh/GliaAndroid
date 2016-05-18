@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="roots_green_lighter">#ff93efa2</color>
-    <color name="roots_green">#ff26df45</color>
+    <color name="roots_green">#ff87d367</color>
+    <color name="roots_green_actionbar">#ff63c639</color>
 
-    <color name="roots_green_darker">#ff209632</color>
     <color name="counselor_bar">#eeeeee</color>
     <color name="text_counselor_bar">#dd9b9ca0</color>
     <color name="tappable_blue">#ff0028ea</color>
     <color name="friendly_warning_red">#ffffb0b2</color>
+    <color name="white"> #ffffffff</color>
+    <color name="roots_gray">#ffb3b3b3</color>
+    <color name="roots_green_unselected">#ffcef2bb </color>
 </resources>

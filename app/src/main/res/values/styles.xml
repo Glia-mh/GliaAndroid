@@ -4,7 +4,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -16,41 +16,59 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-    </style>
-
-
-    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background"  tools:ignore="NewApi">@color/roots_green</item>
-        <item name="background">@color/roots_green</item>
-    </style>
-
-    <style name="CustomActionBarTheme" parent="@style/Theme.AppCompat.Light">
-        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/MyActionBar</item>
+        <item name="android:fontFamily">sans-serif-light</item>
         <item name="actionBarStyle">@style/MyActionBar</item>
-
-
     </style>
 
+
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="background"  >@color/roots_green_actionbar</item>
+        <item name="titleTextStyle">@style/MyTitleTextStyle</item>
+    </style>
+    <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">san-serif-light</item>
+    </style>
+
+
+    <style name="navButton" parent="@style/AppTheme">
+        <item name="android:textSize">18sp</item>
+        <item name="android:background">@drawable/nav_buttons</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@drawable/nav_button_text </item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="lightdescriptionFont" parent="@style/AppTheme">
+        <item name="android:textColor">@color/roots_gray</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="descriptionFont" parent="@style/AppTheme">
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
 
     <!-- Base application theme. -->
     <style name="AppThemeLogin" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorControlNormal">#ffffff</item>
-        <item name="colorControlActivated">@color/accent</item>
-        <item name="colorControlHighlight">@color/accent</item>
         <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
         <item name="android:autoCompleteTextViewStyle">@style/RobotoAutoCompleteTextViewStyle</item>
         <item name="android:editTextStyle">@style/RobotoEditTextStyle</item>
     </style>
     <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:typeface">sans</item>
+
     </style>
     <style name="RobotoAutoCompleteTextViewStyle" parent="android:Widget.AutoCompleteTextView">
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:typeface">sans</item>
     </style>
     <style name="RobotoEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/edit_text_custom</item>
         <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">24sp</item>
     </style>
-    <color name="accent">#ffffff</color>
 
 
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">

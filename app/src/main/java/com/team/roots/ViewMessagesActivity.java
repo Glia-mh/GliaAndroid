@@ -17,6 +17,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -24,15 +25,19 @@ import android.view.animation.Animation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
 import com.layer.atlas.AtlasParticipantPicker;
 import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.DiskLruImageCache;
+import com.layer.atlas.Participant;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.MessageOptions;
+import com.layer.sdk.messaging.MessagePart;
 import com.layer.sdk.messaging.Metadata;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.wunderlist.slidinglayer.SlidingLayer;
@@ -44,6 +49,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+
 public class ViewMessagesActivity extends ActionBarActivity  {
 
 
@@ -64,8 +71,6 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private final Object mDiskCacheLock = new Object();
     private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
 
-
-
     //account type 1 is counselor
     //account type 0 is student
     //default set to 0
@@ -74,8 +79,14 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
-        if(!LoginController.layerClient.isAuthenticated()){
+        if(LoginController.layerClient==null){
+            Log.d("notification", "not authenticated so end activity");
+            Intent intent=new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+            return;
+        } else if(!LoginController.layerClient.isAuthenticated()){
             Log.d("notification", "not authenticated so end activity");
             Intent intent=new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -87,7 +98,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         context=this;
 
         if(schoolId==null){
-            Log.d("school-id","school-id: "+getIntent().getStringExtra("school-id"));
+            Log.d("school-id", "school-id: " + getIntent().getStringExtra("school-id"));
             schoolId=getIntent().getStringExtra("school-id");
         }
 
@@ -101,7 +112,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         }
 
 
-        SharedPreferences mPrefs = getSharedPreferences("label", 0);
+        final SharedPreferences mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype", 0);
 
         //if conversation does not exist set counselor Id for conversation initialization
@@ -118,11 +129,32 @@ public class ViewMessagesActivity extends ActionBarActivity  {
         if(counselorId==null){
             counselorId=(String)conversation.getMetadata().get("counselor.ID");
         }
+        if(accountType==0) {
+            getSupportActionBar().setTitle(ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
+        } else if (accountType==1) {
+            getSupportActionBar().setTitle((String)conversation.getMetadata().get("student.name"));
+        } else if (accountType==2){
+            getSupportActionBar().setTitle(conversation.getMetadata().get("student.ID")+", "+ConversationListActivity.participantProvider.getParticipant(counselorId).getFirstName());
+        }
+
+
 
 
 
 
         ConversationListActivity.availabilityHandler.setViewMessagesActivityWeakReference(this);
+
+        if(accountType==1) {
+            if (conversation.getParticipants().size()>2) {
+                TextView reportWarning = (TextView) findViewById(R.id.counselor_unavailible_warning);
+                if(isNetworkAvailable()) {
+                    reportWarning.setText("Warning: This conversation is reported.");
+                    reportWarning.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+
+
         //Bio View
         if (accountType==0) {
 
@@ -271,7 +303,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
             public boolean beforeSend(Message message) {
                 if (conversation == null) {
                     //does not include sender only reciever
-                    String[] participants = {counselorId, "1"};
+                    String[] participants = {counselorId};
 
                     if (participants.length > 0) {
 
@@ -297,7 +329,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         metadataConv.put("counselor", counselor);
                         metadataConv.put("student", student);
                         metadataConv.put("schoolID", schoolId);
-
+//                        metadataConv.put("isReported", "false");
                         conversation = LoginController.layerClient.newConversation(participants);
 
                         //set metatdata
@@ -306,7 +338,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                         if (accountType == 1) {
                             message.getOptions().pushNotificationMessage((String) conversation.getMetadata().get("counselor.name") + "," + (String) conversation.getMetadata().get("counselor.avatarString") + "," + messageText);
 
-                        } else {
+                        } else if (accountType==0){
                             message.getOptions().pushNotificationMessage((String) conversation.getMetadata().get("student.name") + "," + (String) conversation.getMetadata().get("student.avatarString") + "," + messageText);
                         }
 
@@ -323,7 +355,10 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
 
 
-
+        if(accountType==2){
+            atlasComposer.setVisibility(View.GONE);
+            typingIndicator.setVisibility(View.GONE);
+        }
 
 
 
@@ -518,16 +553,46 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     }
 
 
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        if(accountType==1) {
+            getMenuInflater().inflate(R.menu.messages, menu);
+
+                if(conversation.getParticipants().size()>2) {
+                    menu.findItem(R.id.action_report).setIcon(R.drawable.ic_undo_white_24dp);
+                } else {
+                    menu.findItem(R.id.action_report).setIcon(R.drawable.ic_report_problem_white_24dp);
+                }
+
+
+
+
+        } else {
+            getMenuInflater().inflate(R.menu.main, menu);
+        }
+        return true;
+    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
+            case R.id.action_report:
+                if(conversation.getParticipants().size()>2) {
+                    getWarningAlertDialog(R.string.undo_warning, R.string.undo).show();
+                } else {
+                    getWarningAlertDialog(R.string.report_warning, R.string.report).show();
+                }
+                return true;
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void addBitmapToCache(String key, Bitmap bitmap) {
@@ -553,6 +618,111 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 });
         // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    private  AlertDialog getWarningAlertDialog(int stringAddress, int acceptStringAddress){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(stringAddress)
+                .setPositiveButton(acceptStringAddress, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        changeStudentReportStatus(conversation);
+                    }
+                }).setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    public void changeStudentReportStatus(final Conversation conv) {
+
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("userID", conv.getMetadata().get("student.ID"));
+        Participant[] participants = ConversationListActivity.participantProvider.getCustomParticipants();
+        if(conv.getParticipants().size()<=2) {
+            for (Participant p : participants) {
+                if (p.getCounselorType() == 0)
+                    conv.addParticipants(p.getID());
+            }
+            //Formats the push notification text
+            MessageOptions options = new MessageOptions();
+            String studentID=(String)conv.getMetadata().get("student.ID");
+            String counselorID=(String)conv.getMetadata().get("counselor.name");
+            options.pushNotificationMessage(studentID + ", " +counselorID+", Conversation Reported");
+
+            //Creates and returns a new message containing the message parts
+            MessagePart messagePart = LoginController.layerClient.newMessagePart("Conversation Reported");
+            Message message = LoginController.layerClient.newMessage(options, messagePart);
+            conv.send(message);
+            Toast.makeText(context, "Conversation reported.", Toast.LENGTH_SHORT).show();
+            invalidateOptionsMenu();
+            TextView counselorUnavailable=(TextView)findViewById(R.id.counselor_unavailible_warning);
+            if(isNetworkAvailable()) {
+                counselorUnavailable.setText("Warning: This conversation is reported.");
+                findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
+            }
+        } else {
+            Toast.makeText(context, "Report Undone", Toast.LENGTH_SHORT).show();
+
+            for(Participant p: participants){
+                if(p.getCounselorType()==0)
+                    conv.removeParticipants(p.getID());
+            }
+            invalidateOptionsMenu();
+            if(isNetworkAvailable())
+                findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+        }
+
+
+//        ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<ParseObject>() {
+//            public void done(ParseObject reportedStudent, ParseException e) {
+//                if (e == null) {
+//                    if (reportedStudent.getBoolean("isReported")) {
+//
+//                        Participant[] participants = ConversationListActivity.participantProvider.getCustomParticipants();
+//                        for (Participant p : participants) {
+//                            if (p.getCounselorType() == 0)
+//                                conv.addParticipants(p.getID());
+//                        }
+//                        Toast.makeText(context, "User reported.", Toast.LENGTH_SHORT).show();
+//                        Query query = Query.builder(Conversation.class)
+//                                .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, reportedStudent.getString("userID")))
+//                                .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+//                                .build();
+//                        List<Conversation> results = LoginController.layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+//                        for(Conversation result:results){
+//                            result.putMetadataAtKeyPath("isReported", "true");
+
+
+//                    } else {
+//                        Toast.makeText(context, "Report Undone.", Toast.LENGTH_SHORT).show();
+//
+//                        Participant[] participants = ConversationListActivity.participantProvider.getCustomParticipants();
+//                        for (Participant p : participants) {
+//                            if (p.getCounselorType() == 0)
+//                                conv.removeParticipants(p.getID());
+//                        }
+
+
+//                        Query query = Query.builder(Conversation.class)
+//                                .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, reportedStudent.getString("userID")))
+//                                .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
+//                                .build();
+//                        List<Conversation> results = LoginController.layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+//                        for (Conversation result : results) {
+//                            result.putMetadataAtKeyPath("isReported", "false");
+
+
+//                    }
+//                    invalidateOptionsMenu();
+//                } else {
+//                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
     }
 
 }

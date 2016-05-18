@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/roots_green"
+    android:background="@color/white"
     android:windowSoftInputMode="adjustNothing"
     android:id="@+id/loading_screen_running">
 
     <ImageView
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:src="@drawable/roots_in_circ"
+        android:src="@drawable/ic_launcherweb"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
 

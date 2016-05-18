@@ -40,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.AtlasConversationsList;
+import com.layer.atlas.Participant;
+import com.layer.atlas.ParticipantProvider;
 import com.layer.atlas.RoundImage;
 import com.layer.sdk.messaging.Conversation;
 import com.parse.FunctionCallback;
@@ -81,41 +83,35 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
     private int accountType;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
-
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_conversation);
-
-        if(!isNetworkAvailable()){
+        findViewById(R.id.listreported).setVisibility(View.GONE);
+        if (!isNetworkAvailable()) {
             findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
         }
 
 
         context = this;
         mPrefs = getSharedPreferences("label", 0);
-        accountType = mPrefs.getInt("accounttype",0);
+        accountType = mPrefs.getInt("accounttype", 0);
 
 
         Log.d("ConversationList", "Conversation List Activity recreated");
         //set layer Client and Authentication Listeners to ConversationListActivity
 
-       // LoginController.authenticationListener.assignConversationListActivity(this);
-        myID=LoginController.layerClient.getAuthenticatedUserId();
+        // LoginController.authenticationListener.assignConversationListActivity(this);
+        myID = LoginController.layerClient.getAuthenticatedUserId();
 
-        availabilityHandler= new myHandler(this);
+        availabilityHandler = new myHandler(this);
 
-        if (accountType==1) {
-            //Change action bar name to "Roots Counselor" cuz now the person's a counselor
-            //getActionBar().setTitle(R.string.app_name_roots_counselor);
-            getSupportActionBar().setTitle(R.string.app_name_roots_counselor);  // provide compatibility to all the versions
 
-        }
-
+        getSupportActionBar().setTitle(R.string.conversations);  // provide compatibility to all the versions
 
 
         // COUNSELOR BAR*************************************************************
-        LinearLayout counselorBar = (LinearLayout)findViewById(R.id.counselorbar);
-        if(accountType==0) {
+        LinearLayout counselorBar = (LinearLayout) findViewById(R.id.counselorbar);
+        if (accountType == 0) {
 
 
             //Memory for caches
@@ -138,48 +134,47 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
             for (final Participant p : participants) {
-
-                View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
-                TextView text = (TextView) item.findViewById(R.id.counselorbartext);
-                ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
-                text.setText(p.getFirstName());   // set up text
-
-
-
-                image.setTag(p.getID());
-
-                if (getBitmapFromCache(p.getID().toLowerCase()) == null) {
-                    new LoadImage(image).execute(p.getAvatarString(), p.getID().toLowerCase());   // set up image
-                } else {
-                    RoundImage roundImage;
-                    roundImage = new RoundImage(getBitmapFromCache(p.getID().toLowerCase()));
-                    image.setImageDrawable(roundImage);
-                }
+                if(p.getCounselorType()==1) {
+                    View item = inflater.inflate(R.layout.counselor_bar_item, null, false);   // Inflate plain counselor_bar_item layout
+                    TextView text = (TextView) item.findViewById(R.id.counselorbartext);
+                    ImageView image = (ImageView) item.findViewById(R.id.counselorbarimage);
+                    text.setText(p.getFirstName());   // set up text
 
 
-                if(!p.getIsAvailable())
-                    fadeImage(image, p.getIsAvailable());
+                    image.setTag(p.getID());
 
-
-
-                item.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        if (myConversationList.getCounselorsinConversationWith().contains(p.getID())) {
-                            startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
-                        } else {
-                            startNewMessagesActivity(p.getID());
-                        }
-
+                    if (getBitmapFromCache(p.getID().toLowerCase()) == null) {
+                        new LoadImage(image).execute(p.getAvatarString(), p.getID().toLowerCase());   // set up image
+                    } else {
+                        RoundImage roundImage;
+                        roundImage = new RoundImage(getBitmapFromCache(p.getID().toLowerCase()));
+                        image.setImageDrawable(roundImage);
                     }
-                });
 
-                if(!p.getIsAvailable()) greyedOutCounselors.add(item);
-                else counselorBar.addView(item);
+
+                    if (!p.getIsAvailable())
+                        fadeImage(image, p.getIsAvailable());
+
+
+                    item.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            if (myConversationList.getCounselorsinConversationWith().contains(p.getID())) {
+                                startMessagesActivity(myConversationList.getConversationWithCounselorId(p.getID()));
+                            } else {
+                                startNewMessagesActivity(p.getID());
+                            }
+
+                        }
+                    });
+
+                    if (!p.getIsAvailable()) greyedOutCounselors.add(item);
+                    else counselorBar.addView(item);
+                }
             }
             // Add greyed out counselors last
-            for(View item: greyedOutCounselors) counselorBar.addView(item);
+            for (View item : greyedOutCounselors) counselorBar.addView(item);
         } else {
             counselorBar.setVisibility(View.GONE);
         }
@@ -187,74 +182,67 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         //***********************************************************************
 
 
-
-
-
         // LEFT/RIGHT NAV DRAWERS********************************************* onCreate
 
         //Setting options for Drawers
-        if(accountType==0) {
+        if (accountType == 0 || accountType == 2) {
             mOptions = getResources().getStringArray(R.array.left_drawer_options);
 
-        } else {
-            mOptions= getResources().getStringArray(R.array.left_drawer_options_counselor);
-            mOptionsRightDrawer=getResources().getStringArray(R.array.right_drawer_options_counselor);
+        } else if (accountType == 1) {
+            mOptions = getResources().getStringArray(R.array.left_drawer_options_counselor);
+            mOptionsRightDrawer = getResources().getStringArray(R.array.right_drawer_options_counselor);
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
 
-
-
-
-
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 
 
         //right drawer
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListRight = (ListView) findViewById(R.id.right_drawer);
         PackageManager pm = this.getPackageManager();
-        if(accountType==1) {
-                Log.d("MyID", "MyID initial push notification receiver set " + myID);
-                 if (!MainActivity.participantProvider.getParticipant(myID).getIsAvailable()) {
-                    Log.d("Disabled", "Disabled");
-                    ComponentName receiver = new ComponentName(this, LayerPushReceiver.class);
+        if (accountType == 1) {
+            Log.d("MyID", "MyID initial push notification receiver set " + myID);
+            if (!MainActivity.participantProvider.getParticipant(myID).getIsAvailable()) {
+                Log.d("Disabled", "Disabled");
+                ComponentName receiver = new ComponentName(this, LayerPushReceiver.class);
 
 
-                    pm.setComponentEnabledSetting(receiver,
-                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                            PackageManager.DONT_KILL_APP);
+                pm.setComponentEnabledSetting(receiver,
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP);
 
-                }
+            }
 
 
             mDrawerListRight.setAdapter(new CounselorRightDrawerAdapter(this));
         }
 
 
-        //Left Drawer
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
+                //Left Drawer
+            mDrawerListLeft = (ListView) findViewById(R.id.left_drawer);
 
-        // Set the adapter for the list view
-        mDrawerListLeft.setAdapter(new MyAdapter(this));
-        if(accountType==0) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mDrawerListRight);
-        }
-
-        leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
-            @Override
-            public void onDrawerOpened(View drawer) {
-                DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams)drawer.getLayoutParams();
-                if(drawerParams.gravity== Gravity.START)mDrawerLayout.closeDrawer(GravityCompat.END);
+            // Set the adapter for the list view
+            mDrawerListLeft.setAdapter(new MyAdapter(this));
+            if (accountType == 0 || accountType == 2) {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mDrawerListRight);
             }
 
-        };
+            leftDrawerListener = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+                @Override
+                public void onDrawerOpened(View drawer) {
+                    DrawerLayout.LayoutParams drawerParams = (DrawerLayout.LayoutParams) drawer.getLayoutParams();
+                    if (drawerParams.gravity == Gravity.START)
+                        mDrawerLayout.closeDrawer(GravityCompat.END);
+                }
 
-        mDrawerLayout.setDrawerListener(leftDrawerListener);
-        mDrawerListLeft.setOnItemClickListener(this);
+            };
+
+            mDrawerLayout.setDrawerListener(leftDrawerListener);
+            mDrawerListLeft.setOnItemClickListener(this);
 
 
 
@@ -267,9 +255,11 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         //initialize Conversation List
         myConversationList = (AtlasConversationsList) findViewById(R.id.conversationlist);
 
-
-        myConversationList.init(LoginController.layerClient, participantProvider, accountType, context);
-
+       // if(accountType==2){
+         //   myConversationList.init(LoginController.layerClient, participantProvider, accountType, context, getIntent().getStringExtra("reportedUserID"));
+        //} else {
+            myConversationList.init(LoginController.layerClient, participantProvider, accountType, context, null);
+        //}
 
         myConversationList.setClickListener(new AtlasConversationsList.ConversationClickListener() {
             public void onItemClick(Conversation conversation) {
@@ -281,7 +271,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
         leftDrawerListener.syncState();
-
         AtlasConversationsList atlasConversationsList =
                 (AtlasConversationsList)findViewById(R.id.conversationlist);
         atlasConversationsList.setMyIEventListener(this);
@@ -290,19 +279,6 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     }
 
-    public void fadeImage(ImageView v, boolean isAvailable)
-    {
-        if(isAvailable) {
-            v.clearColorFilter();
-            v.setAlpha(1.0f);
-        } else {
-            ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(0);  //0 means grayscale
-            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
-            v.setColorFilter(cf);
-            v.setAlpha(0.5f);  // 128 = 0.5
-        }
-    }
 
     static class myHandler extends Handler {
         public final WeakReference<ConversationListActivity> convListActivityVars;
@@ -445,7 +421,13 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+//        if(accountType==2){
+            //if(item.getItemId()==android.R.id.home) {
+//                NavUtils.navigateUpFromSameTask(this);
+//                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+//                return true;
+            //}
+//        }
         return leftDrawerListener.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
     //**********************************************
@@ -467,9 +449,12 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
             if(accountType==0){
                 images=new int[]{R.drawable.ic_logout,
                         R.drawable.ic_launcher};
-            } else {
+            } else if(accountType==1) {
                 images=new int[]{R.drawable.ic_logout,
                         R.drawable.ic_settings};
+            } else if(accountType==2){
+                images=new int[]{R.drawable.ic_logout,
+                        R.drawable.ic_launcher};
             }
         }
 
@@ -688,6 +673,22 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
 
 
     //bitmap caching and loading********************************************************************
+
+
+    public void fadeImage(ImageView v, boolean isAvailable)
+    {
+        if(isAvailable) {
+            v.clearColorFilter();
+            v.setAlpha(1.0f);
+        } else {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);  //0 means grayscale
+            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
+            v.setColorFilter(cf);
+            v.setAlpha(0.5f);  // 128 = 0.5
+        }
+    }
+
     class InitDiskCacheTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void ... params) {
@@ -839,33 +840,10 @@ public class ConversationListActivity extends ActionBarActivity implements Adapt
         onResume();
     }
 
-    @Override
-    public void callUponTheHolyParseServerToChangeStudentReportedStatus(String isReported, Conversation conv) {
-
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("userID", conv.getMetadata().get("student.ID"));
-        if(isReported.equals(AtlasConversationsList.TRUE)){
-            ParseCloud.callFunctionInBackground("reportStudent", params, new FunctionCallback<Float>() {
-                public void done(Float ratings, ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(context, "User successfully reported.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(context, "User not successfully reported.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } else {
-            ParseCloud.callFunctionInBackground("pardonStudent", params, new FunctionCallback<Float>() {
-                public void done(Float ratings, ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(context, "User successfully pardoned.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(context, "User not successfully pardoned.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
 
 
-    }
+
+
+
+
 }

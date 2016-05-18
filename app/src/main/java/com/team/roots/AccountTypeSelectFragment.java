@@ -1,6 +1,8 @@
 package com.team.roots;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -24,10 +26,15 @@ public class AccountTypeSelectFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-            if(savedInstanceState==null)
-                return inflater.inflate(R.layout.account_type, container, false);
+        View convertView;
+        if(savedInstanceState==null)
+                convertView=inflater.inflate(R.layout.account_type, container, false);
             else
-                return super.onCreateView(inflater, container, savedInstanceState);
+                convertView=super.onCreateView(inflater, container, savedInstanceState);
+        Button next=(Button)convertView.findViewById(R.id.accounttypeselectionnext);
+        Drawable nextShape=next.getBackground();
+        nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
+        return convertView;
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,7 +64,8 @@ public class AccountTypeSelectFragment extends Fragment {
                     accountTypeListView.getChildAt(currentAccountType.getPositioninList()).findViewById(R.id.schoolcheck).setVisibility(View.GONE);
                 } else {
                     Button next = (Button) getView().findViewById(R.id.accounttypeselectionnext);
-                    next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                    Drawable nextShape=next.getBackground();
+                    nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
                     next.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -84,7 +92,8 @@ public class AccountTypeSelectFragment extends Fragment {
         if(savedInstanceState==null){
                 if(currentAccountType!=null){
                     Button next = (Button) getView().findViewById(R.id.accounttypeselectionnext);
-                    next.setBackgroundColor(getResources().getColor(R.color.roots_green_darker));
+                    Drawable nextShape=next.getBackground();
+                    nextShape.setColorFilter(getResources().getColor(R.color.roots_green), PorterDuff.Mode.MULTIPLY);
                     next.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

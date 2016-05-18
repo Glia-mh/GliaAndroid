@@ -5,7 +5,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin" tools:context=".LoginActivity"
-    android:background="@color/roots_green"
+    android:background="@color/white"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
     <LinearLayout
@@ -19,14 +19,13 @@
         <ImageView
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:src="@drawable/roots_in_circ"/>
+            android:src="@drawable/ic_launcher"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            style="?android:textAppearanceMedium"
-            android:textColor="#ffffffff"
+            style="@style/descriptionFont"
             android:text="@string/student_or_counselor"/>
 
     </LinearLayout>
@@ -43,12 +42,10 @@
         android:layout_marginTop="16dp">
 
 
-        <Button android:id="@+id/accounttypeselectionnext" style="?android:textAppearanceSmall"
+        <Button android:id="@+id/accounttypeselectionnext"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/next"
-            android:textStyle="bold"
-            android:textColor="#ffffffff"
-            android:background="@color/roots_green_lighter" />
+            style="@style/navButton" />
 
 
 
@@ -61,6 +58,6 @@
         android:text="@string/back"
         android:id="@+id/backaccounttype"
         android:layout_marginTop="20dp"
-        android:textColor="#ffffffff" />
+        style="@style/lightdescriptionFont"/>
 
 </LinearLayout>
