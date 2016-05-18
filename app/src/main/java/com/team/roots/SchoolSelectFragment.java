@@ -38,9 +38,12 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
             }else
                 convertView= super.onCreateView(inflater, container, savedInstanceState);
         if(currentSchool==null){
-            Button next = (Button) convertView.findViewById(R.id.schoolselectionnext);
-            Drawable nextShape=next.getBackground();
-            nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
+
+            if(convertView!=null) {
+                Button next = (Button) convertView.findViewById(R.id.schoolselectionnext);
+                Drawable nextShape = next.getBackground();
+                nextShape.setColorFilter(getResources().getColor(R.color.roots_green_unselected), PorterDuff.Mode.MULTIPLY);
+            }
         }
         return convertView;
 
@@ -125,6 +128,7 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
 
                             getActivity().getIntent().putExtra("schoolname", currentSchool.getSchoolName());
                             getActivity().getIntent().putExtra("schoolobjectid", currentSchool.getObjectId());
+                            getActivity().getIntent().putExtra("schoolemail", currentSchool.getEmail());
                             MainActivity ma = (MainActivity) getActivity();
                             ma.pager.setCurrentItem(ma.pager.getCurrentItem() + 1, true);
 
@@ -144,6 +148,7 @@ public class SchoolSelectFragment extends android.support.v4.app.Fragment {
 
                     getActivity().getIntent().putExtra("schoolname", currentSchool.getSchoolName());
                     getActivity().getIntent().putExtra("schoolobjectid", currentSchool.getObjectId());
+                    getActivity().getIntent().putExtra("schoolemail", currentSchool.getEmail());
                     MainActivity ma = (MainActivity) getActivity();
                     ma.pager.setCurrentItem(ma.pager.getCurrentItem() + 1, true);
                 }

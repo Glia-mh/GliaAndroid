@@ -51,7 +51,7 @@
     <string name="no_school">Don\'t see your school?</string>
     <string name="student_or_counselor">Are you a student or a counselor?</string>
     <string name="back">Back</string>
-
+    <string name="restricted">You are restricted from logging in on the demo version.</string>
 
 
 </resources>

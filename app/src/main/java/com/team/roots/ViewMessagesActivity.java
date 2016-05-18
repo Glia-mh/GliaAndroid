@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Menu;
@@ -63,6 +64,7 @@ public class ViewMessagesActivity extends ActionBarActivity  {
     private String counselorId=null;
     MixpanelAPI mixpanel;
     private String schoolId=null;
+    private String schoolEmail;
 
     //Image Caching
     private LruCache<String, Bitmap> mMemoryCache;
@@ -114,6 +116,8 @@ public class ViewMessagesActivity extends ActionBarActivity  {
 
         final SharedPreferences mPrefs = getSharedPreferences("label", 0);
         accountType = mPrefs.getInt("accounttype", 0);
+        schoolEmail = mPrefs.getString("schoolemail", "teamroots.org@gmail.com");
+
 
         //if conversation does not exist set counselor Id for conversation initialization
         counselorId=getIntent().getStringExtra("counselor-id");
@@ -664,6 +668,16 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 counselorUnavailable.setText("Warning: This conversation is reported.");
                 findViewById(R.id.counselor_unavailible_warning).setVisibility(View.VISIBLE);
             }
+            final Intent shareIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + schoolEmail));
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Team Roots Emergency Report");
+            shareIntent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    Html.fromHtml(new StringBuilder()
+                            .append("Hi, my name is Cynthia Hsu. I am reporting a conversation on Team Roots. Here's a link to our conversation: <br> <br> <font color=\"#b3b3b3\"> I am reporting this conversation because... </font>")
+                            .toString())
+            );
+            startActivity(shareIntent);
+
         } else {
             Toast.makeText(context, "Report Undone", Toast.LENGTH_SHORT).show();
 
@@ -671,9 +685,15 @@ public class ViewMessagesActivity extends ActionBarActivity  {
                 if(p.getCounselorType()==0)
                     conv.removeParticipants(p.getID());
             }
-            invalidateOptionsMenu();
+
             if(isNetworkAvailable())
                 findViewById(R.id.counselor_unavailible_warning).setVisibility(View.GONE);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            invalidateOptionsMenu();
         }
 
 
