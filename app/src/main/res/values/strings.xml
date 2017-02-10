@@ -54,4 +54,21 @@
     <string name="restricted">You are restricted from logging in on the demo version.</string>
 
 
+    <string-array name="atlas_typing_indicator">
+        <item>No one is typing</item>
+        <item>%s is typing…</item>
+        <item>Two people are typing…</item>
+        <item>Three people are typing…</item>
+        <item>Many people are typing…</item>
+    </string-array>
+    <string name="no_conversation_description_counselor">No one has messaged you yet. </string>
+    <string name="ok">OK</string>
+    <string name="report">REPORT</string>
+    <string name="undo">UNDO</string>
+    <string name="report_warning"> Are you sure you want to report this student?</string>
+    <string name="undo_warning"> Are you sure you want to undo your report?</string>
+    <string name="no_reports_description">Good news! No student has been reported yet. </string>
+    <string name="no_conversation_description">No conversations yet. Tap one of the faces above. :)</string>
+    <string name="no_messages_description">What\'s up? Tap the bottom message bar to start typing.</string>
+
 </resources>

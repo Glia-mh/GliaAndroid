@@ -10,4 +10,41 @@
     <color name="white"> #ffffffff</color>
     <color name="roots_gray">#ffb3b3b3</color>
     <color name="roots_green_unselected">#ffcef2bb </color>
+
+
+    <color name="red">#FF3B00</color>
+    <color name="red_press">#990000</color>
+
+
+    <color name="atlas_delimeter_gray">#18000000</color>
+    <color name="atlas_shape_avatar_gray">#14000000</color>
+
+    <color name="atlas_bubble_blue">#21AAE1</color>
+
+    <color name="atlas_text_blue">#21AAE1</color>
+    <color name="atlas_text_blue_bright">#FF2196F3</color>
+    <color name="atlas_text_gray">#86000000</color>
+    <color name="atlas_text_black">#FF000000</color>
+    <color name="atlas_text_black87">#DD000000</color>
+    <color name="atlas_text_white">#FFFFFFFF</color>
+
+    <color name="atlas_background_white">#FFFFFFFF</color>
+    <color name="atlas_background_blue">#21AAE1</color>
+    <color name="atlas_background_blue_bright">#2196F3</color>
+    <color name="atlas_background_blue_dark">#198BB8</color>
+    <color name="atlas_background_gray">#EBEBEB</color>
+    <color name="atlas_background_transparent">#00FFFFFF</color>
+
+    <color name="atlas_qr_mask">#80000000</color>
+    <color name="atlas_qr_laser">#FF2196F3</color>
+    <color name="atlas_qr_result">#FFFFFFFF</color>
+
+    <!-- proper way to declare colors  -->
+    <color name="atlas_view_participant_picker_text_background">@color/atlas_background_white
+    </color>
+    <color name="atlas_view_participant_picker_list_background">@color/atlas_background_white
+    </color>
+
+    <!-- menu item background -->
+    <color name="atlas_menu_item_background_gray">#EDEDED</color>
 </resources>

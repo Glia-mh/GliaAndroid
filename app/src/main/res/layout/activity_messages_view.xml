@@ -42,18 +42,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1">
-
-                <com.layer.atlas.AtlasMessagesList
+                <com.layer.atlas.AtlasMessagesRecyclerView
                     android:id="@+id/messageslist"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" atlas:myBubbleColor="@color/roots_green"
-                    atlas:myTextColor="@color/white"/>
+                    android:layout_height="match_parent"
+                    atlas:myBubbleColor="@color/roots_green"
+                    atlas:myTextColor="@color/white"
+                    />
 
 
-                <com.layer.atlas.AtlasParticipantPicker
+
+                <!--<com.layer.atlas.AtlasParticipantPicker
                     android:id="@+id/participantpicker"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent" />-->
 
             </FrameLayout>
 
@@ -122,6 +124,7 @@
                             android:id="@+id/bioinformationtitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:visibility="invisible"
                             android:layout_margin="5dp"
                             android:singleLine="true"
                             android:text="Tomaz Stolfa"

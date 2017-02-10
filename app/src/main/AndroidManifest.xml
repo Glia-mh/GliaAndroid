@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.team.roots"
+    package="com.team.r00ts"
     >
 
     <!-- Layer SDK uses these for monitoring network state and receiving GCM -->
@@ -17,19 +17,19 @@
     <!-- GCM permission for your app (replace [com.myapp.newstandalone] with your package name) -->
 
     <permission
-        android:name="com.team.roots.LAYER_PUSH"
+        android:name="com.team.r00ts.LAYER_PUSH"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.team.roots.LAYER_PUSH" />
 
     <permission
-        android:name="com.team.roots.permission.C2D_MESSAGE"
+        android:name="com.team.r00ts.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.team.roots.permission.C2D_MESSAGE" />
 
     <application
-        android:name="com.team.roots.RootsApp"
+        android:name="com.team.r00ts.App"
         android:allowBackup="true"
 
         android:icon="@drawable/ic_launcher"
@@ -40,8 +40,18 @@
             android:name="com.parse.push.gcm_sender_id"
             android:value="id:155377978502" />
 
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.file_provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
         <activity
-            android:name="com.team.roots.MainActivity"
+            android:name="com.team.r00ts.MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
@@ -52,35 +62,29 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.team.roots.ReportedIDListActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/app_name">
-
-        </activity>
-
         <activity
-            android:name="com.team.roots.ConversationListActivity"
+            android:name="com.team.r00ts.ConversationListActivity"
             android:windowSoftInputMode="stateHidden"
             android:label="@string/app_name" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.team.roots.ReportedIDListActivity" />
+                android:value="com.team.r00ts.ReportedIDListActivity" />
         </activity>
 
         <activity
-            android:name="com.team.roots.ViewMessagesActivity"
+            android:name="com.team.r00ts.ViewMessagesActivity"
             android:label="@string/app_name"
 
             android:windowSoftInputMode="adjustResize" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.team.roots.ConversationListActivity" />
+                android:value="com.team.r00ts.ConversationListActivity" />
         </activity>
 
 
         <!-- for layer -->
         <!-- Your custom "com.layer.sdk.PUSH" notification Receiver -->
-        <receiver android:name="com.team.roots.LayerPushReceiver" >
+        <receiver android:name="com.team.r00ts.LayerPushReceiver" >
             <intent-filter>
                 <action android:name="com.layer.sdk.PUSH" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -107,7 +111,7 @@
         <service android:name="com.parse.PushService" />
 
         <receiver
-            android:name="com.team.roots.AvailabilityBroadcastReceiver"
+            android:name="com.team.r00ts.AvailabilityBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />

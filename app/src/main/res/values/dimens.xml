@@ -7,4 +7,11 @@
     <dimen name="activity_vertical_margin_triple">50dp</dimen>
     <dimen name="vert_drawer_offset_distance">25dp</dimen>
     <dimen name="vert_drawer_preview_offset_distance">25dp</dimen>
+
+    <dimen name="atlas_text_size_title">20sp</dimen>
+    <dimen name="atlas_text_size_general">16sp</dimen>
+    <dimen name="atlas_text_size_smaller">14sp</dimen>
+    <dimen name="atlas_text_size_smaller2">12sp</dimen>
+    <dimen name="atlas_text_size_tiny">8sp</dimen>
+    <dimen name="activity_margin_triple">48dp</dimen>
 </resources>

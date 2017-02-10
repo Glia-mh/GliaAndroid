@@ -86,13 +86,80 @@ Parse.Cloud.define("validateStudentID", function(request, response) {
     }
   });
 });
+
+
+Parse.Cloud.define("banUsers", function(request, response) {
+  if (!request.user) {
+    response.error("Must be signed in to call this Cloud Function.");
+    return;
+  }
+  // The user making this request is available in request.user
+  // Make sure to first check if this user is authorized to perform this change.
+  // One way of doing so is to query an Admin role and check if the user belongs to that Role.
+  // Replace !authorized with whatever check you decide to implement.
+  if (!request.user.attributes.counselorType != "0") {
+    response.error("Not an Admin.");
+    return;    
+  }
+
+  // The rest of the function operates on the assumption that request.user is *authorized*
+
+  Parse.Cloud.useMasterKey();
+
+  // Query for the user to be modified by username
+  // The username is passed to the Cloud Function in a 
+  // key named "username". You can search by email or
+  // user id instead depending on your use case.
+  var email_array = request.params.counselors;
+  var mainQuery = new Parse.Query(Parse.User);
+  mainQuery.equalTo("email",email_array[0]);
+  mainQuery.equalTo("schoolID", request.user.attributes.schoolID);
+  for(var i=1; i<email_array.length; ++i){
+    var query = new Parse.Query(Parse.User);
+    query.equalTo("email",email_array[i]);
+    query.equalTo("schoolID", request.user.attributes.schoolID);
+    mainQuery= Parse.Query.or(mainQuery, query);
+  }
+
+  mainQuery.find({
+  success: function(counselors) {
+    
+    if(counselors.length != email_array.length){
+      response.error('You seem to have mispelled one or more of the accounts that you want to disable, or that account has already been removed!');
+      return;
+    }
+
+
+    counselors.forEach(function(counselor){
+      counselor.set("rootsAuthData", "banned");
+    });
+    Parse.User.saveAll(counselors, {
+        success: function(anotherUser) {
+          response.success(counselors);
+        },
+        error: function(error) {
+          repsonse.error('There seems to be a problem with our website. Email us at <a href="mailto:teamroots@teamroots.org">teamroots@teamroots.org</a>. With the following information: <br>  Error: ' + error.code + ', ' + error.message);
+        }
+      });
+
+    
+    
+  }, 
+
+  error: function(error) {
+    repsonse.error('There seems to be a problem with our website. Email us at <a href="mailto:teamroots@teamroots.org">teamroots@teamroots.org</a>. With the following information: <br>  Error: ' + error.code + ', ' + error.message);
+  }
+});
+
+});
+
   
   Parse.Cloud.define("changeStudentReportValue", function(request, response) {
   var query = new Parse.Query("General_Student_IDs");
   query.equalTo("userID", request.params.userID);
   query.find({
     success: function(results) {
-	  results[0].set("isReported",!results[0].get("isReported"));
+    results[0].set("isReported",!results[0].get("isReported"));
       results[0].save();
       response.success(results[0]);
     },
@@ -188,12 +255,12 @@ Parse.Cloud.afterSave(Parse.User, function(request) {
     where: pushQuery, // Set our Installation query
     data: {
       alert:  isAvailable.toString(),
-	  userID: userID.toString()
+    userID: userID.toString()
     }
   }, {
     success: function() {
       // Push was successful
-	  console.log("Pushed availability " + isAvailable.toString());
+    console.log("Pushed availability " + isAvailable.toString());
     },
     error: function(error) {
       throw "Got an error " + error.code + " : " + error.message;
